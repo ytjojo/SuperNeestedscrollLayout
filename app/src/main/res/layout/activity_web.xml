@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+    <TextView
+        android:text="这是头部"
+        android:gravity="center"
+        android:textSize="30dp"
+        android:background="#70ff0000"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+    <com.ytjojo.viewlib.nestedsrolllayout.NestedScrollWebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></com.ytjojo.viewlib.nestedsrolllayout.NestedScrollWebView>
+
+</com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>

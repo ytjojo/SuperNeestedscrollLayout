@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_scrollview"
+        android:orderInCategory="100"
+        android:title="@string/action_scrollview"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_listview"
+        android:orderInCategory="100"
+        android:title="@string/action_listview"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_webview"
+        android:orderInCategory="100"
+        android:title="@string/action_webview"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_jianshu"
+        android:orderInCategory="100"
+        android:title="@string/action_jianshu"
+        app:showAsAction="never"/>
+</menu>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NestedFramLayout.LayoutParams">
+        <attr name="nested_viewType" format="enum">
+            <enum name="head" value="1"/>
+            <enum name="body" value="2"/>
+        </attr>
+    </declare-styleable>
+</resources>
