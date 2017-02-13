@@ -45,7 +45,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
     private OnScrollChangeListener onScrollChangeListener;
     private int originHeight;
     private ViewGroup parentView;
-    public ScrollState position = ScrollState.a;
+    public ScrollState position = ScrollState.TOP;
     int preContentHeight = 0;
     private float preY;
     private OnScrollChangeListener scrollStateChangedListener;
@@ -125,7 +125,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
 
     @Override
     public void computeScroll() {
-        if (this.position == ScrollState.c) {
+        if (this.position == ScrollState.MEDIUM) {
             super.computeScroll();
         }
     }
@@ -207,7 +207,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
         this.consumedY = (y - oldy);
         Log.i(TAG, "consumedYconsumedYconsumedY====" + consumedY);
         if (y <= 0) {
-            this.position = ScrollState.a;
+            this.position = ScrollState.TOP;
             return;
         }
         if (null != this.scrollStateChangedListener) {
@@ -219,10 +219,10 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
 //            Log.i(TAG,"yy=="+y+"  webviewHeight=="+this.webviewHeight+"  contentHeight=="+this.contentHeight);
             if (y + this.webviewHeight >= this.contentHeight) {
                 if (this.contentHeight > 0) {
-                    this.position = ScrollState.b;
+                    this.position = ScrollState.BOTTOM;
                 }
             } else {
-                this.position = ScrollState.c;
+                this.position = ScrollState.MEDIUM;
             }
         }
 
@@ -290,7 +290,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
                 int deltaY = mLastMotionY - y;
 
                 if (deltaY != 0) {
-                    this.direction = this.directionDetector.getDirection(deltaY, true, this.scrollStateChangedListener);
+                    this.direction = this.directionDetector.getDirection(deltaY, this.scrollStateChangedListener);
                 }
                 if (dispatchNestedPreScroll(0, deltaY, mScrollConsumed, mScrollOffset)) {
                     deltaY -= mScrollConsumed[1];
@@ -307,12 +307,12 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
 
                     Log.i(TAG, " child consumed = " + this.mScrollConsumed[1] + " un_consumed = " + unconsumedY + " position = " + this.position + " direction = " + this.direction);
                     onTouchEvent = super.onTouchEvent(ev);
-                    if (this.position == ScrollState.c) {
+                    if (this.position == ScrollState.MEDIUM) {
                         return true;
                     }
                     switch (this.direction) {
                         case 1: {
-                            if ((this.position != ScrollState.b) && (this.contentHeight != this.webviewHeight)) {
+                            if ((this.position != ScrollState.BOTTOM) && (this.contentHeight != this.webviewHeight)) {
                                 scrollBy(0, unconsumedY);
                                 break;
                             }
@@ -325,7 +325,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
                         }
                         break;
                         case 2:
-                            if ((this.position == ScrollState.a) || (this.contentHeight == this.webviewHeight)) {
+                            if ((this.position == ScrollState.TOP) || (this.contentHeight == this.webviewHeight)) {
                                 Log.i(TAG, "2222222consumedY===" + consumedY + "  unconsumedY==" + unconsumedY);
                                 if (dispatchNestedScroll(0, this.consumedY, 0, unconsumedY, this.mScrollOffset)) {
                                     vtev.offsetLocation(0.0F, this.mScrollOffset[1]);
@@ -425,7 +425,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
                                    int scrollRangeX, int scrollRangeY,
                                    int maxOverScrollX, int maxOverScrollY,
                                    boolean isTouchEvent) {
-        if (this.position != ScrollState.c) {
+        if (this.position != ScrollState.MEDIUM) {
             deltaY = 0;
         }
         return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
@@ -493,7 +493,7 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
         void onScrollChanged(int x, int y, int oldx, int oldy, ScrollState parama);
     }
 
-    public static enum ScrollState {a, b, c, d}
+    public static enum ScrollState {TOP, BOTTOM, MEDIUM}
 
     public static class MyWebViewClient extends WebViewClient {
         public void onPageFinished(WebView paramWebView, String paramString) {

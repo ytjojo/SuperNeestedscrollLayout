@@ -2,7 +2,9 @@ package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
@@ -17,6 +19,7 @@ import static android.R.attr.y;
  */
 
 public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUIHandler {
+    NestedScrollLayout mNestedScrollLayout;
     public static final byte PTR_STATUS_INIT = 1;
     private byte mStatus = PTR_STATUS_INIT;
     public static final byte PTR_STATUS_PREPARE = 2;
@@ -24,82 +27,91 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
     public static final byte PTR_STATUS_LOADING = 4;
     public static final byte PTR_STATUS_COMPLETE = 5;
     ArrayList<View> mToTranslationYViews = new ArrayList<>();
-    V mChild;
+    V mHeader;
     RefreshIndicator mRefreshIndicator;
     private boolean canRefresh;
+    View mDirectTargetView;
+
+    public HeaderBehavior() {
+        super();
+    }
+
+    public HeaderBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     @Override
-    public void onNestedScrollAccepted(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target, int nestedScrollAxes) {
-        super.onNestedScrollAccepted(nestedScrollLayout, child, directTargetChild, target, nestedScrollAxes);
+    public void onNestedScrollAccepted(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int nestedScrollAxes) {
+        super.onNestedScrollAccepted(nestedScrollLayout, header, directTargetChild, target, nestedScrollAxes);
+        mNestedScrollLayout = nestedScrollLayout;
         isIgnore = false;
         if (!canRefresh) {
             isIgnore = true;
             return;
         }
-        NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
+        NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
         if (mRefreshIndicator == null) {
             mRefreshIndicator = new RefreshIndicator();
-            int height = child.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
+            int height = header.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
             mRefreshIndicator.setHeaderHeight(height);
         }
 
         this.onUIRefreshPrepare(nestedScrollLayout);
-        mChild = child;
+        mHeader = header;
         final int childCount = nestedScrollLayout.getChildCount();
         boolean found = false;
         mToTranslationYViews.clear();
+        View mAnchorDirectChild = headerLp.mAnchorDirectChild;
+        ArrayList<View> hasBehaviorViews = new ArrayList<>();
         for (int i = 0; i < childCount; i++) {
             View itemView = nestedScrollLayout.getChildAt(i);
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) itemView.getLayoutParams();
-            if (directTargetChild == itemView) {
+            if (lp.getBehavior() != null) {
+                hasBehaviorViews.add(itemView);
+            }
+            if (mAnchorDirectChild != null) {
+                if (mAnchorDirectChild == itemView) {
+                    found = true;
+                    continue;
+                }
+            } else {
                 found = true;
             }
-            if (found && lp.getTotalScrollRange() > 0) {
-                View showAtBollowView = headerLp.getShowAtBollowView();
-                if (showAtBollowView != null) {
-                    break;
-                }
+
+            if (found && lp.getTotalResolvedScrollRange() > 0) {
                 mToTranslationYViews.add(itemView);
             }
         }
+        if (hasBehaviorViews.size() >= 2) {
+            mDirectTargetView = hasBehaviorViews.get(1);
+        }
+
     }
 
     @Override
-    public void onNestedPreScroll(NestedScrollLayout nestedScrollLayout, V header, View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int dx, int dy, int[] consumed) {
         if (isRunning() || isIgnore) {
             return;
         }
         if (dy > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
             NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
-            final int childCount = nestedScrollLayout.getChildCount();
+            final int childCount = mToTranslationYViews.size();
             boolean found = false;
             int consumedY = 0;
             for (int i = 0; i < childCount; i++) {
-                View itemView = nestedScrollLayout.getChildAt(i);
+                View itemView = mToTranslationYViews.get(i);
                 NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) itemView.getLayoutParams();
-                if (directTargetChild == itemView) {
-                    found = true;
-                }
-                if (itemView == header) {
-                    continue;
-                }
-                if (found && lp.getTotalScrollRange() > 0) {
-                    View showAtBollowView = headerLp.getShowAtBollowView();
-                    if (showAtBollowView == itemView) {
-                        break;
+                int y = (int) ViewCompat.getTranslationY(itemView);
+                if (y > 0) {
+                    int finalY = y - dy;
+                    if (finalY < 0) {
+                        finalY = 0;
                     }
-                    int y = (int) ViewCompat.getTranslationY(itemView);
-                    if (y > 0) {
-                        int finalY = y - dy;
-                        if (finalY < 0) {
-                            finalY = 0;
-                        }
-                        consumedY = y - finalY;
-                        ViewCompat.setTranslationY(itemView, finalY);
+                    consumedY = y - finalY;
+                    ViewCompat.setTranslationY(itemView, finalY);
 
-                    } else {
-                        break;
-                    }
+                } else {
+                    break;
                 }
             }
             if (mStatus == PTR_STATUS_PREPARE) {
@@ -120,7 +132,7 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
     }
 
     @Override
-    public void onNestedScroll(NestedScrollLayout nestedScrollLayout, V header, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
+    public void onNestedScroll(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
         if (isRunning() || isIgnore) {
             return;
         }
@@ -129,38 +141,26 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
                 mStatus = PTR_STATUS_PREPARE;
             }
             NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
-            final int childCount = nestedScrollLayout.getChildCount();
+            final int childCount = mToTranslationYViews.size();
             boolean found = false;
             int consumedY = 0;
             int finalY = 0;
             for (int i = 0; i < childCount; i++) {
-                View itemView = nestedScrollLayout.getChildAt(i);
+                View itemView = mToTranslationYViews.get(i);
                 NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) itemView.getLayoutParams();
-                if (directTargetChild == itemView) {
-                    found = true;
-                }
-                if (itemView == header) {
-                    continue;
-                }
-                if (found && lp.getTotalScrollRange() > 0) {
-                    View showAtBollowView = headerLp.getShowAtBollowView();
-                    if (showAtBollowView == itemView) {
-                        break;
-                    }
-                    int y = (int) ViewCompat.getTranslationY(itemView);
-                    final int maxOffsetY = mRefreshIndicator.getMaxOffsetY();
-                    if (y < maxOffsetY) {
-                        finalY = y - dyUnconsumed;
-                        if (finalY >= maxOffsetY) {
-                            finalY = maxOffsetY;
-                        }
-                        consumed[1] = finalY - y;
-                        ViewCompat.setTranslationY(itemView, finalY);
-                        if (ViewCompat.getTranslationY(header) < finalY) {
-                            ViewCompat.setTranslationY(header, finalY);
-                        }
-                    }
 
+                int y = (int) ViewCompat.getTranslationY(itemView);
+                final int maxOffsetY = mRefreshIndicator.getMaxOffsetY();
+                if (y < maxOffsetY) {
+                    finalY = y - dyUnconsumed;
+                    if (finalY >= maxOffsetY) {
+                        finalY = maxOffsetY;
+                    }
+                    consumed[1] = finalY - y;
+                    ViewCompat.setTranslationY(itemView, finalY);
+                    if (ViewCompat.getTranslationY(header) < finalY) {
+                        ViewCompat.setTranslationY(header, finalY);
+                    }
                 }
             }
 
@@ -182,16 +182,20 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
     public void setRefreshComplete() {
         if (mStatus == PTR_STATUS_LOADING) {
             mStatus = PTR_STATUS_COMPLETE;
-            startValueAnimitor(mChild, 0, PTR_STATUS_INIT);
+            startValueAnimitor(mHeader, 0, PTR_STATUS_INIT);
             isIgnore = true;
             HeaderBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
         }
     }
 
     @Override
-    public void onStopNestedScroll(NestedScrollLayout nestedScrollLayout, V child, View target) {
+    public void onStopNestedScroll(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target) {
         if (isIgnore) {
             isIgnore = false;
+            return;
+        }
+        mRefreshIndicator.onRelease();
+        if(ViewCompat.getTranslationY(mHeader) ==0 &&mStatus == PTR_STATUS_INIT){
             return;
         }
         if (y >= mRefreshIndicator.getOffsetToRefresh() && mStatus == PTR_STATUS_PREPARE) {
@@ -201,7 +205,7 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
         } else {
             startValueAnimitor(child, 0, PTR_STATUS_INIT);
         }
-        mRefreshIndicator.onRelease();
+
 
     }
 
@@ -235,6 +239,7 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
                         }
                     }
                     ViewCompat.setTranslationY(header, value);
+                    mRefreshIndicator.onMove(0, value);
                 } else if (mStatus == PTR_STATUS_PREPARE) {
                     int count = mToTranslationYViews.size();
                     for (int i = 0; i < count; i++) {
@@ -267,7 +272,7 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (endStatus == PTR_STATUS_LOADING&& mStatus !=endStatus) {
+                if (endStatus == PTR_STATUS_LOADING && mStatus != endStatus) {
                     HeaderBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
                 } else if ((endStatus == PTR_STATUS_INIT) && mRefreshIndicator.isInStartPosition()) {
                     HeaderBehavior.this.onUIReset(mNestedScrollLayout);
@@ -290,21 +295,32 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
 
 
     @Override
-    public boolean onNestedPreFling(NestedScrollLayout nestedScrollLayout, V child, View target, float velocityX, float velocityY) {
-        return super.onNestedPreFling(nestedScrollLayout, child, target, velocityX, velocityY);
+    public boolean onNestedPreFling(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target, float velocityX, float velocityY) {
+        return super.onNestedPreFling(nestedScrollLayout, child, directTargetChild, target, velocityX, velocityY);
     }
 
     @Override
-    public boolean onNestedFling(NestedScrollLayout nestedScrollLayout, V child, View target, float velocityX, float velocityY, boolean consumed) {
-        return super.onNestedFling(nestedScrollLayout, child, target, velocityX, velocityY, consumed);
+    public boolean onNestedFling(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target, float velocityX, float velocityY, boolean consumed) {
+        return super.onNestedFling(nestedScrollLayout, child, directTargetChild, target, velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean onLayoutChild(NestedScrollLayout nestedScrollLayout, V child, int layoutDirection) {
         NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
-        int left = nestedScrollLayout.getPaddingLeft() + lp.leftMargin;
-        int top = -lp.bottomMargin - child.getMeasuredHeight();
-        child.layout(left, top, left + child.getMeasuredWidth(), top + child.getMeasuredHeight());
+
+        if(lp.mAnchorView != null){
+            View mAnchorView = lp.mAnchorView;
+            int left = nestedScrollLayout.getPaddingLeft() + lp.leftMargin;
+            NestedScrollLayout.LayoutParams anchorViewLp = (NestedScrollLayout.LayoutParams) mAnchorView.getLayoutParams();
+            int bottom = mAnchorView.getBottom()+anchorViewLp.bottomMargin-lp.bottomMargin;
+            child.layout(left,bottom- child.getMeasuredHeight(),left + child.getMeasuredWidth(),bottom);
+
+        }else{
+            int left = nestedScrollLayout.getPaddingLeft() + lp.leftMargin;
+            int top = -lp.bottomMargin - child.getMeasuredHeight();
+            child.layout(left, top, left + child.getMeasuredWidth(), top + child.getMeasuredHeight());
+        }
+
         return true;
     }
 
@@ -387,5 +403,7 @@ public class HeaderBehavior<V extends View> extends Behavior<V> implements PtrUI
     public void setOnRefreshListener(OnRefreshListener l) {
         this.mOnRefreshListener = l;
     }
+
+
 
 }

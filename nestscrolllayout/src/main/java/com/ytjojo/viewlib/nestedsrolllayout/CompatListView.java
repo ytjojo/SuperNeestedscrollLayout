@@ -422,10 +422,10 @@ public class CompatListView extends ListView implements NestedScrollingChild {
     }
 
     private boolean superOnTouch(MotionEvent ev) {
-        final int activePointerIndex = MotionEventCompat.findPointerIndex(ev,
-                mActivePointerId);
-        int cury = (int) MotionEventCompat.getY(ev, activePointerIndex);
-        Log.e(getClass().getName(), (cury) + "cur mFirstY =" + mFirstDownY + mIsBeingDragged);
+//        final int activePointerIndex = MotionEventCompat.findPointerIndex(ev,
+//                mActivePointerId);
+//        int cury = (int) MotionEventCompat.getY(ev, activePointerIndex);
+//        Log.e(getClass().getName(), (cury) + "cur mFirstY =" + mFirstDownY + mIsBeingDragged);
         return super.onTouchEvent(ev);
     }
 
@@ -451,7 +451,7 @@ public class CompatListView extends ListView implements NestedScrollingChild {
                 MotionEventCompat.ACTION_POINTER_INDEX_SHIFT;
         final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
         if (pointerId == mActivePointerId) {
-            // This was our active pointer going up. Choose a new
+            // This was our active pointer going up. Choose TOP new
             // active pointer and adjust accordingly.
             // TODO: Make this decision more intelligent.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;

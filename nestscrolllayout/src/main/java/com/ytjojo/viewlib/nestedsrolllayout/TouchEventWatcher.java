@@ -168,7 +168,7 @@ public class TouchEventWatcher {
                 */
                 final int activePointerId = mActivePointerId;
                 if (activePointerId == INVALID_POINTER) {
-                    // If we don't have a valid id, the touch down wasn't on content.
+                    // If we don't have TOP valid id, the touch down wasn't on content.
                     break;
                 }
 
@@ -257,7 +257,7 @@ public class TouchEventWatcher {
     public boolean onInterceptTouchEvent(MotionEvent ev){
 
         if (!mParent.isEnabled()|| mParent.isNestedScrollInProgress()) {
-            // Fail fast if we're not in a state where a swipe is possible
+            // Fail fast if we're not in TOP state where TOP swipe is possible
             return false;
         }
         final int action = ev.getAction();
@@ -269,7 +269,7 @@ public class TouchEventWatcher {
             case MotionEvent.ACTION_MOVE: {
                 final int activePointerId = mActivePointerId;
                 if (activePointerId == INVALID_POINTER) {
-                    // If we don't have a valid id, the touch down wasn't on content.
+                    // If we don't have TOP valid id, the touch down wasn't on content.
                     break;
                 }
 
@@ -318,7 +318,9 @@ public class TouchEventWatcher {
                  * isFinished() is correct.
                 */
                 mScroller.computeScrollOffset();
-                mIsBeingDragged = !mScroller.isFinished();
+//                mIsBeingDragged = !mScroller.isFinished();
+                mIsBeingDragged = false;
+                Log.e("onInterceptTouchEvent","onInterceptTouchEvent" +mParent.isNestedScrollInProgress());
                 mParent.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
                 break;
             }
@@ -340,8 +342,8 @@ public class TouchEventWatcher {
     }
     public boolean onTouchEvent(MotionEvent ev) {
 
-        if (!mParent.isEnabled()) {
-            // Fail fast if we're not in a state where a swipe is possible
+        if (!mParent.isEnabled()|| mParent.isNestedScrollInProgress()) {
+            // Fail fast if we're not in TOP state where TOP swipe is possible
             return false;
         }
 
@@ -414,16 +416,14 @@ public class TouchEventWatcher {
                             deltaY += mTouchSlop;
                         }
                         mParent.scrollBy(0,deltaY);
-                        Log.e(getClass().getName(),mIsBeingDragged + "mIsBeingDragged onTouchEvent");
                     }
                 }
                 if (mIsBeingDragged) {
-                    Log.e(getClass().getName(),mIsBeingDragged + "mIsBeingDragged onTouchEvent");
+                    Log.e(getClass().getName(),mIsBeingDragged + "isNestedScrollInProgress" +mParent.isNestedScrollInProgress());
                     // Scroll to follow the motion event
                     mLastMotionY = y - mParentOffsetInWindow[1];
 
                     final int oldY = getScrollY();
-                    final int range = getScrollRange();
                     mParent.scrollBy(0,deltaY);
                     final int scrolledDeltaY = getScrollY() - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
@@ -441,11 +441,11 @@ public class TouchEventWatcher {
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                     int initialVelocity = (int) VelocityTrackerCompat.getYVelocity(velocityTracker,
                             mActivePointerId);
-
+                    Log.e(TouchEventWatcher.class.getName(),initialVelocity + "initialVelocity");
                     if ((Math.abs(initialVelocity) > mMinimumVelocity)) {
                         flingWithNestedDispatch(-initialVelocity);
-                    } else if (mScroller.springBack(0, getScrollY(), 0, 0, 0,
-                            getScrollRange())) {
+                    } else if (mScroller.springBack(0, getScrollY(), 0, 0, mParent.getMinScrollY(),
+                            mParent.getMaxScrollY())) {
                         startAnim();
                     }
                 }else{
@@ -465,8 +465,8 @@ public class TouchEventWatcher {
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged && mParent.getChildCount() > 0) {
-                    if (mScroller.springBack(0, getScrollY(), 0, 0, 0,
-                            getScrollRange())) {
+                    if (mScroller.springBack(0, getScrollY(), 0, 0, mParent.getMinScrollY(),
+                            mParent.getMaxScrollY())) {
                         ViewCompat.postInvalidateOnAnimation(mParent);
                     }
                 }
@@ -493,7 +493,7 @@ public class TouchEventWatcher {
         return true;
     }
     /**
-     * Smooth scroll by a Y delta
+     * Smooth scroll by TOP Y delta
      *
      * @param delta the number of pixels to scroll by on the Y axis
      */
@@ -539,8 +539,8 @@ public class TouchEventWatcher {
         }
         long duration = AnimationUtils.currentAnimationTimeMillis() - mLastScroll;
         if (duration > ANIMATED_SCROLL_GAP) {
-            final int maxScrollY= 0;
-            final int minScrollY = getScrollRange();
+            final int maxScrollY= mParent.getMaxScrollY();
+            final int minScrollY = mParent.getMinScrollY();
             final int scrollY = getScrollY();
             dy = constrain(scrollY +dy,maxScrollY,minScrollY) - scrollY;
             mScroller.startScroll(0, scrollY, 0, dy);
@@ -558,13 +558,9 @@ public class TouchEventWatcher {
     public boolean flingWithNestedDispatch(int velocityY) {
         final int scrollY = getScrollY();
         boolean canFling = false;
-        if(velocityY <0 && scrollY < 0 &&scrollY>getScrollRange() ){
+        if(velocityY != 0 && scrollY < mParent.getMaxScrollY()&&scrollY>mParent.getMinScrollY() ){
             canFling =true;
         }
-        if(velocityY > 0 &&scrollY <0 &&scrollY > getScrollRange() ){
-            canFling = true;
-        }
-//        Log.e(getClass().getName(), "flingWithNestedDispatch" + velocityY);
         if (!mParent.dispatchNestedPreFling(0, velocityY)) {
             mParent.dispatchNestedFling(0, velocityY, canFling);
             if (canFling) {
@@ -587,29 +583,46 @@ public class TouchEventWatcher {
      *                  which means we want to scroll towards the top.
      */
     public void fling(int velocityY) {
-        stopScroll();
-        if(velocityY > 0){
-            if(getScrollY()>= -mTouchSlop){
-                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
-                    @Override
-                    public void run() {
-                        mParent.scrollTo(0,0);
-                    }
-                },16);
-                return;
-            }
-        }
-        if(velocityY < 0){
-            if(getScrollRange() - getScrollY()>= -mTouchSlop){
-                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
-                    @Override
-                    public void run() {
-                        mParent.scrollTo(0,getScrollRange());
-                    }
-                },16);
+        fling(velocityY,mParent.getMinScrollY(),mParent.getMaxScrollY());
 
+    }
+
+    /**
+     * velocityY >0 向上滚动
+     * @param velocityY
+     * @param minY
+     * @param maxY
+     */
+    public void fling(int velocityY, final int minY, final int maxY) {
+        Log.e("watcher", minY+"minY"+velocityY +"velocityY" + maxY);
+        stopScroll();
+        if(velocityY < 0){
+            if(minY == getScrollY()){
                 return;
             }
+//            if(getScrollY()-minY <= mTouchSlop){
+//                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mParent.scrollTo(0,minY);
+//                    }
+//                },16);
+//                return;
+//            }
+        }
+        if(velocityY > 0){
+            if(maxY == getScrollY()){
+                return;
+            }
+//            if(maxY - getScrollY() <= mTouchSlop){
+//                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mParent.scrollTo(0,maxY);
+//                    }
+//                },16);
+//                return;
+//            }
         }
         if(Math.abs(velocityY)<mMinimumVelocity){
             velocityY = velocityY>0?mMinimumVelocity:-mMinimumVelocity;
@@ -619,21 +632,25 @@ public class TouchEventWatcher {
         }
         if (mParent.getChildCount() > 0) {
             if(velocityY>0){
-                mScroller.fling(0, getScrollY(), 0, velocityY, 0, 0, Math.min(0, mParent.getEndPosition()),
-                        Math.max(0, mParent.getEndPosition()));
+                mScroller.fling(0, getScrollY(), 0, velocityY, 0, 0, Math.min(minY, maxY),
+                        Math.max(minY, maxY));
             }else{
-                mScroller.fling(0, getScrollY(), 0, velocityY, 0, 0,  Math.min(0, mParent.getEndPosition()),
-                        Math.max(0, mParent.getEndPosition()));
+                mScroller.fling(0, getScrollY(), 0, velocityY, 0, 0,  Math.min(minY,maxY),
+                        Math.max(minY,maxY));
             }
             startAnim();
-//            Log.e(getClass().getName(),"fling" + velocityY);
         }
     }
+
+    /**
+     * 大于0向上滚动顶部，小于0向下滚动底部
+     * @param derection
+     */
     private void smoothScroll(int derection){
         if(derection >0){
-            smoothScrollBy(0,-getScrollY());
+            smoothScrollBy(0,mParent.getMinScrollY()-getScrollY());
         }else if(derection <0){
-            smoothScrollBy(0,  getScrollRange() -getScrollY());
+            smoothScrollBy(0,  mParent.getMaxScrollY() -getScrollY());
         }
     }
 
@@ -686,7 +703,7 @@ public class TouchEventWatcher {
                 MotionEventCompat.ACTION_POINTER_INDEX_SHIFT;
         final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
         if (pointerId == mActivePointerId) {
-            // This was our active pointer going up. Choose a new
+            // This was our active pointer going up. Choose TOP new
             // active pointer and adjust accordingly.
             // TODO: Make this decision more intelligent.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
@@ -760,9 +777,7 @@ public class TouchEventWatcher {
 
 
 
-    public int getScrollRange() {
-        return mParent.getEndPosition();
-    }
+
     public interface OnScrollListener {
         void onTriger(boolean isScrollUp);
 

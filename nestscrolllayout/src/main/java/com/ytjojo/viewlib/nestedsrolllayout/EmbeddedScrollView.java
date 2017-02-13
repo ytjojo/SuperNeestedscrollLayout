@@ -24,7 +24,7 @@ public class EmbeddedScrollView extends ScrollView
     private static final String TAG = "EmbeddedScrollView";
     private static int SENSOR_DISTANCE = 0;
     boolean hasNestedScroll = false;
-    private EmbeddedWebView.ScrollState childPosition = EmbeddedWebView.ScrollState.a;
+    private EmbeddedWebView.ScrollState childPosition = EmbeddedWebView.ScrollState.TOP;
     private int currentSwapLine = -1;
     private int direction = 0;
     private boolean firstInitSize = true;
@@ -143,7 +143,7 @@ public class EmbeddedScrollView extends ScrollView
                 float y = ev.getY();
                 int deltaY = (int) (this.lastY - y);
                 if (deltaY != 0) {
-                    this.direction = DirectionDetector.getDirection(deltaY, true);
+                    this.direction = DirectionDetector.getDirection(deltaY);
                 }
                 this.lastY = y;
                 break;
@@ -288,7 +288,7 @@ public class EmbeddedScrollView extends ScrollView
 
     protected void onScrollChanged(int mScrollX, int mScrollY, int oldX, int oldY) {
         super.onScrollChanged(mScrollX, mScrollY, oldX, oldY);
-        this.direction = DirectionDetector.getDirection(mScrollY - oldY, true);
+        this.direction = DirectionDetector.getDirection(mScrollY - oldY);
         //Log.i(TAG, "onScrollChanged : top = " + mScrollY + " oldY = " + oldY + "  direction = " + this.direction);
         setApproachLine(mScrollY);
     }
