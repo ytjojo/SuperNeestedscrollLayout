@@ -2,14 +2,13 @@ package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 
-import com.orhanobut.logger.Logger;
 import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout.LayoutParams;
 
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
  */
 public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     ArrayList<View> mNestedScrollConsumedViews;
-
+    ViewOffsetHelper mViewOffsetHelper;
 
     public ScrollViewBehavior(){
         super();
@@ -34,12 +33,17 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     }
 
     @Override
+    public void onAllChildLayouted(NestedScrollLayout nestedScrollLayout, V child) {
+        calculateScrollRange(nestedScrollLayout,child);
+    }
+
     public void calculateScrollRange(NestedScrollLayout nestedScrollLayout, V v){
         initValue(nestedScrollLayout,v);
         mMinScrollY = mDownScrollRange;
         mMaxScrollY = mUpScrollRange;
         nestedScrollLayout.setMinScrollY(Math.min(mMinScrollY, nestedScrollLayout.getMinScrollY()));
         nestedScrollLayout.setMaxScrollY(Math.max(mMaxScrollY, nestedScrollLayout.getMaxScrollY()));
+
     }
     public View findDirectChildView(NestedScrollLayout nestedScrollLayout,View target){
         ViewGroup parent = (ViewGroup) target.getParent();
@@ -61,16 +65,18 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     public void onNestedScrollAccepted(NestedScrollLayout nestedScrollLayout, V v,
                                        View directTargetChild, View target, int nestedScrollAxes){
         super.onNestedScrollAccepted(nestedScrollLayout,v,directTargetChild,target,nestedScrollAxes);
-
         mWasNestedFlung = false;
         resetVelocityData();
        initValue(nestedScrollLayout,v);
+        mViewOffsetHelper.stopScroll();
+        mViewOffsetHelper.resetOffsetTop();
 
     }
     private void initValue(NestedScrollLayout nestedScrollLayout,V v){
         if(mNestedScrollConsumedViews ==null){
             mNestedScrollConsumedViews = new ArrayList<>();
         }
+        mViewOffsetHelper = ViewOffsetHelper.getViewOffsetHelper(v);
         mNestedScrollConsumedViews.clear();
         LayoutParams attachedLp = (LayoutParams) v.getLayoutParams();
         mUpPreScrollRange = getViewRangeEnd(nestedScrollLayout,v);
@@ -82,43 +88,60 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         }
         final int childCount = nestedScrollLayout.getChildCount();
         View scrollHeader = null;
-        ArrayList<View> hasBehaviorViews = new ArrayList<>();
+        ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
         View lastScrollView = null;
         for(int i=0;i <childCount;i ++){
             final View child = nestedScrollLayout.getChildAt(i);
             final LayoutParams lp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
-            if(lp.getBehavior() !=null){
-                hasBehaviorViews.add(child);
+            Behavior viewBehavior = lp.getBehavior();
+            if(viewBehavior !=null && viewBehavior instanceof ScrollViewBehavior){
+                hasScrollViewBehaviorViews.add(child);
             }
-            if(lp.getTotalResolvedScrollRange()>0){
-                mNestedScrollConsumedViews.add(0,child);
-                if(scrollHeader ==null && hasBehaviorViews.isEmpty()){
+            if(lp.hasScrollFlag()){
+                ViewOffsetHelper.setViewOffsetHelper(child,mViewOffsetHelper);
+                if(scrollHeader ==null && hasScrollViewBehaviorViews.isEmpty()){
                     scrollHeader = child;
+                }
+                if(child!=scrollHeader){
+                    mViewOffsetHelper.addScrollViews(child);
+                    mNestedScrollConsumedViews.add(0,child);
                 }
                 lastScrollView = child;
             }
         }
-        int index  =hasBehaviorViews.indexOf(v);
-        if(index <= hasBehaviorViews.size() -2){
-            mUpScrollRange = getViewRangeEnd(nestedScrollLayout,hasBehaviorViews.get(index+1));
+
+        int index  = hasScrollViewBehaviorViews.indexOf(v);
+        if(index <= hasScrollViewBehaviorViews.size() -2){
+            mUpScrollRange = getViewRangeEnd(nestedScrollLayout, hasScrollViewBehaviorViews.get(index+1));
         }
         if(index >0){
-            mDownScrollRange = getViewRangeEnd(nestedScrollLayout,hasBehaviorViews.get(index-1));
+            mDownScrollRange = getViewRangeEnd(nestedScrollLayout, hasScrollViewBehaviorViews.get(index-1));
         }
-        if(index ==hasBehaviorViews.size()-1 &&lastScrollView !=v &&lastScrollView !=null){
+        if(index == hasScrollViewBehaviorViews.size()-1 &&lastScrollView !=v &&lastScrollView !=null){
             mUpScrollRange = getViewRangeEnd(nestedScrollLayout,lastScrollView);
         }
 
         if(index ==0 &&scrollHeader !=null){
+            final WindowInsetsCompat lastInsets= nestedScrollLayout.getLastInsets();
+            final boolean applyInsets=  lastInsets != null && ViewCompat.getFitsSystemWindows(nestedScrollLayout)
+                    && !ViewCompat.getFitsSystemWindows(scrollHeader);
             LayoutParams headerLp = (LayoutParams) scrollHeader.getLayoutParams();
             LayoutParams lp = (LayoutParams) v.getLayoutParams();
             int keyValue = lp.getLayoutTop() - lp.topMargin;
-            mDownPreScrollRange =keyValue  -headerLp.getDownNestedPreScrollRange();
-            mUpPreScrollRange = keyValue -headerLp.getUpNestedPreScrollRange();
-            mDownScrollRange =keyValue - headerLp.getTotalUnResolvedScrollRange();
+            mDownPreScrollRange =keyValue  -headerLp.getDownNestedPreScrollRange()-nestedScrollLayout.getTopInset();
+            mUpPreScrollRange = keyValue -headerLp.getUpNestedPreScrollRange()-(!headerLp.isEitUntilCollapsed() &&isApllyInsets(v,nestedScrollLayout)?nestedScrollLayout.getTopInset():0);
+//            mDownScrollRange =keyValue - headerLp.getTotalUnResolvedScrollRange()-(applyInsets?nestedScrollLayout.getTopInset():0);
+            mDownScrollRange =-nestedScrollLayout.getPaddingTop()+headerLp.getLayoutTop()-headerLp.topMargin-(applyInsets?nestedScrollLayout.getTopInset():0);
             mUpScrollRange = Math.max(mUpPreScrollRange,mUpScrollRange);
+            mViewOffsetHelper.setHeaderView(scrollHeader);
+            mViewOffsetHelper.setHeaderViewMinOffsetTop(-mUpPreScrollRange);
+            mOverScrollDistance = headerLp.mOverScrollDistance;
         }
 
+    }
+    public boolean isApllyInsets(View child,NestedScrollLayout nestedScrollLayout){
+            return nestedScrollLayout.getLastInsets() != null && ViewCompat.getFitsSystemWindows(nestedScrollLayout)
+                && !ViewCompat.getFitsSystemWindows(child);
     }
     private int getViewRangeEnd(NestedScrollLayout nestedScrollLayout,View v){
         LayoutParams lp = (LayoutParams) v.getLayoutParams();
@@ -131,6 +154,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     private int mUpScrollRange ;
     private boolean mSkipNestedPreScrollFling;
     private boolean mNestedPreScrollCalled = false;
+    private int mOverScrollDistance;
     @Override
     public void onNestedPreScroll(NestedScrollLayout nestedScrollLayout, V v,View directTargetChild, View target,
                                   int dx, int dy, int[] consumed){
@@ -138,7 +162,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             return;
         }
         mNestedPreScrollCalled = true;
-        final int startScrollY = nestedScrollLayout.getScrollY();
+        final int startScrollY = -mViewOffsetHelper.getTopAndBottomOffset();
         int endScrollY = startScrollY;
         int parentScrollDy = 0;
 
@@ -159,11 +183,11 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
                 }
             }
             parentScrollDy  = endScrollY - startScrollY;
-            nestedScrollLayout.scrollBy(0,parentScrollDy);
+//            Logger.e( "parentScrollDy =  "+ parentScrollDy+ " start = "+ startScrollY + " end = "+ endScrollY + " dy = "+dy);
+            mViewOffsetHelper.setTopAndBottomOffset(-endScrollY);
             consumed[1] = parentScrollDy;
 //            Log.e("onNestedPreScroll",startScrollY+ " dy"+ dy + "parentScrollDy" +parentScrollDy+ "mDownPreScrollRange" +mDownPreScrollRange);
-            dispatchScrollChanged(startScrollY,endScrollY,parentScrollDy);
-            Logger.e(v.getTop()+"top  y " +v.getY()+" scrollY "+nestedScrollLayout.getScrollY() +"height" +nestedScrollLayout.getMeasuredHeight());
+//            Logger.e(v.getTop()+"top  y " +v.getY()+" scrollY "+nestedScrollLayout.getScrollY() +"height" +nestedScrollLayout.getMeasuredHeight());
         }
         checkNeedSaveVelocityData(target,dy);
 
@@ -189,54 +213,22 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             return ViewCompat.canScrollVertically(scrollingTarget, -1);
         }
     }
-    private void dispatchScrollChanged(int startScrollY,int endScrollY,int parentScrollDy){
-        final int childCount = mNestedScrollConsumedViews.size();
-        for(int i=0;i < childCount;i++){
-            final View child = mNestedScrollConsumedViews.get(i);
-            final LayoutParams lp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
-            if(!lp.hasOffsetChangedListener()){
-                return;
-            }
-            if(lp.getTotalResolvedScrollRange() > 0){
-                int rangeStart =lp.getLayoutTop() - lp.topMargin;
-                int rangeEnd =rangeStart + lp.getTotalResolvedScrollRange();
-                if(Math.max(startScrollY,endScrollY)>=rangeStart&& Math.min(startScrollY,endScrollY)<= rangeEnd){
-                    int offsetDy = 0;
-                    float rate = .0f;
-                    int offsetPix = 0;
-                    int endScrollYModify = endScrollY;
-                    if(endScrollYModify < rangeStart){
-                        endScrollYModify = rangeStart ;
-                    }
-                    if(endScrollYModify > rangeEnd){
-                        endScrollYModify = rangeEnd;
-                    }
-                    offsetPix = endScrollYModify - rangeStart;
-                    rate =(offsetPix+0.f)/lp.getTotalResolvedScrollRange();
-                    if(rate >1f){
-                        rate = 1f;
-                    }else if(rate<0){
-                        rate = 0;
-                    }
-                    offsetDy = endScrollYModify -startScrollY;
-                    lp.onScrollChanged(rate,offsetDy,offsetPix,lp.getTotalResolvedScrollRange(),parentScrollDy);
-                }
-            }
-        }
 
-    }
     @Override
     public void onNestedScroll(NestedScrollLayout nestedScrollLayout, V v,View directTargetChild, View target,
                                int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,int[] consumed){
         if(directTargetChild != v){
             return;
         }
-        final int startScrollY = nestedScrollLayout.getScrollY();
+        final int startScrollY = -mViewOffsetHelper.getTopAndBottomOffset();
         int endScrollY = startScrollY +dyUnconsumed;
         if(dyUnconsumed < 0){
             mSkipNestedPreScrollFling = true;
-            if(endScrollY < mDownScrollRange){
+            if(endScrollY < mDownScrollRange&&startScrollY>=mDownScrollRange){
                 endScrollY = mDownScrollRange;
+            }
+            if(endScrollY<0){
+                endScrollY =0;
             }
         }else{
             mSkipNestedPreScrollFling = false;
@@ -246,9 +238,8 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
 
         }
         final int parentScrollDy = endScrollY - startScrollY;
-        nestedScrollLayout.scrollBy(0,parentScrollDy);
+        mViewOffsetHelper.setTopAndBottomOffset(-endScrollY);
         consumed[1] = parentScrollDy;
-        dispatchScrollChanged(startScrollY,endScrollY,parentScrollDy);
     }
 
     @Override
@@ -269,16 +260,24 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         return true;
     }
 
+    public static final int MAX_VELOCITY = 6000;
     @Override
     public boolean onNestedFling(NestedScrollLayout nestedScrollLayout, V child,View directTargetChild, View target, float velocityX, float velocityY, boolean consumed) {
-        Log.e(getClass().getName(), "onNestedFling velocityY ="  + velocityY+ consumed);
+//        Log.e(getClass().getName(), "onNestedFling velocityY ="  + velocityY+ consumed);
+        if(Math.abs(velocityY)>MAX_VELOCITY){
+            if(velocityY>0){
+                velocityY = MAX_VELOCITY;
+            }else{
+                velocityY = -MAX_VELOCITY;
+            }
+        }
         if(directTargetChild != child){
             return false;
         }
         if(!consumed){
-            int scrollY = nestedScrollLayout.getScrollY();
+            int scrollY =- mViewOffsetHelper.getTopAndBottomOffset();
             if( scrollY>mMinScrollY&&scrollY<mMaxScrollY){
-                nestedScrollLayout.getEventWatcher().fling((int) velocityY,mMinScrollY,mMaxScrollY);
+                mViewOffsetHelper.fling((int) velocityY,-mMinScrollY,-mMaxScrollY);
                 return true;
             }
         }
@@ -287,7 +286,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
 
     @Override
     public boolean onNestedPreFling(NestedScrollLayout nestedScrollLayout, V child,View directTargetChild, View target, float velocityX, float velocityY) {
-        Log.e(getClass().getName(),   "onNestedPreFling  velocityY =" + velocityY);
+//        Log.e(getClass().getName(),   "onNestedPreFling  velocityY =" + velocityY);
         if(directTargetChild != child){
             return false;
         }
@@ -296,8 +295,65 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         }
         return false;
     }
+    private int mMinDragRange;
+    private int mMaxDragRange;
+    @Override
+    public void onStartDrag(NestedScrollLayout nestedScrollLayout) {
+        mViewOffsetHelper.stopScroll();
+        mViewOffsetHelper.resetOffsetTop();
+        final int startScrollY = -mViewOffsetHelper.getTopAndBottomOffset();
+        if(startScrollY >= mDownScrollRange &&startScrollY < mUpPreScrollRange){
+            mMinDragRange =mDownScrollRange;
+            mMaxDragRange = mUpPreScrollRange;
+        }else if(startScrollY == mUpPreScrollRange){
+            mMinDragRange = mMinScrollY;
+            mMaxDragRange = mMaxScrollY;
+        }else{
+            mMinDragRange = mUpPreScrollRange;
+            mMaxDragRange = mMaxScrollY;
+        }
 
-    private void flingCalculate(NestedScrollLayout nestedScrollLayout, V child,View target) {
+    }
+
+    @Override
+    public void onScrollBy(NestedScrollLayout nestedScrollLayout, V child, int dx, int dy, int[] consumed) {
+        final int startScrollY = -mViewOffsetHelper.getTopAndBottomOffset();
+
+        int endScrollY = startScrollY +dy;
+
+        if(dy < 0){
+            if(startScrollY <mMinDragRange){
+                return;
+            }
+            if(endScrollY < mMinDragRange){
+                endScrollY = mMinDragRange;
+            }
+        }else{
+            if(startScrollY >mMaxDragRange){
+                return;
+            }
+            if(endScrollY > mMaxDragRange){
+                endScrollY = mMaxDragRange;
+            }
+        }
+        final int parentScrollDy = endScrollY - startScrollY;
+        mViewOffsetHelper.setTopAndBottomOffset(-endScrollY);
+        consumed[1] = parentScrollDy;
+
+    }
+
+    @Override
+    public boolean onFling(NestedScrollLayout nestedScrollLayout, V child, float velocityX, float velocityY) {
+        mViewOffsetHelper.resetOffsetTop();
+        int scrollY =- mViewOffsetHelper.getTopAndBottomOffset();
+        if( scrollY>mMinDragRange&&scrollY<mMaxDragRange){
+            mViewOffsetHelper.fling((int) velocityY,-mMinDragRange,-mMaxDragRange);
+            return true;
+        }
+        return false;
+    }
+
+    private void flingCalculate(NestedScrollLayout nestedScrollLayout, V child, View target) {
         if (!mNestedPreScrollCalled ||mSkipNestedPreScrollFling||mTotalDy ==0) {
             mSkipNestedPreScrollFling = false;
             return;
@@ -305,14 +361,14 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         long mTotalDuration = AnimationUtils.currentAnimationTimeMillis() - mBeginTime;
         int velocityY =(int) (mTotalDy * 1000 / mTotalDuration);
         if(mTotalDy>0){
-            if( nestedScrollLayout.getScrollY() < mUpPreScrollRange){
+            if( -mViewOffsetHelper.getTopAndBottomOffset() < mUpPreScrollRange){
                 mWasNestedFlung = true;
-                nestedScrollLayout.getEventWatcher().fling(velocityY,mDownScrollRange,mUpPreScrollRange);
+                mViewOffsetHelper.fling(velocityY,-mDownScrollRange,-mUpPreScrollRange);
             }
         }else{
-            if(nestedScrollLayout.getScrollY() > mDownPreScrollRange){
+            if(-mViewOffsetHelper.getTopAndBottomOffset() > mDownPreScrollRange){
                 mWasNestedFlung = true;
-                nestedScrollLayout.getEventWatcher().fling(velocityY,mDownPreScrollRange,mUpPreScrollRange);
+                mViewOffsetHelper.fling(velocityY,-mDownPreScrollRange,-mUpPreScrollRange);
             }
         }
 

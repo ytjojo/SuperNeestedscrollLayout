@@ -389,6 +389,10 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
         }
     }
 
+    @Override
+    public boolean canScrollVertically(int direction) {
+        return super.canScrollVertically(direction);
+    }
 
     private void initOrResetVelocityTracker() {
         if (mVelocityTracker == null) {

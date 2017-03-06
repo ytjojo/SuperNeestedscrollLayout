@@ -2,7 +2,9 @@ package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.graphics.PointF;
 
-public class RefreshIndicator {
+import com.orhanobut.logger.Logger;
+
+public class PtrIndicator {
     public static final int POS_START = 0;
     protected int mOffsetToRefresh = 0;
     private PointF mPtLastMove = new PointF();
@@ -13,26 +15,26 @@ public class RefreshIndicator {
     private int mHeaderHeight;
     private int mPressedPos = 0;
     private float mRatioOfHeaderHeightToRefresh = 1.2F;
-    private float mResistance = 1.7F;
+    private float mMaxDistanceRatio = 3F;
     private boolean mIsUnderTouch = false;
     private int mOffsetToKeepHeaderWhileLoading = -1;
     private int mRefreshCompleteY = 0;
     private int mMaxOffsetY;
 
-    public RefreshIndicator() {
+    public PtrIndicator() {
     }
 
     public boolean isUnderTouch() {
         return this.mIsUnderTouch;
     }
 
-    public float getResistance() {
-        return this.mResistance;
+    public float getMaxDistanceRatio() {
+        return this.mMaxDistanceRatio;
     }
 
-    public void setResistance(float resistance) {
-        this.mResistance = resistance;
-        mMaxOffsetY = (int) (mResistance* mHeaderHeight);
+    public void setMaxDistanceRatio(float maxDistanceRatio) {
+        this.mMaxDistanceRatio = maxDistanceRatio;
+        mMaxOffsetY = (int) (mMaxDistanceRatio * mHeaderHeight);
     }
 
     public void onRelease() {
@@ -48,7 +50,7 @@ public class RefreshIndicator {
     }
 
     protected void processOnMove(float currentX, float currentY, float offsetX, float offsetY) {
-        this.setOffset(offsetX, offsetY / this.mResistance);
+        this.setOffset(offsetX, offsetY);
     }
 
     public void setRatioOfHeaderHeightToRefresh(float ratio) {
@@ -78,6 +80,7 @@ public class RefreshIndicator {
         float offsetY = y - this.mPtLastMove.y;
         this.processOnMove(x, y, offsetX, offsetY);
         this.mPtLastMove.set(x, y);
+        setCurrentPos((int) y);
     }
 
     protected void setOffset(float x, float y) {
@@ -121,13 +124,13 @@ public class RefreshIndicator {
 
     protected void updateHeight() {
         this.mOffsetToRefresh = (int)(this.mRatioOfHeaderHeightToRefresh * (float)this.mHeaderHeight);
-        this.mMaxOffsetY = (int) (mResistance *mHeaderHeight);
+        this.mMaxOffsetY = (int) (mMaxDistanceRatio *mHeaderHeight);
     }
     public int getMaxOffsetY(){
         return mMaxOffsetY;
     }
 
-    public void convertFrom(RefreshIndicator ptrSlider) {
+    public void convertFrom(PtrIndicator ptrSlider) {
         this.mCurrentPos = ptrSlider.mCurrentPos;
         this.mLastPos = ptrSlider.mLastPos;
         this.mHeaderHeight = ptrSlider.mHeaderHeight;
@@ -187,6 +190,7 @@ public class RefreshIndicator {
     }
 
     public float getCurrentPercent() {
+        Logger.e("mCurrentPos"+ mCurrentPos);
         float currentPercent = this.mHeaderHeight == 0?0.0F:(float)this.mCurrentPos * 1.0F / (float)this.mHeaderHeight;
         return currentPercent;
     }

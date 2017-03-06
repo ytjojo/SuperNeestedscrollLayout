@@ -3,9 +3,11 @@ package com.ytjojo.viewlib.nestedsrolllayout;
 import android.graphics.Rect;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout.LayoutParams;
 
@@ -37,31 +39,63 @@ public class LayoutManager {
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         prepareChildren();
         int childCount = mNestedScrollLayout.getChildCount();
-        View found = null;
+        View scrollHeader = null;
+        final WindowInsetsCompat lastInsets = mNestedScrollLayout.getLastInsets();
+        final boolean applyInsets = lastInsets != null && ViewCompat.getFitsSystemWindows(mNestedScrollLayout);
+        int horizInsets = 0;
+        int vertInsets = 0;
+        if (applyInsets) {
+            final int widthMode = View.MeasureSpec.getMode(widthMeasureSpec);
+            final int widthSize = View.MeasureSpec.getSize(widthMeasureSpec);
+            final int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
+            final int heightSize = View.MeasureSpec.getSize(heightMeasureSpec);
+            horizInsets = lastInsets.getSystemWindowInsetLeft()
+                    + lastInsets.getSystemWindowInsetRight();
+            vertInsets = lastInsets.getSystemWindowInsetTop()
+                    + lastInsets.getSystemWindowInsetBottom();
+
+            int childWidthMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                    widthSize - horizInsets, widthMode);
+            int childHeightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                    heightSize - vertInsets, heightMode);
+        }
+
         int minHeight = 0;
         for (int i = 0; i < childCount; i++) {
             View child = mNestedScrollLayout.getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (lp.hasScrollFlag()) {
-                if (found == null) {
-                    found = child;
+                if (scrollHeader == null) {
+                    scrollHeader = child;
                     if (lp.isEitUntilCollapsed()) {
                         minHeight = ViewCompat.getMinimumHeight(child);
-                        if (minHeight == 0) {
-                            break;
-                        }
-                        continue;
-                    } else {
-                        break;
                     }
                 }
             }
-            if (lp.height == ViewGroup.MarginLayoutParams.MATCH_PARENT) {
-                int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth(), View.MeasureSpec.EXACTLY);
-                int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight()-minHeight,View.MeasureSpec.EXACTLY);
-                child.measure(widthSpec,heightSpec);
+            if (lp.height != ViewGroup.MarginLayoutParams.MATCH_PARENT) {
+                continue;
             }
+            if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_FRAMLAYOUT) {
+                if (applyInsets && !ViewCompat.getFitsSystemWindows(child)) {
+                    int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth() - horizInsets, View.MeasureSpec.EXACTLY);
+                    int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - vertInsets, View.MeasureSpec.EXACTLY);
+                    child.measure(widthSpec, heightSpec);
+                }
 
+            } else if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL) {
+                if (applyInsets && !ViewCompat.getFitsSystemWindows(child)) {
+                    int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth() - horizInsets, View.MeasureSpec.EXACTLY);
+                    int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - minHeight - vertInsets, View.MeasureSpec.EXACTLY);
+                    child.measure(widthSpec, heightSpec);
+                } else {
+                    if (minHeight != 0) {
+                        int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth(), View.MeasureSpec.EXACTLY);
+                        int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - minHeight, View.MeasureSpec.EXACTLY);
+                        child.measure(widthSpec, heightSpec);
+                    }
+                }
+
+            }
         }
     }
 
@@ -91,7 +125,7 @@ public class LayoutManager {
         mPaddingBottom = mNestedScrollLayout.getPaddingBottom();
         final int layoutDirection = ViewCompat.getLayoutDirection(mNestedScrollLayout);
         final int childCount = mDependencySortedChildren.size();
-        int childTop =mPaddingTop;
+        int childTop = mPaddingTop;
         final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
@@ -108,32 +142,43 @@ public class LayoutManager {
                 } else if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_FRAMLAYOUT) {
                     layoutChildrenFrameLayout(child, left, top, right, bottom, false);
                 } else {
-                    childTop =layoutChildV(child,childTop,childWidthSpace);
+                    childTop = layoutChildVertical(child, childTop, childWidthSpace);
                 }
             }
+            lp.setLayoutTop(child.getTop());
 
         }
-        calculateScrollRange();
+        dispatchOnLayoutedAllchid();
     }
 
-    private void calculateScrollRange() {
+    private void dispatchOnLayoutedAllchid() {
         int childCount = mNestedScrollLayout.getChildCount();
-        final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
+//        final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
         for (int i = 0; i < childCount; i++) {
             View child = mNestedScrollLayout.getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
-                viewBehavior.calculateScrollRange(mNestedScrollLayout, child);
-                mNestedScrollLayout.setMinScrollY(Math.min(viewBehavior.getMinScrollY(), mNestedScrollLayout.getMinScrollY()));
-                mNestedScrollLayout.setMaxScrollY(Math.max(viewBehavior.getMaxScrollY(), mNestedScrollLayout.getMaxScrollY()));
+                viewBehavior.onAllChildLayouted(mNestedScrollLayout, child);
+//                mNestedScrollLayout.setMinScrollY(Math.min(viewBehavior.getMinScrollY(), mNestedScrollLayout.getMinScrollY()));
+//                mNestedScrollLayout.setMaxScrollY(Math.max(viewBehavior.getMaxScrollY(), mNestedScrollLayout.getMaxScrollY()));
             }
         }
     }
 
-    private int layoutChildV(View child,int childTop,int childWidthSpace){
+    private int layoutChildVertical(View child, int childTop, int childWidthSpace) {
         int childLeft = 0;
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (childTop == mPaddingTop) {
+            if (mNestedScrollLayout.getLastInsets() != null && ViewCompat.getFitsSystemWindows(mNestedScrollLayout)
+                    && !ViewCompat.getFitsSystemWindows(child)) {
+                childTop += mNestedScrollLayout.getLastInsets().getSystemWindowInsetTop();
+            }
+            if(lp.mBaseLine !=Integer.MAX_VALUE){
+                childTop += lp.mBaseLine;
+            }
+        }
+
         if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL) {
             if (lp.gravity < 0) {
                 lp.gravity = Gravity.LEFT;
@@ -160,52 +205,54 @@ public class LayoutManager {
             }
             setChildFrame(child, childLeft, childTop,
                     childWidth, childHeight, lp);
-            return childTop +childHeight + lp.bottomMargin;
+            return childTop + childHeight + lp.bottomMargin;
         }
         return childTop;
     }
+
     final int MINORGRAVITY = Gravity.NO_GRAVITY & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
-    private void layoutChildVertical() {
-        int layoutDirection = ViewCompat.getLayoutDirection(mNestedScrollLayout);
-        int childTop = mPaddingTop;
-        int childLeft = 0;
-        int childCount = mNestedScrollLayout.getChildCount();
-        final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
 
-        for (int i = 0; i < childCount; i++) {
-            View child = mNestedScrollLayout.getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL) {
-                if (lp.gravity < 0) {
-                    lp.gravity = Gravity.LEFT;
-                }
-                childTop += lp.topMargin;
-                int childWidth = child.getMeasuredWidth();
-                int childHeight = child.getMeasuredHeight();
-                final int absoluteGravity = GravityCompat.getAbsoluteGravity(
-                        resolveAnchoredChildGravity(lp.gravity), layoutDirection);
-                switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                    case Gravity.CENTER_HORIZONTAL:
-                        childLeft = mPaddingLeft + ((childWidthSpace - childWidth) / 2)
-                                + lp.leftMargin - lp.rightMargin;
-                        break;
-
-                    case Gravity.RIGHT:
-                        childLeft = mWidth - mPaddingRight - childWidth - lp.rightMargin;
-                        break;
-
-                    case Gravity.LEFT:
-                    default:
-                        childLeft = mPaddingLeft + lp.leftMargin;
-                        break;
-                }
-                setChildFrame(child, childLeft, childTop,
-                        childWidth, childHeight, lp);
-                childTop += childHeight + lp.bottomMargin;
-            }
-        }
-
-    }
+//    private void layoutChildVertical() {
+//        int layoutDirection = ViewCompat.getLayoutDirection(mNestedScrollLayout);
+//        int childTop = mPaddingTop;
+//        int childLeft = 0;
+//        int childCount = mNestedScrollLayout.getChildCount();
+//        final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
+//
+//        for (int i = 0; i < childCount; i++) {
+//            View child = mNestedScrollLayout.getChildAt(i);
+//            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+//            if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL) {
+//                if (lp.gravity < 0) {
+//                    lp.gravity = Gravity.LEFT;
+//                }
+//                childTop += lp.topMargin;
+//                int childWidth = child.getMeasuredWidth();
+//                int childHeight = child.getMeasuredHeight();
+//                final int absoluteGravity = GravityCompat.getAbsoluteGravity(
+//                        resolveAnchoredChildGravity(lp.gravity), layoutDirection);
+//                switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+//                    case Gravity.CENTER_HORIZONTAL:
+//                        childLeft = mPaddingLeft + ((childWidthSpace - childWidth) / 2)
+//                                + lp.leftMargin - lp.rightMargin;
+//                        break;
+//
+//                    case Gravity.RIGHT:
+//                        childLeft = mWidth - mPaddingRight - childWidth - lp.rightMargin;
+//                        break;
+//
+//                    case Gravity.LEFT:
+//                    default:
+//                        childLeft = mPaddingLeft + lp.leftMargin;
+//                        break;
+//                }
+//                setChildFrame(child, childLeft, childTop,
+//                        childWidth, childHeight, lp);
+//                childTop += childHeight + lp.bottomMargin;
+//            }
+//        }
+//
+//    }
 
     private void setChildFrame(View child, int left, int top, int width, int height, LayoutParams lp) {
         child.layout(left, top, left + width, top + height);
@@ -216,11 +263,13 @@ public class LayoutManager {
 
     private void layoutChildrenFrameLayout(View child, int left, int top, int right, int bottom,
                                            boolean forceLeftGravity) {
-        final int parentLeft = mPaddingLeft;
-        final int parentRight = right - left - mPaddingRight;
-
-        final int parentTop = mPaddingTop;
-        final int parentBottom = bottom - top - mPaddingBottom;
+        final WindowInsetsCompat lastInsets = mNestedScrollLayout.getLastInsets();
+        final boolean applyInsets = lastInsets != null && ViewCompat.getFitsSystemWindows(mNestedScrollLayout)
+                && !ViewCompat.getFitsSystemWindows(child);
+        final int parentLeft = mPaddingLeft + (applyInsets ? lastInsets.getSystemWindowInsetLeft() : 0);
+        final int parentRight = right - left - mPaddingRight - (applyInsets ? lastInsets.getSystemWindowInsetRight() : 0);
+        final int parentTop = mPaddingTop + (applyInsets ? lastInsets.getSystemWindowInsetTop() : 0);
+        final int parentBottom = bottom - top - mPaddingBottom - (applyInsets ? lastInsets.getSystemWindowInsetBottom() : 0);
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
         final int width = child.getMeasuredWidth();
@@ -364,9 +413,10 @@ public class LayoutManager {
         left = Math.max(mPaddingLeft + lp.leftMargin,
                 Math.min(left,
                         width - mPaddingRight - childWidth - lp.rightMargin));
-        top = Math.max(mPaddingTop + lp.topMargin,
-                Math.min(top,
-                        height - mPaddingBottom - childHeight - lp.bottomMargin));
+        top += lp.topMargin - lp.bottomMargin;
+//        top = Math.max(mPaddingTop + lp.topMargin,
+//                Math.min(top,
+//                        height - mPaddingBottom - childHeight - lp.bottomMargin));
 
         out.set(left, top, left + childWidth, top + childHeight);
     }
@@ -383,7 +433,7 @@ public class LayoutManager {
 
         final Rect anchorRect = mTempRect1;
         final Rect childRect = mTempRect2;
-        getDescendantRect(anchor, anchorRect);
+        getDescendantRect(anchor, anchorRect, true);
         getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, childRect);
 
         child.layout(childRect.left, childRect.top, childRect.right, childRect.bottom);
@@ -397,9 +447,15 @@ public class LayoutManager {
      * @param descendant descendant view to reference
      * @param out        rect to set to the bounds of the descendant view
      */
-    void getDescendantRect(View descendant, Rect out) {
+    void getDescendantRect(View descendant, Rect out, boolean onLayout) {
         out.set(0, 0, descendant.getMeasuredWidth(), descendant.getMeasuredHeight());
-        mNestedScrollLayout.offsetDescendantRectToMyCoords(descendant, out);
+        if (onLayout) {
+            mNestedScrollLayout.offsetDescendantRectToMyCoords(descendant, out);
+
+        } else {
+            offsetRectBetweenParentAndChild(mNestedScrollLayout, descendant, out);
+
+        }
         out.offset(descendant.getScrollX(), descendant.getScrollY());
     }
 
@@ -469,4 +525,119 @@ public class LayoutManager {
         }
     }
 
+    public void dispatchOnDependentViewChanged() {
+        final int childCount = mDependencySortedChildren.size();
+        for (int i = 0; i < childCount; i++) {
+            final View child = mDependencySortedChildren.get(i);
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            // Check child views before for anchor
+            for (int j = 0; j < i; j++) {
+                final View checkChild = mDependencySortedChildren.get(j);
+
+                if (lp.mAnchorDirectChild == checkChild) {
+                    int offsetDy = 0;
+                    offsetChildToAnchor(child, offsetDy);
+                }
+            }
+            // Update any behavior-dependent views for the change
+            for (int j = i + 1; j < childCount; j++) {
+                final View checkChild = mDependencySortedChildren.get(j);
+                final LayoutParams checkLp = (LayoutParams) checkChild.getLayoutParams();
+                final Behavior b = checkLp.getBehavior();
+
+                if (b != null && b.layoutDependsOn(mNestedScrollLayout, checkChild, child)) {
+                    final boolean handled = b.onDependentViewChanged(mNestedScrollLayout, checkChild, child);
+                    checkLp.setChangedAfterNestedScroll(handled);
+                }
+            }
+        }
+    }
+
+    void offsetChildToAnchor(View child, int layoutDirection) {
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (lp.mAnchorView != null) {
+            final Rect anchorRect = mTempRect1;
+            final Rect childRect = mTempRect2;
+            final Rect desiredChildRect = mTempRect3;
+
+            getDescendantRect(lp.mAnchorView, anchorRect, false);
+            getChildRect(child, false, childRect);
+            getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, desiredChildRect);
+
+            final int dx = desiredChildRect.left - childRect.left;
+            final int dy = desiredChildRect.top - childRect.top;
+
+            if (dx != 0) {
+                child.offsetLeftAndRight(dx);
+            }
+            if (dy != 0) {
+                child.offsetTopAndBottom(dy);
+            }
+
+            if (dx != 0 || dy != 0) {
+                // If we have needed to move, make sure to notify the child's Behavior
+                final Behavior b = lp.getBehavior();
+                if (b != null) {
+                    b.onDependentViewChanged(mNestedScrollLayout, child, lp.mAnchorView);
+                }
+            }
+        }
+    }
+
+    void getChildRect(View child, boolean transform, Rect out) {
+        if (child.isLayoutRequested() || child.getVisibility() == View.GONE) {
+            out.set(0, 0, 0, 0);
+            return;
+        }
+        if (transform) {
+            getDescendantRect(child, out, false);
+        } else {
+            out.set(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+        }
+    }
+
+    void offsetRectBetweenParentAndChild(ViewGroup parent, View descendant, Rect rect) {
+        // already in the same coord system :)
+        if (descendant == parent) {
+            return;
+        }
+        ViewParent theParent = descendant.getParent();
+
+        // search and offset up to the parent
+        while ((theParent != null)
+                && (theParent instanceof View)
+                && (theParent != parent)) {
+
+            rect.offset((int) (descendant.getX() - descendant.getScrollX()),
+                    (int) (descendant.getY() - descendant.getScrollY()));
+
+            descendant = (View) theParent;
+            theParent = descendant.getParent();
+        }
+
+        // now that we are up to this view, need to offset one more time
+        // to get into our coordinate space
+        if (theParent == parent) {
+            rect.offset((int) (descendant.getX() - descendant.getScrollX()),
+                    (int) (descendant.getY() - descendant.getScrollY()));
+        } else {
+            throw new IllegalArgumentException("parameter must be a descendant of this view");
+        }
+    }
+
+    /**
+     * Check if a given point in the CoordinatorLayout's coordinates are within the view bounds
+     * of the given direct child view.
+     *
+     * @param child child view to test
+     * @param x     X coordinate to test, in the CoordinatorLayout's coordinate system
+     * @param y     Y coordinate to test, in the CoordinatorLayout's coordinate system
+     * @return true if the point is within the child view's bounds, false otherwise
+     */
+    public boolean isPointInChildBounds(View child, int x, int y) {
+        final Rect r = mTempRect1;
+        getDescendantRect(child, r, false);
+        return r.contains(x, y);
+    }
 }

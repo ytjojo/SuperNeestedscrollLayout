@@ -11,7 +11,6 @@ import android.view.View;
 public abstract class Behavior<V extends View> {
     protected int mMinScrollY;
     protected int mMaxScrollY;
-
     public Behavior() {
     }
     public Behavior(Context context, AttributeSet attrs) {
@@ -41,9 +40,7 @@ public abstract class Behavior<V extends View> {
     public void setMaxScrollY(int maxScrollY) {
         mMaxScrollY = maxScrollY;
     }
-    public void calculateScrollRange(NestedScrollLayout nestedScrollLayout, V v){
 
-    }
     public void onNestedScrollAccepted(NestedScrollLayout nestedScrollLayout, V child,
                                        View directTargetChild, View target, int nestedScrollAxes) {
     }
@@ -65,14 +62,17 @@ public abstract class Behavior<V extends View> {
                                  float velocityX, float velocityY, boolean consumed) {
         return false;
     }
-    public boolean onFling(NestedScrollLayout nestedScrollLayout, V child,
-                                 float velocityX, float velocityY) {
-        return false;
-    }
+
     public void onScrollBy(NestedScrollLayout nestedScrollLayout, V child,
                            int dx, int dy, int[] consumed) {
     }
-
+    public void onStartDrag(NestedScrollLayout nestedScrollLayout){}
+    public void onStopDrag(NestedScrollLayout nestedScrollLayout) {
+    }
+    public boolean onFling(NestedScrollLayout nestedScrollLayout, V child,
+                           float velocityX, float velocityY) {
+        return false;
+    }
     public boolean onNestedPreFling(NestedScrollLayout nestedScrollLayout, V child ,View directTargetChild, View target,
                                     float velocityX, float velocityY) {
         return false;
@@ -86,5 +86,12 @@ public abstract class Behavior<V extends View> {
     public boolean layoutDependsOn(NestedScrollLayout nestedScrollLayout, V child, View dependency) {
         return false;
     }
+    public void onAllChildLayouted(NestedScrollLayout nestedScrollLayout,V child){
+
+    }
+    public boolean onDependentViewChanged(NestedScrollLayout nestedScrollLayout, V child, View dependency) {
+        return false;
+    }
+
 
 }

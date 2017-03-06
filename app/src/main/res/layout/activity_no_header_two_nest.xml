@@ -9,34 +9,15 @@
     <com.ytjojo.viewlib.nestscrolllayout.demo.RefreshHeaderLoadingView
         android:layout_width="match_parent"
         android:id="@+id/refreshHeader"
-        app:anchor="@+id/tv_header"
         android:layout_gravity="top"
-        android:fitsSystemWindows="true"
         app:anchorGravity="right|bottom"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
-    <TextView
-        android:fitsSystemWindows="false"
-        android:id="@+id/tv_header"
-        android:text="这是头部"
-        android:gravity="center"
-        android:textSize="30dp"
-        android:minHeight="?attr/actionBarSize"
-        android:background="#ff0000"
-        app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"/>
-    <ImageView
-        android:src="@drawable/quila"
-        app:anchor="@id/tv_header"
-        app:anchorGravity="right|bottom"
-        android:layout_margin="@dimen/fab_margin"
-        android:scaleType="centerCrop"
-        android:layout_width="60dp"
-        android:layout_height="60dp"/>
+
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
         app:scrollFlags="scroll"
+        app:baseLine="200dp"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
