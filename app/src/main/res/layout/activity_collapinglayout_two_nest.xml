@@ -16,11 +16,13 @@
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
     <LinearLayout
+        android:clipChildren="false"
         android:fitsSystemWindows="true"
         android:id="@+id/tv_header"
         android:minHeight="?attr/actionBarSize"
         app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
-
+        app:controlBehaviorName="ScrollViewBehavior"
+        app:overScrollDistance="70dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -29,6 +31,7 @@
             android:id="@+id/collapsingLayout"
             app:statusBarScrim="?attr/colorPrimary"
             app:collapsedTitleLayoutGravity="center"
+            app:overScrollDistance="50dp"
             app:expandedTitleLayoutGravity="start|left|bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -39,6 +42,7 @@
                 android:layout_height="300dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/cheese_3"
+                app:SuperNested_collapseMode="overScrollScale"
                 android:fitsSystemWindows="true"
                />
 
@@ -70,7 +74,7 @@
         android:layout_height="60dp"/>
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
@@ -205,11 +209,11 @@
         android:gravity="center"
         android:textSize="30dp"
         android:background="#70fff000"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="500dp"/>
     <android.support.v4.widget.NestedScrollView
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#EEffffff"
         android:layout_width="match_parent"
@@ -340,7 +344,7 @@
 
     </android.support.v4.widget.NestedScrollView>
     <TextView
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:background="#f2e4e4"
         android:layout_width="match_parent"
         android:textSize="15sp"

@@ -16,7 +16,7 @@
 
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:baseLine="200dp"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#90ffffff"
@@ -152,11 +152,11 @@
         android:gravity="center"
         android:textSize="30dp"
         android:background="#70fff000"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="500dp"/>
     <android.support.v4.widget.NestedScrollView
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#EEffffff"
         android:layout_width="match_parent"
@@ -287,7 +287,7 @@
 
     </android.support.v4.widget.NestedScrollView>
     <TextView
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:background="#f2e4e4"
         android:layout_width="match_parent"
         android:textSize="15sp"

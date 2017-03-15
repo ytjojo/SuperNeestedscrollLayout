@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <declare-styleable name="BottomSheetBehavior">
+        <!-- The height of the bottom sheet when it is collapsed. -->
+        <attr name="BottomSheet_peekHeight" format="dimension">
+            <!-- Peek at the 16:9 ratio keyline of its parent -->
+            <enum name="autoPeekHeight" value="-1"/>
+        </attr>
+        <attr name="BottomSheet_minOffset" format="dimension">
+            <!-- Peek at the 16:9 ratio keyline of its parent -->
+            <enum name="autoMinOffset" value="-1"/>
+        </attr>
+        <!-- Whether this bottom sheet can be hidden by dragging it further downwards -->
+        <attr name="behavior_canExpandedFully" format="boolean"/>
+        <attr name="behavior_hideable" format="boolean"/>
+        <!-- Skip the collapsed state once expanded; no effect unless it is hideable -->
+        <attr name="behavior_skipCollapsed" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="SuperNestedScrollLayout">
+        <attr name="statusBarBackground" format="reference"/>
+    </declare-styleable>
     <declare-styleable name="NestedScrollLayout_LayoutParams">
         <attr name="baseLine" format="dimension"/>
+        <attr name="controlBehaviorName" format="string"/>
         <attr name="overScrollDistance" format="dimension"/>
         <attr name="scrollFlags">
             <!-- The view will be scroll in direct relation to scroll events. This flag needs to be
@@ -198,6 +218,7 @@
             <!-- The view will scroll in a parallax fashion. See the
                  layout_collapseParallaxMultiplier attribute to change the multiplier. -->
             <enum name="parallax" value="2"/>
+            <enum name="overScrollScale" value="4"/>
         </attr>
 
         <!-- The multiplier used when layout_collapseMode is set to 'parallax'. The value should

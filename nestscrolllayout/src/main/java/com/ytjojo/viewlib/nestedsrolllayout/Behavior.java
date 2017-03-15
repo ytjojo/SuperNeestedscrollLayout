@@ -1,6 +1,9 @@
 package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -66,32 +69,51 @@ public abstract class Behavior<V extends View> {
     public void onScrollBy(NestedScrollLayout nestedScrollLayout, V child,
                            int dx, int dy, int[] consumed) {
     }
-    public void onStartDrag(NestedScrollLayout nestedScrollLayout){}
+    public void onStartDrag(NestedScrollLayout nestedScrollLayout, V child,int mInitialTouchX,int mInitialTouchY,boolean acceptedByAnother,Behavior accepteBehavior){}
     public void onStopDrag(NestedScrollLayout nestedScrollLayout) {
+    }
+    boolean isAcceptedDrag;
+    boolean isAcceptedDrag() {
+        return isAcceptedDrag;
+    }
+    public void setCanAcceptedDrag(boolean isAcceptedDrag) {
+        this.isAcceptedDrag = isAcceptedDrag;
     }
     public boolean onFling(NestedScrollLayout nestedScrollLayout, V child,
                            float velocityX, float velocityY) {
         return false;
     }
-    public boolean onNestedPreFling(NestedScrollLayout nestedScrollLayout, V child ,View directTargetChild, View target,
+    public boolean onNestedPreFling(NestedScrollLayout parent, V child ,View directTargetChild, View target,
                                     float velocityX, float velocityY) {
         return false;
     }
-    public boolean onLayoutChild(NestedScrollLayout nestedScrollLayout, V child, int layoutDirection){
+    public boolean onLayoutChild(NestedScrollLayout parent, V child, int layoutDirection){
         return false;
     }
-    public boolean onMeasureChild(NestedScrollLayout nestedScrollLayout, V child, int layoutDirection){
+    public boolean onMeasureChild(NestedScrollLayout parent, V child, int parentWidthMeasureSpec, int widthUsed,
+                                  int parentHeightMeasureSpec, int heightUsed){
         return false;
     }
-    public boolean layoutDependsOn(NestedScrollLayout nestedScrollLayout, V child, View dependency) {
+    public boolean layoutDependsOn(NestedScrollLayout parent, V child, View dependency) {
         return false;
     }
-    public void onAllChildLayouted(NestedScrollLayout nestedScrollLayout,V child){
+    public void onAllChildLayouted(NestedScrollLayout parent,V child){
 
     }
-    public boolean onDependentViewChanged(NestedScrollLayout nestedScrollLayout, V child, View dependency) {
+    public boolean onDependentViewChanged(NestedScrollLayout parent, V child, View dependency) {
         return false;
     }
+    @ColorInt
+    public int getScrimColor(NestedScrollLayout parent, V child) {
+        return Color.BLACK;
+    }
+    @FloatRange(from = 0, to = 1)
+    public float getScrimOpacity(NestedScrollLayout parent, V child) {
+        return 0.f;
+    }
 
+    public boolean blocksInteractionBelow(NestedScrollLayout parent, V child,int mInitialTouchX, int mInitialTouchY) {
+        return getScrimOpacity(parent, child) > 0.f;
+    }
 
 }

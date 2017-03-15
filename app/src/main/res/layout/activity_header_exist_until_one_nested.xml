@@ -21,6 +21,7 @@
         android:text="这是头部"
         android:gravity="center"
         android:textSize="30dp"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:minHeight="?attr/actionBarSize"
         android:background="#ff0000"
         app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
@@ -36,7 +37,7 @@
         android:layout_height="60dp"/>
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
@@ -167,7 +168,7 @@
 
     </android.support.v4.widget.NestedScrollView>
     <TextView
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:background="#f2e4e4"
         android:layout_width="match_parent"
         android:textSize="15sp"

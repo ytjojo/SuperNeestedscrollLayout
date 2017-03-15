@@ -8,6 +8,7 @@
     <TextView
         app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
         android:text="这是头部"
+        app:controlBehaviorName="ScrollViewBehavior"
         android:gravity="center"
         android:textSize="30dp"
         android:background="#30ff0ff0"
@@ -16,9 +17,18 @@
         android:layout_height="200dp"/>
     <com.ytjojo.viewlib.nestedsrolllayout.EmbeddedWebView
         android:id="@+id/webview"
-        app:scrollFlags="scroll"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <TextView
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:text="这是底部"
+        android:gravity="center"
+        android:textSize="30dp"
+        android:background="#30ff0ff0"
+        android:layout_width="match_parent"
+        android:minHeight="60dp"
+        android:layout_height="200dp"/>
 
 </com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>

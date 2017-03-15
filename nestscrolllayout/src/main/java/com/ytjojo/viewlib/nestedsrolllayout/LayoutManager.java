@@ -4,6 +4,7 @@ import android.graphics.Rect;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,11 @@ import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout.LayoutParams;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.R.attr.layoutDirection;
+import static android.view.View.VISIBLE;
 
 /**
  * Created by Administrator on 2017/1/7 0007.
@@ -35,11 +38,10 @@ public class LayoutManager {
     public LayoutManager(NestedScrollLayout parent) {
         this.mNestedScrollLayout = parent;
     }
-
+    HashMap<String,Integer> mBehaviorViewValue = new HashMap<>();
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         prepareChildren();
         int childCount = mNestedScrollLayout.getChildCount();
-        View scrollHeader = null;
         final WindowInsetsCompat lastInsets = mNestedScrollLayout.getLastInsets();
         final boolean applyInsets = lastInsets != null && ViewCompat.getFitsSystemWindows(mNestedScrollLayout);
         int horizInsets = 0;
@@ -60,17 +62,31 @@ public class LayoutManager {
                     heightSize - vertInsets, heightMode);
         }
 
-        int minHeight = 0;
+        mBehaviorViewValue.clear();
         for (int i = 0; i < childCount; i++) {
             View child = mNestedScrollLayout.getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (lp.hasScrollFlag()) {
-                if (scrollHeader == null) {
-                    scrollHeader = child;
+            if (!TextUtils.isEmpty(lp.mControlBehaviorName)) {
+                if(mBehaviorViewValue.get(lp.mControlBehaviorName)==null){
                     if (lp.isEitUntilCollapsed()) {
-                        minHeight = ViewCompat.getMinimumHeight(child);
+                       mBehaviorViewValue.put(lp.mControlBehaviorName,ViewCompat.getMinimumHeight(child));
+                    }else{
+                        mBehaviorViewValue.put(lp.mControlBehaviorName,0);
+                    }
+                    if(applyInsets && !ViewCompat.getFitsSystemWindows(child)){
+                        lp.isApplyInsets = true;
+                        lp.mTopInset =  lastInsets.getSystemWindowInsetTop();
+                    }else{
+                        lp.isApplyInsets = false;
+                        lp.mTopInset =  0;
                     }
                 }
+
+            }
+            final Behavior b = lp.getBehavior();
+            if (b != null && b.onMeasureChild(mNestedScrollLayout, child, widthMeasureSpec, 0,
+                    heightMeasureSpec, 0)) {
+                continue;
             }
             if (lp.height != ViewGroup.MarginLayoutParams.MATCH_PARENT) {
                 continue;
@@ -80,19 +96,29 @@ public class LayoutManager {
                     int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth() - horizInsets, View.MeasureSpec.EXACTLY);
                     int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - vertInsets, View.MeasureSpec.EXACTLY);
                     child.measure(widthSpec, heightSpec);
+                    lp.isApplyInsets = true;
+                    lp.mTopInset =  lastInsets.getSystemWindowInsetTop();
+                }else{
+                    lp.isApplyInsets = false;
+                    lp.mTopInset =  0;
                 }
 
             } else if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL) {
+                int minHeight = mBehaviorViewValue.get(lp.mControlBehaviorName);
                 if (applyInsets && !ViewCompat.getFitsSystemWindows(child)) {
                     int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth() - horizInsets, View.MeasureSpec.EXACTLY);
                     int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - minHeight - vertInsets, View.MeasureSpec.EXACTLY);
                     child.measure(widthSpec, heightSpec);
+                    lp.isApplyInsets = true;
+                    lp.mTopInset =  lastInsets.getSystemWindowInsetTop();
                 } else {
                     if (minHeight != 0) {
                         int widthSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredWidth(), View.MeasureSpec.EXACTLY);
                         int heightSpec = View.MeasureSpec.makeMeasureSpec(child.getMeasuredHeight() - minHeight, View.MeasureSpec.EXACTLY);
                         child.measure(widthSpec, heightSpec);
                     }
+                    lp.isApplyInsets = false;
+                    lp.mTopInset =  0;
                 }
 
             }
@@ -125,8 +151,9 @@ public class LayoutManager {
         mPaddingBottom = mNestedScrollLayout.getPaddingBottom();
         final int layoutDirection = ViewCompat.getLayoutDirection(mNestedScrollLayout);
         final int childCount = mDependencySortedChildren.size();
-        int childTop = mPaddingTop;
         final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
+        mBehaviorViewValue.clear();
+
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -142,7 +169,12 @@ public class LayoutManager {
                 } else if (lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_FRAMLAYOUT) {
                     layoutChildrenFrameLayout(child, left, top, right, bottom, false);
                 } else {
+                   Integer childTop =  mBehaviorViewValue.get(lp.mControlBehaviorName);
+                    if(childTop ==null){
+                        childTop = mPaddingTop;
+                    }
                     childTop = layoutChildVertical(child, childTop, childWidthSpace);
+                    mBehaviorViewValue.put(lp.mControlBehaviorName,childTop);
                 }
             }
             lp.setLayoutTop(child.getTop());
@@ -256,7 +288,6 @@ public class LayoutManager {
 
     private void setChildFrame(View child, int left, int top, int width, int height, LayoutParams lp) {
         child.layout(left, top, left + width, top + height);
-        lp.setLayoutTop(child.getTop());
     }
 
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
@@ -318,7 +349,6 @@ public class LayoutManager {
         }
 
         child.layout(childLeft, childTop, childLeft + width, childTop + height);
-        lp.setLayoutTop(child.getTop());
     }
 
     /**
@@ -437,7 +467,6 @@ public class LayoutManager {
         getDesiredAnchoredChildRect(child, layoutDirection, anchorRect, childRect);
 
         child.layout(childRect.left, childRect.top, childRect.right, childRect.bottom);
-        lp.setLayoutTop(child.getTop());
     }
 
     /**
@@ -639,5 +668,29 @@ public class LayoutManager {
         final Rect r = mTempRect1;
         getDescendantRect(child, r, false);
         return r.contains(x, y);
+    }
+
+    /**
+     * Check whether two views overlap each other. The views need to be descendants of this
+     * {@link NestedScrollLayout} in the view hierarchy.
+     *
+     * @param first first child view to test
+     * @param second second child view to test
+     * @return true if both views are visible and overlap each other
+     */
+    public boolean doViewsOverlap(View first, View second) {
+        if (first.getVisibility() == VISIBLE && second.getVisibility() == VISIBLE) {
+            final Rect firstRect = mTempRect1;
+
+            getChildRect(first, first.getParent() != this, firstRect);
+            final Rect secondRect = mTempRect2;
+            getChildRect(second, second.getParent() != this, secondRect);
+            try {
+                return !(firstRect.left > secondRect.right || firstRect.top > secondRect.bottom
+                        || firstRect.right < secondRect.left || firstRect.bottom < secondRect.top);
+            } finally {
+            }
+        }
+        return false;
     }
 }

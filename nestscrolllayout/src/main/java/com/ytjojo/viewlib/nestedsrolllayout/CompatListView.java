@@ -1,7 +1,6 @@
 package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
@@ -32,8 +31,7 @@ public class CompatListView extends ListView implements NestedScrollingChild {
     private final int[] mScrollOffset = new int[2];
     private final int[] mScrollConsumed = new int[2];
     private int mNestedYOffset;
-    //    public static boolean isLolipop =Build.VERSION.SDK_INT >=21;
-    public static boolean isLolipop = false;
+    public static boolean isLolipop = Build.VERSION.SDK_INT >=21;
     /**
      * True if the user is currently dragging this ScrollView around. This is
      * not the same as 'is being flinged', which can be checked by
@@ -63,29 +61,31 @@ public class CompatListView extends ListView implements NestedScrollingChild {
     private int mActivePointerId = INVALID_POINTER;
 
     public CompatListView(Context context) {
-        this(context, null, 0, 0);
+        this(context, null);
     }
 
     public CompatListView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0, 0);
+        this(context, attrs, 0);
     }
 
     public CompatListView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CompatListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
         helper = new NestedScrollingChildHelper(this);
-        setNestedScrollingEnabled(true);
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mScroller = ScrollerCompat.create(context, null);
         setupAnimators();
+        if(!ViewCompat.isNestedScrollingEnabled(this)){
+            ViewCompat.setNestedScrollingEnabled(this,true);
+        }
     }
+
+//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//    public CompatListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+//        super(context, attrs, defStyleAttr, defStyleRes);
+//    }
 
     @Override
     public void setNestedScrollingEnabled(boolean enabled) {
@@ -411,6 +411,14 @@ public class CompatListView extends ListView implements NestedScrollingChild {
         vtev.recycle();
         return value;
     }
+    private boolean superOnTouch(MotionEvent ev) {
+//        final int activePointerIndex = MotionEventCompat.findPointerIndex(ev,
+//                mActivePointerId);
+//        int cury = (int) MotionEventCompat.getY(ev, activePointerIndex);
+//        Log.e(getClass().getName(), (cury) + "cur mFirstY =" + mFirstDownY + mIsBeingDragged);
+        return super.onTouchEvent(ev);
+    }
+
     private int getScrollDy(MotionEvent ev){
         View c = this.getChildAt(0);
         if (c == null) {
@@ -419,14 +427,6 @@ public class CompatListView extends ListView implements NestedScrollingChild {
         int top = c.getTop();
         superOnTouch(ev);
         return c.getTop() -top;
-    }
-
-    private boolean superOnTouch(MotionEvent ev) {
-//        final int activePointerIndex = MotionEventCompat.findPointerIndex(ev,
-//                mActivePointerId);
-//        int cury = (int) MotionEventCompat.getY(ev, activePointerIndex);
-//        Log.e(getClass().getName(), (cury) + "cur mFirstY =" + mFirstDownY + mIsBeingDragged);
-        return super.onTouchEvent(ev);
     }
 
     private void callCancel() {
@@ -471,8 +471,6 @@ public class CompatListView extends ListView implements NestedScrollingChild {
                 if(event!=null){
                     return super.onTouchEvent(event);
                 }else{
-                    callCancel();
-                    this.fingListView(velocityY);
                 }
 
             } else {
@@ -554,5 +552,6 @@ public class CompatListView extends ListView implements NestedScrollingChild {
         }
         startAnim();
     }
+
 
 }

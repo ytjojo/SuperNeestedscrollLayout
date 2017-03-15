@@ -1,49 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.nestedsrolllayout.EmbeddedScrollView
+<com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <LinearLayout
+        app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e1e1e1"
+        android:minHeight="?actionBarSize"
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="cdsadadlick"/>
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"/>
+
+
+    </LinearLayout>
+    <com.ytjojo.viewlib.nestedsrolllayout.EmbeddedWebView
+        android:id="@+id/webview"
+        app:controlBehaviorName="ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <com.ytjojo.viewlib.nestedsrolllayout.EmbeddedWebView
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbarSize="3dp"
-            android:scrollbars="vertical"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#e1e1e1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="cdsadadlick"/>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="asddasda"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="asdadarewe"/>
-        </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#2f00"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"/>
-    </LinearLayout>
-</com.ytjojo.viewlib.nestedsrolllayout.EmbeddedScrollView>
+        android:scrollbarSize="3dp"
+        android:scrollbars="vertical"/>
+    <TextView
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="cdsadadlick"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:nestedScrollingEnabled="true"
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#2f00"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"/>
+    <TextView
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
+</com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>

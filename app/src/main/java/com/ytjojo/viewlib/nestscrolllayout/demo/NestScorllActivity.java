@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout;
-import com.ytjojo.viewlib.nestedsrolllayout.OnRefreshListener;
+import com.ytjojo.viewlib.nestedsrolllayout.OnLoadListener;
 import com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior;
 
 /**
@@ -19,9 +19,9 @@ public class NestScorllActivity extends AppCompatActivity {
         final RefreshHeaderLoadingView headerLoadingView = (RefreshHeaderLoadingView) findViewById(R.id.refreshHeader);
         NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) headerLoadingView.getLayoutParams();
         final RefreshHeaderBehavior headerBehavior = (RefreshHeaderBehavior) lp.getBehavior();
-        headerBehavior.setOnRefreshListener(new OnRefreshListener() {
+        headerBehavior.setOnLoadListener(new OnLoadListener() {
             @Override
-            public void onRefresh() {
+            public void onLoad() {
 //                headerLoadingView.postDelayed(new Runnable() {
 //                    @Override
 //                    public void run() {

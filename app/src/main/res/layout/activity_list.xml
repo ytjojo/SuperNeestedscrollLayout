@@ -2,23 +2,34 @@
 <com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
+android:fitsSystemWindows="true"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 >
     <TextView
+        android:fitsSystemWindows="true"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
         android:text="这是头部"
         android:gravity="center"
-        android:textSize="30dp"
-        android:minHeight="50dp"
+        android:textSize="20sp"
+        android:minHeight="?actionBarSize"
         android:background="#70ff0000"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
     <com.ytjojo.viewlib.nestedsrolllayout.CompatListView
         android:id="@+id/listView"
+        app:controlBehaviorName="ScrollViewBehavior"
         app:scrollFlags="scroll"
+        android:background="#88EEEEEE"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></com.ytjojo.viewlib.nestedsrolllayout.CompatListView>
-
+    <com.ytjojo.viewlib.nestscrolllayout.demo.RefreshHeaderLoadingView
+        android:layout_width="match_parent"
+        android:id="@+id/refreshFooter"
+        android:layout_gravity="top"
+        android:fitsSystemWindows="true"
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshFooterBehavior"
+        android:layout_height="60dp"/>
 </com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>

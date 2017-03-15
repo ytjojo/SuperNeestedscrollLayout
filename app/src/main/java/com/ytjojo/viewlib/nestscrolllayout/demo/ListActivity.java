@@ -9,6 +9,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout;
+import com.ytjojo.viewlib.nestedsrolllayout.OnLoadListener;
+import com.ytjojo.viewlib.nestedsrolllayout.RefreshFooterBehavior;
+
 import java.util.ArrayList;
 
 /**
@@ -22,6 +26,20 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         ListView listView = (ListView) findViewById(R.id.listView);
+        final View footer = findViewById(R.id.refreshFooter);
+        NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) footer.getLayoutParams();
+        final RefreshFooterBehavior behavior = (RefreshFooterBehavior) lp.getBehavior();
+        behavior.setOnLoadListener(new OnLoadListener() {
+            @Override
+            public void onLoad() {
+                footer.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        behavior.setLoadComplete();
+                    }
+                },4000);
+            }
+        });
         mList = new ArrayList<>();
         for(int i=0;i<30;i++){
             mList.add(""+i);

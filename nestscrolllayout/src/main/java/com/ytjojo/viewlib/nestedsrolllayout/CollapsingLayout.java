@@ -37,6 +37,8 @@ import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
+import com.orhanobut.logger.Logger;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -73,6 +75,8 @@ public class CollapsingLayout extends FrameLayout {
     private int mCurrentOffset;
 
     private WindowInsetsCompat mLastInsets;
+
+    private int mOverScrollDistance;
 
     public CollapsingLayout(Context context) {
         this(context, null);
@@ -187,19 +191,24 @@ public class CollapsingLayout extends FrameLayout {
             if (mOnOffsetChangedListener == null) {
                 mOnOffsetChangedListener = new OffsetUpdateListener();
             }
+            mNestedDirecteChild = parent;
             NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) lp;
             layoutParams.addOnOffsetChangedListener(mOnOffsetChangedListener);
+            mOverScrollDistance= layoutParams.mOverScrollDistance;
         }
         if(parent instanceof NestedScrollLayout){
             NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
             if (mOnOffsetChangedListener == null) {
                 mOnOffsetChangedListener = new OffsetUpdateListener();
             }
+            mNestedDirecteChild = this;
+            mOverScrollDistance= layoutParams.mOverScrollDistance;
             layoutParams.addOnOffsetChangedListener(mOnOffsetChangedListener);
         }
 
         // We're attached, so lets request an inset dispatch
         ViewCompat.requestApplyInsets(this);
+
     }
 
     @Override
@@ -222,6 +231,7 @@ public class CollapsingLayout extends FrameLayout {
 
 
         super.onDetachedFromWindow();
+        mNestedDirecteChild = null;
     }
 
     private WindowInsetsCompat setWindowInsets(WindowInsetsCompat insets,boolean consumeSystemWindowInsets) {
@@ -366,12 +376,14 @@ public class CollapsingLayout extends FrameLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         ensureToolbar();
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-
+        ViewCompat.setPivotX(mNestedDirecteChild,mNestedDirecteChild.getMeasuredWidth()/2);
+        ViewCompat.setPivotY(mNestedDirecteChild,mNestedDirecteChild.getMeasuredHeight());
         // Update the collapsed bounds by getting it's transformed bounds. This needs to be done
         // before the children are offset below
         if (mCollapsingTitleEnabled && mDummyView != null) {
@@ -1064,7 +1076,8 @@ public class CollapsingLayout extends FrameLayout {
         @IntDef({
                 COLLAPSE_MODE_OFF,
                 COLLAPSE_MODE_PIN,
-                COLLAPSE_MODE_PARALLAX
+                COLLAPSE_MODE_PARALLAX,
+                COLLAPSE_MODE_OVSERSCROLLSCALE
         })
         @Retention(RetentionPolicy.SOURCE)
         @interface CollapseMode {}
@@ -1085,6 +1098,9 @@ public class CollapsingLayout extends FrameLayout {
          * to change the multiplier used.
          */
         public static final int COLLAPSE_MODE_PARALLAX = 2;
+
+
+        public static final int COLLAPSE_MODE_OVSERSCROLLSCALE = 4;
 
         int mCollapseMode = COLLAPSE_MODE_OFF;
         float mParallaxMult = DEFAULT_PARALLAX_MULTIPLIER;
@@ -1184,13 +1200,14 @@ public class CollapsingLayout extends FrameLayout {
                 - child.getHeight()
                 - lp.bottomMargin;
     }
+    private View mNestedDirecteChild;
     private class OffsetUpdateListener implements OnOffsetChangedListener {
 
         @Override
-        public void onOffsetChanged(float ratio, int dy, int offsetPix, int totalRange, int parentScrollDy) {
+        public void onOffsetChanged(View view,float ratio, int dy, int offsetPix, int totalRange, int parentScrollDy) {
             mCurrentOffset = offsetPix;
             int verticalOffset = -offsetPix;
-
+            Logger.e(verticalOffset+"verticalOffset"+verticalOffset);
             final int insetTop = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
             final int scrollRange =totalRange;
 
@@ -1206,6 +1223,14 @@ public class CollapsingLayout extends FrameLayout {
 
                         ViewCompat.setTranslationY(child,Math.round(verticalOffset * lp.mParallaxMult));
                         break;
+                }
+                if(lp.mCollapseMode == LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALE){
+                    if(verticalOffset<=0){
+                        float h= mNestedDirecteChild.getMeasuredHeight()-verticalOffset;
+                        float ratioScale = h/mNestedDirecteChild.getMeasuredHeight();
+                        ViewCompat.setScaleX(mNestedDirecteChild,ratioScale);
+                        ViewCompat.setScaleY(mNestedDirecteChild,ratioScale);
+                    }
                 }
             }
 

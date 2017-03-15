@@ -7,19 +7,22 @@ import android.support.annotation.FloatRange;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
 import com.orhanobut.logger.Logger;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import static android.view.animation.AnimationUtils.currentAnimationTimeMillis;
 
 /**
- * Created by Administrator on 2017/1/11 0011.
+ * Created by Administrator on 2017/3/13 0013.
  */
 
-public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implements PtrUIHandler {
+public class RefreshFooterBehavior <V extends View> extends Behavior<V> implements PtrUIHandler  {
     NestedScrollLayout mNestedScrollLayout;
     public static final byte PTR_STATUS_INIT = 1;
     private byte mStatus = PTR_STATUS_INIT;
@@ -30,18 +33,19 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     ArrayList<View> mToTranslationYViews = new ArrayList<>();
     V mRefreshHeaderView;
     PtrIndicator mRefreshIndicator;
-    private boolean canRefresh = true;
+    private boolean canLoad = true;
 
-    public RefreshHeaderBehavior() {
+    public RefreshFooterBehavior() {
         super();
     }
 
-    public RefreshHeaderBehavior(Context context, AttributeSet attrs) {
+    public RefreshFooterBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
     @FloatRange(from=0f,to =1f)
-    private float  mFrictionFactor = 0.6f;
+    private float  mFrictionFactor = 1f;
     private int mMaxHeaderNestedScrollY;
+    private boolean mTriggerSensitive = false;
     ViewOffsetHelper mOffsetHelper;
 
     @Override
@@ -51,11 +55,10 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             ViewCompat.setFitsSystemWindows(header,false);
 
         }
-        if (!canRefresh) {
+        if (!canLoad) {
             return false;
         }
         final int childCount = nestedScrollLayout.getChildCount();
-        boolean found = false;
         mToTranslationYViews.clear();
         NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
         View mAnchorDirectChild = headerLp.mAnchorDirectChild;
@@ -64,30 +67,33 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             View itemView = nestedScrollLayout.getChildAt(i);
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) itemView.getLayoutParams();
             Behavior viewBehavior = lp.getBehavior();
+            if(lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)){
+                mToTranslationYViews.add(itemView);
+            }
             if (viewBehavior != null&& viewBehavior instanceof ScrollViewBehavior) {
+                if(hasScrollViewBehaviorViews.size() ==0){
+                    mToTranslationYViews.clear();
+                    mToTranslationYViews.add(itemView);
+                }
                 hasScrollViewBehaviorViews.add(itemView);
             }
             if (mAnchorDirectChild != null) {
                 if (mAnchorDirectChild == itemView) {
-                    found = true;
-                    continue;
+                    mToTranslationYViews.remove(itemView);
+                    break;
                 }
             } else {
                 if(header ==itemView){
-                    found = true;
-                    continue;
+                    break;
                 }
             }
 
-            if (found && lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)) {
-                mToTranslationYViews.add(itemView);
-            }
         }
-        if (hasScrollViewBehaviorViews.size() >= 1) {
-           return hasScrollViewBehaviorViews.get(0) ==directTargetChild;
+        if (hasScrollViewBehaviorViews.size() == 1) {
+            return hasScrollViewBehaviorViews.get(0) ==directTargetChild;
+        }else{
+            return hasScrollViewBehaviorViews.get(hasScrollViewBehaviorViews.size()-1) ==directTargetChild;
         }
-
-        return false;
     }
 
     @Override
@@ -99,7 +105,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         }
         addUIHandler((PtrUIHandler) header);
         isIgnore = false;
-        if (!canRefresh) {
+        if (!canLoad) {
             isIgnore = true;
             return;
         }
@@ -108,10 +114,25 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             mRefreshIndicator = new PtrIndicator();
             int height = header.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
             mRefreshIndicator.setHeaderHeight(height);
+            if(mTriggerSensitive){
+                if(mRefreshIndicator.getRatioOfHeaderToHeightRefresh()>0.3f){
+                    mRefreshIndicator.setRatioOfHeaderHeightToRefresh(0.3f);
+                }
+            }
         }
         mMaxHeaderNestedScrollY = (int)(mRefreshIndicator.getMaxOffsetY()/mFrictionFactor);
+        if(mCheckTriggerRunnable !=null &&mCheckTriggerRunnable.isRunning()){
+            mCheckTriggerRunnable.cancel();
+        }
 
-
+    }
+    public void setTriggerSensitive(boolean triggerSensitive){
+        this.mTriggerSensitive = triggerSensitive;
+        if(mTriggerSensitive){
+            if(mRefreshIndicator.getRatioOfHeaderToHeightRefresh()>0.3f){
+                mRefreshIndicator.setRatioOfHeaderHeightToRefresh(0.3f);
+            }
+        }
     }
 
     @Override
@@ -122,17 +143,17 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         if(isRunning()){
             return;
         }
-        if (dy > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
+        if (dy < 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
             final int childCount = mToTranslationYViews.size();
             if(mStatus == PTR_STATUS_LOADING){
                 float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
-                if(y <=0){
+                if(y >=0){
                     return;
                 }
                 float contentNestedScrollDy =  (y/mFrictionFactor);
                 float tempStart= contentNestedScrollDy;
                 contentNestedScrollDy -=dy;
-                if(contentNestedScrollDy <0){
+                if(contentNestedScrollDy >0){
                     contentNestedScrollDy = 0;
                 }
                 consumed[1] = (int) (tempStart- contentNestedScrollDy);
@@ -143,22 +164,22 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 }
                 mNestedScrollLayout.dispatchOnDependentViewChanged();
                 float headerY = ViewCompat.getTranslationY(header);
-                if(contentDy < mRefreshIndicator.getHeaderHeight()){
-                    contentDy =mRefreshIndicator.getHeaderHeight();
+                if(!mTriggerSensitive &&contentDy > -mRefreshIndicator.getHeaderHeight()){
+                    contentDy = -mRefreshIndicator.getHeaderHeight();
                 }
                 if(headerY != contentDy){
                     ViewCompat.setTranslationY(header,contentDy);
                     this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
                 }
             }else{
-                float y = (int) ViewCompat.getTranslationY(header);
-                if(y <=0){
+                float headerY = (int) ViewCompat.getTranslationY(header);
+                if(headerY >=0){
                     return;
                 }
-                float headerNestedScrollDy =  (y/mFrictionFactor);
+                float headerNestedScrollDy =  (headerY /mFrictionFactor);
                 float start = headerNestedScrollDy;
                 headerNestedScrollDy -=dy;
-                if(headerNestedScrollDy <=0){
+                if(headerNestedScrollDy >=0){
                     headerNestedScrollDy = 0;
                 }
                 float finalY = (headerNestedScrollDy * mFrictionFactor);
@@ -168,7 +189,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
                 for (int i = 0; i < childCount; i++) {
                     View itemView = mToTranslationYViews.get(i);
-                    if(y>finalY){
+                    if(headerY <finalY){
                         ViewCompat.setTranslationY(itemView, finalY);
                     }
                 }
@@ -185,7 +206,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         if(isRunning()){
             return;
         }
-        if (dyUnconsumed < 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_INIT || mStatus == PTR_STATUS_LOADING)) {
+        if (dyUnconsumed > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_INIT || mStatus == PTR_STATUS_LOADING)) {
             mNestedScrollLayout.dispatchNestedScroll(dxConsumed,dyConsumed,dxUnconsumed,dyUnconsumed,consumed);
             dyUnconsumed-=consumed[1];
 
@@ -200,34 +221,39 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             final int childCount = mToTranslationYViews.size();
             int consumedDy = 0;
             float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
-            if(y>=mRefreshIndicator.getMaxOffsetY()){
+            if(y<= -mRefreshIndicator.getMaxOffsetY()){
                 return;
             }
             int contentNestedScrollDy = (int) (y/mFrictionFactor);
             int tempStart= contentNestedScrollDy;
             contentNestedScrollDy -=dyUnconsumed;
-            if(contentNestedScrollDy > mMaxHeaderNestedScrollY){
-                contentNestedScrollDy = mMaxHeaderNestedScrollY;
+            if(contentNestedScrollDy <= - mMaxHeaderNestedScrollY){
+                contentNestedScrollDy = -mMaxHeaderNestedScrollY;
             }
             consumedDy =tempStart - contentNestedScrollDy;
             consumed[1] +=  consumedDy;
             int finalY = (int) (contentNestedScrollDy *mFrictionFactor);
-            int ssy = (int) ViewCompat.getTranslationY(mRefreshHeaderView);
+            int ssy = (int) ViewCompat.getTranslationY(header);
             Logger.e("getTranslationY" +ssy +"finlay"+finalY);
             for (int i = 0; i < childCount; i++) {
                 View itemView = mToTranslationYViews.get(i);
                 ViewCompat.setTranslationY(itemView, finalY);
-                if (ViewCompat.getTranslationY(mRefreshHeaderView) < finalY) {
-                    ViewCompat.setTranslationY(mRefreshHeaderView, finalY);
-                    mRefreshIndicator.onMove(0, finalY);
-                    this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
-                }
+            }
+            if (ViewCompat.getTranslationY(header) > finalY) {
+                ViewCompat.setTranslationY(header, finalY);
+                mRefreshIndicator.onMove(0, finalY);
+                this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
             }
             mNestedScrollLayout.dispatchOnDependentViewChanged();
+            if(mTriggerSensitive){
+                if (mStatus == PTR_STATUS_PREPARE&& ViewCompat.getTranslationY(header) < -mRefreshIndicator.getOffsetToRefresh()) {
+                    mStatus = PTR_STATUS_LOADING;
+                    RefreshFooterBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
+                }
+            }
 
         }
     }
-    private boolean isRuning;
     public boolean isRunning() {
 //        return isRuning;
         return mValueAnimator != null && mValueAnimator.isRunning();
@@ -235,12 +261,12 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
 
     boolean isIgnore;
 
-    public void setRefreshComplete() {
+    public void setLoadComplete() {
         if (mStatus == PTR_STATUS_LOADING) {
             mStatus = PTR_STATUS_COMPLETE;
             startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
             isIgnore = true;
-            RefreshHeaderBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
+            RefreshFooterBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
         }
     }
 
@@ -253,26 +279,38 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         if(isRunning()){
             return;
         }
-        final int translationY = (int) ViewCompat.getTranslationY(mRefreshHeaderView);
-        if(ViewCompat.getTranslationY(mRefreshHeaderView) ==0){
+        final int translationY = (int) ViewCompat.getTranslationY(child);
+        if(ViewCompat.getTranslationY(child) ==0){
             if(mStatus == PTR_STATUS_INIT||mStatus == PTR_STATUS_COMPLETE){
 
             }else{
-                mStatus = PTR_STATUS_INIT;
-                RefreshHeaderBehavior.this.onUIReset(mNestedScrollLayout);
+                if(!mTriggerSensitive){
+                    mStatus = PTR_STATUS_INIT;
+                    RefreshFooterBehavior.this.onUIReset(mNestedScrollLayout);
+                }
             }
             return;
         }
-        if (translationY >= mRefreshIndicator.getOffsetToRefresh() && mStatus == PTR_STATUS_PREPARE) {
-            startValueAnimitor(child, mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+        if (translationY <= -mRefreshIndicator.getOffsetToRefresh() && mStatus == PTR_STATUS_PREPARE) {
+            if(mTriggerSensitive){
+                mStatus = PTR_STATUS_LOADING;
+                RefreshFooterBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
+            }else{
+                startValueAnimitor(child, -mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+            }
         } else if (mStatus == PTR_STATUS_LOADING) {
-            startValueAnimitor(child, mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+            if(translationY < -mRefreshIndicator.getHeaderHeight()){
+                startValueAnimitor(child, -mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+            }
         } else {
-            startValueAnimitor(child, 0, PTR_STATUS_INIT);
+            if(!mTriggerSensitive){
+                startValueAnimitor(child, 0, PTR_STATUS_INIT);
+            }
         }
 
 
     }
+
 
     ValueAnimator mValueAnimator;
 
@@ -284,9 +322,9 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
 
         if(y==finalY){
             if (endStatus == PTR_STATUS_LOADING && mStatus != endStatus) {
-                RefreshHeaderBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
+                RefreshFooterBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
             } else if ((endStatus == PTR_STATUS_INIT) && mRefreshIndicator.isInStartPosition()) {
-                RefreshHeaderBehavior.this.onUIReset(mNestedScrollLayout);
+                RefreshFooterBehavior.this.onUIReset(mNestedScrollLayout);
             }
             mStatus = endStatus;
             return;
@@ -295,7 +333,6 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         if (Math.abs(finalY - y) < header.getMeasuredHeight()) {
             duration = 200;
         }
-        isRuning = true;
         mValueAnimator = ValueAnimator.ofInt(y, finalY);
         mValueAnimator.setRepeatCount(0);
         mValueAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -309,7 +346,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 if (mStatus == PTR_STATUS_COMPLETE || mStatus == PTR_STATUS_LOADING) {
                     int count = mToTranslationYViews.size();
                     mRefreshIndicator.onMove(0, value);
-                    if(value < ViewCompat.getTranslationY(mToTranslationYViews.get(0))){
+                    if(mTriggerSensitive||value > ViewCompat.getTranslationY(mToTranslationYViews.get(0))){
                         for (int i = 0; i < count; i++) {
                             View view = mToTranslationYViews.get(i);
                             ViewCompat.setTranslationY(view, value);
@@ -330,7 +367,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                     mRefreshIndicator.onMove(0, value);
                     mNestedScrollLayout.dispatchOnDependentViewChanged();
                 }
-                RefreshHeaderBehavior.this.onUIPositionChange(mNestedScrollLayout, false, mStatus, mRefreshIndicator);
+                RefreshFooterBehavior.this.onUIPositionChange(mNestedScrollLayout, false, mStatus, mRefreshIndicator);
             }
         });
         mValueAnimator.addListener(new Animator.AnimatorListener() {
@@ -342,18 +379,16 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (endStatus == PTR_STATUS_LOADING && mStatus != endStatus) {
-                    RefreshHeaderBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
+                    RefreshFooterBehavior.this.onUIRefreshBegin(mNestedScrollLayout);
                 } else if ((endStatus == PTR_STATUS_INIT) && mRefreshIndicator.isInStartPosition()) {
-                    RefreshHeaderBehavior.this.onUIReset(mNestedScrollLayout);
+                    RefreshFooterBehavior.this.onUIReset(mNestedScrollLayout);
                 }
                 mStatus = endStatus;
-                isRuning = false;
 //                animation.end();
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
-                isRuning = false;
             }
 
             @Override
@@ -372,6 +407,39 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
 
     @Override
     public boolean onNestedFling(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target, float velocityX, float velocityY, boolean consumed) {
+        if(!mTriggerSensitive){
+            return false;
+        }
+        if (isIgnore) {
+            return false;
+        }
+        if(isRunning()){
+            return false;
+        }
+        if(velocityY>0&&(mStatus ==PTR_STATUS_PREPARE||mStatus == PTR_STATUS_INIT)){
+            if(!ViewCompat.canScrollVertically(target,1)){
+                if(mStatus ==PTR_STATUS_INIT){
+                    mStatus = PTR_STATUS_PREPARE;
+                    RefreshFooterBehavior.this.onUIRefreshPrepare(mNestedScrollLayout);
+                }
+                startValueAnimitor(child, -mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+                return true;
+            }else{
+                if(velocityY>=800){
+                    if(mCheckTriggerRunnable ==null){
+                        mCheckTriggerRunnable =new CheckTriggerRunnable(child);
+                    }
+                    if(mCheckTriggerRunnable.isRunning()){
+                        mCheckTriggerRunnable.cancel();
+                    }
+                    mCheckTriggerRunnable.start(target,velocityY);
+
+                }
+            }
+
+        }
+
+
         return super.onNestedFling(nestedScrollLayout, child, directTargetChild, target, velocityX, velocityY, consumed);
     }
 
@@ -395,20 +463,20 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             View mAnchorView = lp.mAnchorView;
             int left = nestedScrollLayout.getPaddingLeft() + lp.leftMargin;
             NestedScrollLayout.LayoutParams anchorViewLp = (NestedScrollLayout.LayoutParams) mAnchorView.getLayoutParams();
-            int bottom = mAnchorView.getBottom()+anchorViewLp.bottomMargin-lp.bottomMargin;
-            child.layout(left,bottom- child.getMeasuredHeight(),left + child.getMeasuredWidth(),bottom);
+            int top = mAnchorView.getTop()-anchorViewLp.topMargin+lp.topMargin;
+            child.layout(left, top - child.getMeasuredHeight(),left + child.getMeasuredWidth(), top);
 
         }else{
             int left = nestedScrollLayout.getPaddingLeft() + lp.leftMargin;
-            int top = -lp.bottomMargin - child.getMeasuredHeight();
+            int top = lp.topMargin + nestedScrollLayout.getMeasuredHeight()-nestedScrollLayout.getPaddingBottom();
             child.layout(left, top, left + child.getMeasuredWidth(), top + child.getMeasuredHeight());
         }
 
         return true;
     }
 
-    public void setCanRefresh(boolean canRefresh) {
-        this.canRefresh = canRefresh;
+    public void setCanLoad(boolean canLoad) {
+        this.canLoad = canLoad;
     }
 
     LinkedList<PtrUIHandler> mPtrUIHandlers;
@@ -418,7 +486,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             mPtrUIHandlers = new LinkedList<>();
         }
         if(!mPtrUIHandlers.contains(handler))
-        mPtrUIHandlers.add(handler);
+            mPtrUIHandlers.add(handler);
     }
 
     public void remove(PtrUIHandler handler) {
@@ -483,11 +551,76 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     }
 
     OnLoadListener mOnLoadListener;
-
+    CheckTriggerRunnable mCheckTriggerRunnable;
     public void setOnLoadListener(OnLoadListener l) {
         this.mOnLoadListener = l;
     }
+    private class CheckTriggerRunnable implements Runnable {
+
+        private final V mView;
+        private long mBeginTime;
+        WeakReference<View> mTarget;
+        private boolean isRunning;
+        private boolean cancel;
+        long mMaxCheckDuriation = 300;
+        CheckTriggerRunnable(V view) {
+            mView = view;
 
 
+        }
+        public void cancel(){
+           cancel = true;
+            isRunning = false;
+            mView.removeCallbacks(this);
+            mBeginTime =0;
+        }
+        public void start(View target,float velocityY){
+            mTarget = new WeakReference<View>(target);
+            mBeginTime =   currentAnimationTimeMillis();
+            isRunning = true;
+            mView.postDelayed(this,60);
+            cancel = false;
+            mMaxCheckDuriation = (long) (velocityY/10)+200;
+            if(mMaxCheckDuriation >1000){
+                mMaxCheckDuriation = 1000;
+            }
+
+        }
+
+        @Override
+        public void run() {
+             long duration= (AnimationUtils.currentAnimationTimeMillis()-mBeginTime)/1000;
+            if (!cancel&&duration < mMaxCheckDuriation) {
+                if(mTarget !=null){
+                    View scrollView = mTarget.get();
+                    if(scrollView !=null){
+                        if(!ViewCompat.canScrollVertically(scrollView,1)){
+                            mBeginTime =0;
+                            if(mStatus == PTR_STATUS_INIT){
+                                mStatus = PTR_STATUS_PREPARE;
+                                RefreshFooterBehavior.this.onUIRefreshPrepare(mNestedScrollLayout);
+                            }
+                            startValueAnimitor(mView, -mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+                        }else{
+//                        ViewCompat.postOnAnimation(mView, this);
+                            mView.postDelayed(this,60);
+                        }
+                        return;
+                    }
+                }
+            }
+            this.onStop();
+        }
+        private void onStop(){
+            cancel = false;
+            mBeginTime =0;
+            isRunning = false;
+
+        }
+
+        public boolean isRunning() {
+            return isRunning;
+        }
+    }
 
 }

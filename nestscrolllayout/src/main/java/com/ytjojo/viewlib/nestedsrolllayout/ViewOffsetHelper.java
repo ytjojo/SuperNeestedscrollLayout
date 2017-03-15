@@ -1,11 +1,11 @@
 package com.ytjojo.viewlib.nestedsrolllayout;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -62,9 +62,6 @@ public class ViewOffsetHelper {
         if(mLayoutTop == Integer.MIN_VALUE){
            NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mView.getLayoutParams();
             mLayoutTop = lp.getLayoutTop();
-            if(mHeader !=null){
-                mHeaderHeight =  mHeader.getMeasuredHeight();
-            }
         }
     }
     private void updateOffsets() {
@@ -108,38 +105,54 @@ public class ViewOffsetHelper {
         return mOffsetTop;
     }
 
-
+    ValueAnimator.AnimatorUpdateListener mOverScrollUpdateListener;
     public static final  int ANIMATE_OFFSET_DIPS_PER_SECOND = 300;
-    ValueAnimator mOffsetToAnimator;
-    public void animateOffsetTo( final int toOffsetTop) {
+    public boolean animateOffsetTo( final int toOffsetTop,final AnimCallback callback) {
         if (mOffsetTop == toOffsetTop) {
-            if (mOffsetToAnimator != null && mOffsetToAnimator.isRunning()) {
-                mOffsetToAnimator.cancel();
+            if (mValueAnimator != null && mValueAnimator.isRunning()) {
+                mValueAnimator.removeAllUpdateListeners();
+                mValueAnimator.cancel();
             }
-            return;
+            return false;
         }
-
-        if (mOffsetToAnimator == null) {
-            mOffsetToAnimator = new ValueAnimator();
-            mOffsetToAnimator.setInterpolator(new DecelerateInterpolator());
-            mOffsetToAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        if (mOverScrollUpdateListener == null) {
+            mOverScrollUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animator) {
                     int value = (int) animator.getAnimatedValue();
                     setTopAndBottomOffset(value);
+                    if(callback !=null){
+                        callback.onAnimationUpdate(value);
+                    }
                 }
-            });
-        } else {
-            mOffsetToAnimator.cancel();
-        }
+            };
 
+        }
+        mValueAnimator.removeAllUpdateListeners();
+        mValueAnimator.cancel();
+        mValueAnimator.setInterpolator(mDecelerateInterpolator);
+        mValueAnimator.addUpdateListener(mOverScrollUpdateListener);
         // Set the duration based on the amount of dips we're travelling in
         final float distanceDp = Math.abs(mOffsetTop - toOffsetTop) /
                 mView.getResources().getDisplayMetrics().density;
-        mOffsetToAnimator.setDuration(Math.round(distanceDp * 1000 / ANIMATE_OFFSET_DIPS_PER_SECOND));
+        int duration = Math.round(distanceDp * 1000 / ANIMATE_OFFSET_DIPS_PER_SECOND);
 
-        mOffsetToAnimator.setIntValues(mOffsetTop, toOffsetTop);
-        mOffsetToAnimator.start();
+        mValueAnimator.setDuration(Math.min(duration,500));
+
+        mValueAnimator.setIntValues(mOffsetTop, toOffsetTop);
+        mValueAnimator.removeAllListeners();
+        if(mAnimatorListener ==null){
+            mAnimatorListener = new AnimatorListener(callback);
+        }
+        mAnimatorListener.setCallback(callback);
+        mValueAnimator.addListener(new AnimatorListener(callback));
+        mValueAnimator.start();
+        return true;
+    }
+    AnimatorListener mAnimatorListener;
+    public boolean animateOffsetTo( final int toOffsetTop) {
+
+        return animateOffsetTo(toOffsetTop,null);
     }
 
 
@@ -150,7 +163,6 @@ public class ViewOffsetHelper {
         mUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
                 if (mScroller.computeScrollOffset()) {
                     setTopAndBottomOffset(mScroller.getCurrY());
 
@@ -159,64 +171,52 @@ public class ViewOffsetHelper {
                 }
             }
         };
-        mValueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        mValueAnimator.setRepeatCount(Animation.INFINITE);
-        mValueAnimator.setRepeatMode(ValueAnimator.RESTART);
-        mValueAnimator.setDuration(1000);
+        mValueAnimator =  new ValueAnimator();
+        mValueAnimator.setIntValues(0, 10000);
+        mValueAnimator.setRepeatCount(0);
         //fuck you! the default interpolator is AccelerateDecelerateInterpolator
-        mValueAnimator.setInterpolator(new LinearInterpolator());
-    }
 
+    }
+    LinearInterpolator mLinearInterpolator =new LinearInterpolator();
+    DecelerateInterpolator mDecelerateInterpolator = new DecelerateInterpolator();
     public void startAnim() {
+        mValueAnimator.removeAllListeners();
         mValueAnimator.removeAllUpdateListeners();
         mValueAnimator.addUpdateListener(mUpdateListener);
-        mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mValueAnimator.setDuration(1000);
+        mValueAnimator.setIntValues(0, 10000);
+        mValueAnimator.setInterpolator(mLinearInterpolator);
         mValueAnimator.start();
     }
 
     public void stopScroll() {
-        mValueAnimator.removeUpdateListener(mUpdateListener);
+        if(mValueAnimator.isRunning()){
+            mValueAnimator.cancel();
+        }
         mValueAnimator.removeAllUpdateListeners();
-        mValueAnimator.setRepeatCount(0);
         mValueAnimator.setDuration(0);
         mValueAnimator.end();
         mScroller.abortAnimation();
     }
 
-    public void fling(int velocityY, final int minY, final int maxY) {
-        Log.e("watcher", minY+"minY"+velocityY +"velocityY" + maxY);
+    public boolean fling(int velocityY, final int minY, final int maxY) {
         stopScroll();
-        if(velocityY < 0){
-//            if(getScrollY()-minY <= mTouchSlop){
-//                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mParent.scrollTo(0,minY);
-//                    }
-//                },16);
-//                return;
-//            }
-        }
-        if(velocityY > 0){
-//            if(maxY - getScrollY() <= mTouchSlop){
-//                ViewCompat.postOnAnimationDelayed(mParent, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mParent.scrollTo(0,maxY);
-//                    }
-//                },16);
-//                return;
-//            }
-        }
         if(velocityY>0){
+            if(mOffsetTop==Math.max(minY,maxY)){
+                return false;
+            }
             mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0, Math.min(minY, maxY),
                     Math.max(minY, maxY));
         }else{
+            if(mOffsetTop==Math.min(minY,maxY)){
+                return false;
+            }
             mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0,  Math.min(minY,maxY),
                     Math.max(minY,maxY));
         }
+
         startAnim();
+        return true;
     }
 
     public void resetOffsetTop() {
@@ -266,35 +266,100 @@ public class ViewOffsetHelper {
         mOffsetAnimator.setIntValues(currentOffset, offset);
         mOffsetAnimator.start();
     }
-    private int mHeaderHeight;
     private void dispatchScrollChanged(View child, int startOffsetTop, int endOffsetTop, int parentScrollDy, int rangeEnd){
         final NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
 //        if(!lp.hasOffsetChangedListener()){
 //            return;
 //        }
-        if(lp.hasScrollFlag()){
-//            int rangeStart =lp.getLayoutTop() - lp.topMargin;
-            final int min = Math.min(rangeEnd,0);
-            final int  max = Math.max(rangeEnd,0);
-            int range = max - min;
-            if(Math.max(startOffsetTop, endOffsetTop)>=min&& Math.min(startOffsetTop, endOffsetTop)<= max){
-                int offsetDy = 0;
-                float rate = .0f;
-                int offsetPix = 0;
-                int endScrollYModify = endOffsetTop;
-                if(endScrollYModify < min){
-                    endScrollYModify = min ;
-                }
-                if(endScrollYModify > max){
-                    endScrollYModify = max;
-                }
-                offsetPix = endScrollYModify;
+        final int min = Math.min(rangeEnd,lp.mOverScrollDistance);
+        final int  max = Math.max(rangeEnd,lp.mOverScrollDistance);
+        int range = 0 - min;
+        int top = child.getTop();
+        int maxTop = (lp.isApplyInsets?lp.mTopInset:0)+lp.mOverScrollDistance;
+        int minTop =maxTop - lp.mOverScrollDistance-child.getMeasuredHeight() -lp.topMargin+lp.bottomMargin  + lp.getUpNestedPreScrollRange() ;
+        if(top<=maxTop &&top>=minTop){
+            int offsetDy = 0;
+            float rate = .0f;
+            int offsetPix = 0;
+            int endScrollYModify = endOffsetTop;
+            if(endScrollYModify < min){
+                endScrollYModify = min ;
+            }
+            if(endScrollYModify > max){
+                endScrollYModify = max;
+            }
+            offsetPix = endScrollYModify;
+            rate =(offsetPix)/((float) range);
+            offsetDy = endScrollYModify - startOffsetTop;
+            lp.onScrollChanged(rate,offsetDy,offsetPix,range,parentScrollDy);
+        }
+        Log.e("endOffsetTop","endOffsetTop" +endOffsetTop);
+
+    }
+    private void dispatchScrollChanged(View child, int startOffsetTop, int endOffsetTop, int parentScrollDy){
+        final NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) child.getLayoutParams();
+//        if(!lp.hasOffsetChangedListener()){
+//            return;
+//        }
+        final int top = child.getTop();
+        if(top<=0&&top>=-child.getMeasuredHeight()){
+
+        }
+        int rangeEnd = child.getMeasuredHeight();
+        final int min = Math.min(rangeEnd,0);
+        final int  max = Math.max(rangeEnd,0);
+        int range = max - min;
+        if(Math.max(startOffsetTop, endOffsetTop)>=min&& Math.min(startOffsetTop, endOffsetTop)<= max){
+            int offsetDy = 0;
+            float rate = .0f;
+            int offsetPix = 0;
+            int endScrollYModify = endOffsetTop;
+            if(endScrollYModify < min){
+                endScrollYModify = min ;
+            }
+            if(endScrollYModify > max){
+                endScrollYModify = max;
+            }
+            offsetPix = endScrollYModify;
 //
-                rate =(offsetPix)/((float) range);
-                offsetDy = endScrollYModify - startOffsetTop;
-                lp.onScrollChanged(rate,offsetDy,offsetPix,range,parentScrollDy);
+            rate =(offsetPix)/((float) range);
+            offsetDy = endScrollYModify - startOffsetTop;
+            lp.onScrollChanged(rate,offsetDy,offsetPix,range,parentScrollDy);
+        }
+
+    }
+    public static class AnimatorListener implements  Animator.AnimatorListener{
+        AnimCallback callback;
+        public void setCallback(AnimCallback callback){
+            this.callback = callback;
+        }
+        public AnimatorListener(AnimCallback callback){
+            this.callback = callback;
+        }
+        @Override
+        public void onAnimationStart(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            if(callback !=null){
+                callback.onAnimationEnd();
             }
         }
 
+        @Override
+        public void onAnimationCancel(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+
+        }
+    }
+    public  interface AnimCallback{
+        void onAnimationUpdate(int value);
+        void onAnimationEnd();
     }
 }
