@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eeeeee">
-    <com.ytjojo.viewlib.nestscrolllayout.demo.RefreshHeaderLoadingView
+    <com.ytjojo.viewlib.nestedscrolllayout.demo.RefreshHeaderLoadingView
         android:layout_width="match_parent"
         android:id="@+id/refreshHeader"
         android:layout_gravity="top"

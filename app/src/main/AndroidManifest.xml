@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ytjojo.viewlib.nestscrolllayout.demo">
+          package="com.ytjojo.viewlib.nestedscrolllayout.demo">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -20,35 +20,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.DetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".ListActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.ListActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".WebActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.WebActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".NestScorllActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.NestScorllActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".JianshuActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.JianshuActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".ExistUntilOneNest"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.ExistUntilOneNest"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".NoHeaderTwoNest"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.NoHeaderTwoNest"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".CollapingLayoutTwoNeestedActivity"
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.CollapingLayoutTwoNeestedActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>

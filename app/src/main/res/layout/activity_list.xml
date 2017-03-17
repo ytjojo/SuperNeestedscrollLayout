@@ -25,7 +25,7 @@ android:layout_height="match_parent"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></com.ytjojo.viewlib.nestedsrolllayout.CompatListView>
-    <com.ytjojo.viewlib.nestscrolllayout.demo.RefreshHeaderLoadingView
+    <com.ytjojo.viewlib.nestedscrolllayout.demo.RefreshHeaderLoadingView
         android:layout_width="match_parent"
         android:id="@+id/refreshFooter"
         android:layout_gravity="top"
