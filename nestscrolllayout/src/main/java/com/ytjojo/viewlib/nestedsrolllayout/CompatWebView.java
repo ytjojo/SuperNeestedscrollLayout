@@ -21,10 +21,10 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class EmbeddedWebView extends WebView implements NestedScrollingChild {
+public class CompatWebView extends WebView implements NestedScrollingChild {
 
     private static final int INVALID_POINTER = -1;
-    private static String TAG = EmbeddedWebView.class.getSimpleName();
+    private static String TAG = CompatWebView.class.getSimpleName();
     private int consumedY;
     private int contentHeight = -1;
     private float density;
@@ -53,15 +53,15 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
     private int mTouchSlop;
     private int webviewHeight = -1;
 
-    public EmbeddedWebView(Context paramContext) {
+    public CompatWebView(Context paramContext) {
         this(paramContext, null);
     }
 
-    public EmbeddedWebView(Context context, @Nullable AttributeSet attrs) {
+    public CompatWebView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public EmbeddedWebView(Context paramContext, AttributeSet paramAttributeSet, int paramInt) {
+    public CompatWebView(Context paramContext, AttributeSet paramAttributeSet, int paramInt) {
         super(paramContext, paramAttributeSet, paramInt);
         init();
     }
@@ -513,13 +513,13 @@ public class EmbeddedWebView extends WebView implements NestedScrollingChild {
 
         @Deprecated
         public final boolean shouldOverrideUrlLoading(WebView paramWebView, String paramString) {
-            if ((paramWebView instanceof EmbeddedWebView)) {
+            if ((paramWebView instanceof CompatWebView)) {
                 Log.i(TAG, "shouldOverrideUrlLoading : " + paramString);
                 if ((TextUtils.isEmpty(paramString)) || (URLUtil.isAboutUrl(paramString))) {
                     Log.i(TAG, "Invalid url = " + paramString);
                     return true;
                 }
-                if (!((EmbeddedWebView) paramWebView).isBeingDragged())
+                if (!((CompatWebView) paramWebView).isBeingDragged())
                     return shouldHandleUrlLoading(paramWebView, paramString);
             }
             return super.shouldOverrideUrlLoading(paramWebView, paramString);

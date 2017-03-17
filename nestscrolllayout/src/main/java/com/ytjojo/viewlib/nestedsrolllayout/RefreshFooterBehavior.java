@@ -65,6 +65,9 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
         ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
         for (int i = 0; i < childCount; i++) {
             View itemView = nestedScrollLayout.getChildAt(i);
+            if(itemView.getVisibility() ==View.GONE){
+                continue;
+            }
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) itemView.getLayoutParams();
             Behavior viewBehavior = lp.getBehavior();
             if(lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)){

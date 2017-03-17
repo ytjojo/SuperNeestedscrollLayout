@@ -13,7 +13,7 @@ public class DirectionDetector {
     }
 
 
-    public int getDirection(int deltaY, EmbeddedWebView.OnScrollChangeListener paramc) {
+    public int getDirection(int deltaY, CompatWebView.OnScrollChangeListener paramc) {
         int direction = getDirection(deltaY);
         if (paramc != null)
             paramc.onChildDirectionChange(direction);
