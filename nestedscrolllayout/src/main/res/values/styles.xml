@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.CollapsingLayout" parent="android:Widget">
+        <item name="expandedTitleMargin">32dp</item>
+        <item name="statusBarScrim">?attr/colorPrimary</item>
+    </style>
+    <style name="Widget.Design.SuperNestedLayout" parent="android:Widget">
+        <item name="statusBarBackground">?attr/colorPrimaryDark</item>
+    </style>
+</resources>
