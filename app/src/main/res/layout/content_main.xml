@@ -12,13 +12,12 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.ytjojo.viewlib.nestedscrolllayout.demo.MainActivity"
     tools:showIn="@layout/app_bar_main">
-    <com.ytjojo.viewlib.nestedscrolllayout.demo.RefreshHeaderLoadingView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:nestedScrollingEnabled="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"/>
 
-    </com.ytjojo.viewlib.nestedscrolllayout.demo.RefreshHeaderLoadingView>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
 </RelativeLayout>

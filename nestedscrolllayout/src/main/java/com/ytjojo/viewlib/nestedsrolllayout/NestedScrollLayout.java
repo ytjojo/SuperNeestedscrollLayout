@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -42,8 +43,12 @@ import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +64,9 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     private final NestedScrollingChildHelper mNestedScrollingChildHelper;
     private final int[] mParentScrollConsumed = new int[2];
     private final int[] mParentOffsetInWindow = new int[2];
+    public static final boolean isLolliPop = Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP;
+
+    public boolean mNestedParentAcepted;
 
     private Paint mScrimPaint;
     private boolean mNestedScrollInProgress;
@@ -99,6 +107,9 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
         setNestedScrollingEnabled(true);
+        if(!isLolipop){
+            setChildrenDrawingOrderEnabled(true);
+        }
         mScroller = ScrollerCompat.create(getContext(), null);
         mLayoutManager = new LayoutManager(this);
         setupForWindowInsets();
@@ -123,12 +134,19 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mNestedParentAcepted = false;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (getChildCount() < 1) {
             return;
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mLayoutManager.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        resetChildDraingOrder();
     }
     public void measureChildFixed(View child,
                                         int parentWidthMeasureSpec, int widthUsed,
@@ -152,21 +170,70 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         }
     }
 
+    ArrayList<Integer> mChildIndexs ;
+    private void resetChildDraingOrder(){
+        if(isLolipop|| !isDrawingCacheEnabled()){
+            return;
+        }
+        if(mChildIndexs ==null){
+            mChildIndexs = new ArrayList<>();
+        }else{
+            mChildIndexs.clear();
+        }
+        int childCount = getChildCount();
+        List<View> sortedDrawingOrderChildren = new ArrayList<>();
+        sortedDrawingOrderChildren.addAll( mLayoutManager.getDependencySortedChildren());
+
+        Collections.sort(sortedDrawingOrderChildren,mDrawingOrderComparator);
+        for (int i = 0; i < childCount; i++) {
+             int indexOfdependency= indexOfChild(sortedDrawingOrderChildren.get(i));
+            mChildIndexs.add(indexOfdependency);
+        }
+//        Collections.swap(mChildIndexs,fromPosition,toPosition);
+
+
+
+    }
+
+    final Comparator<View> mDrawingOrderComparator = new Comparator<View>() {
+        @Override
+        public int compare(View lhs, View rhs) {
+            if (lhs == rhs) {
+                return 0;
+            }else if( ((LayoutParams)lhs.getLayoutParams()).mDrawingOrderElevation> ((LayoutParams)rhs.getLayoutParams()).mDrawingOrderElevation){
+                return 1;
+            }else if(((LayoutParams)lhs.getLayoutParams()).mDrawingOrderElevation < ((LayoutParams)rhs.getLayoutParams()).mDrawingOrderElevation){
+                return -1;
+            }else{
+                return 0;
+            }
+        }
+    };
+
     @Override
     protected int getChildDrawingOrder(int childCount, int i) {
-        if (mTopViewIndex < 0) {
-            return i;
-        } else if (i == childCount - 1) {
-            // Draw the selected child last
-            return mTopViewIndex;
-        } else if (i >= mTopViewIndex) {
-            // Move the children after the selected child earlier one
-            return i + 1;
-        } else {
-            // Keep the children before the selected child the same
+        if(mChildIndexs ==null||mChildIndexs.size()!=childCount){
             return i;
         }
+        return mChildIndexs.get(i);
     }
+
+
+//    @Override
+//    protected int getChildDrawingOrder(int childCount, int i) {
+//        if (mTopViewIndex < 0) {
+//            return i;
+//        } else if (i == childCount - 1) {
+//            // Draw the selected child last
+//            return mTopViewIndex;
+//        } else if (i >= mTopViewIndex) {
+//            // Move the children after the selected child earlier one
+//            return i + 1;
+//        } else {
+//            // Keep the children before the selected child the same
+//            return i;
+//        }
+//    }
 
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
@@ -209,7 +276,8 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
     @Override
     public boolean startNestedScroll(int axes) {
-        return mNestedScrollingChildHelper.startNestedScroll(axes);
+        mNestedParentAcepted = mNestedScrollingChildHelper.startNestedScroll(axes);
+        return mNestedParentAcepted;
     }
 
     @Override
@@ -312,7 +380,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         // Finish the spinner for nested scrolling if we ever consumed any
         // unconsumed nested scroll
         // Dispatch up our nested parent
-        stopNestedScroll();
+
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View view = getChildAt(i);
@@ -332,11 +400,14 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
 
         }
-
+//        stopNestedScroll();
         mNestedScrollingDirectChild = null;
         mNestedScrollingTarget = null;
         mNestedScrollInProgress = false;
+        mSkipNestedPreScrollFling = false;
     }
+
+    private boolean mSkipNestedPreScrollFling;
     public void resetNestedScrollInProgress(){
         mNestedScrollInProgress = false;
     }
@@ -346,6 +417,11 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         final int childCount = getChildCount();
         int dyAlreadyConsumed = dyConsumed;
         int dyUnConsumedSurplus = dyUnconsumed;
+        if(dyUnconsumed < 0){
+            mSkipNestedPreScrollFling = true;
+        }else{
+            mSkipNestedPreScrollFling = false;
+        }
         if(dyUnconsumed > 0){
             for (int i = 0; i < childCount; i++) {
                 final View view = getChildAt(i);
@@ -469,10 +545,22 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         // Now let our nested parent consume the leftovers
         final int[] parentConsumed = mParentScrollConsumed;
         if ((dy - consumed[1]) != 0) {
-            parentConsumed[0] = parentConsumed[1] = 0;
-            if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
-                consumed[0] += parentConsumed[0];
-                consumed[1] += parentConsumed[1];
+            /**
+             * 这个判断的目的是往下拉触发AppbarLayout的onNestedScroll方法
+             * 结束拖拽的时候会触发AppbarLayout.onNestedFling
+             */
+            if(mNestedParentAcepted &&!mSkipNestedPreScrollFling&& dy<0 &&!canChildScrollUp() ){
+                parentConsumed[0] = parentConsumed[1] = 0;
+                if( dispatchNestedScroll(consumed[0],dx -consumed[0], consumed[1],dy-consumed[1],parentConsumed)){
+                    consumed[0] += parentConsumed[0];
+                    consumed[1] += parentConsumed[1];
+                }
+            }else{
+                parentConsumed[0] = parentConsumed[1] = 0;
+                if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
+                    consumed[0] += parentConsumed[0];
+                    consumed[1] += parentConsumed[1];
+                }
             }
 
         }
@@ -868,7 +956,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
          */
         static final int FLAG_QUICK_RETURN = SCROLL_FLAG_SCROLL | SCROLL_FLAG_ENTER_ALWAYS;
         static final int FLAG_SNAP = SCROLL_FLAG_SCROLL | SCROLL_FLAG_SNAP;
-
+        public static final boolean isLolipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
         public static final int LAYOUT_FLAG_FRAMLAYOUT = 0x1;
         public static final int LAYOUT_FLAG_LINEARVERTICAL = 0x2;
@@ -900,7 +988,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
         private int mRelativeOffsetRange = INVALID_SCROLL_RANGE;
         float mRelativeOffsetRangeRate;
-
+        protected float mDrawingOrderElevation;
         boolean mBehaviorResolved;
         int mOverScrollDistance;
         protected int mBaseLine;
@@ -908,6 +996,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         float mScrimOpacity;
         @ColorInt
         int mScrimColor;
+
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -941,7 +1030,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
                 mOverScrollDistance=a.getDimensionPixelSize(R.styleable.NestedScrollLayout_LayoutParams_overScrollDistance,0);
 
             }
-
+            mDrawingOrderElevation = a.getDimensionPixelSize(R.styleable.NestedScrollLayout_LayoutParams_draingOrderElevation,0);
             a.recycle();
         }
 
@@ -1003,6 +1092,9 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
         public void setAttactchedView(View v) {
             this.mAttachedView = v;
+            if(isLolipop&&mDrawingOrderElevation > 0){
+                mAttachedView.setElevation(mDrawingOrderElevation);
+            }
         }
 
         int mMeasuredHeight;
@@ -1015,7 +1107,12 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
         }
 
-
+        public void setDrawingOrderElevation(float elevation){
+            this.mDrawingOrderElevation = elevation;
+            if(isLolipop && mAttachedView !=null){
+                mAttachedView.setElevation(elevation);
+            }
+        }
 
 
         public void acceptNestedScroll(boolean accept) {
@@ -1435,13 +1532,15 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        final float scrimAlpha = lp.mBehavior!=null? lp.mBehavior.getScrimOpacity(this, child):lp.getScrimOpacity();
-        if (scrimAlpha > 0f) {
+        final float scrimOpacity = lp.mBehavior!=null? lp.mBehavior.getScrimOpacity(this, child):lp.getScrimOpacity();
+        if (scrimOpacity > 0f) {
             if (mScrimPaint == null) {
                 mScrimPaint = new Paint();
             }
-            mScrimPaint.setColor(lp.mBehavior!=null?lp.mBehavior.getScrimColor(this, child):lp.getScrimColor());
-            mScrimPaint.setAlpha(CollapsingTextHelper.constrain(Math.round(255 * scrimAlpha), 0, 200));
+            int color = lp.mBehavior!=null?lp.mBehavior.getScrimColor(this, child):lp.getScrimColor();
+            mScrimPaint.setColor(color);
+            int alpha = Math.round(Color.alpha(color) * scrimOpacity);
+            mScrimPaint.setAlpha(CollapsingTextHelper.constrain(alpha, 0, 255));
 
             final int saved = canvas.save();
             if (child.isOpaque()&&lp.mBehavior != null) {

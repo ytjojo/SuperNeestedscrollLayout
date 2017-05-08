@@ -24,6 +24,7 @@
         <attr name="baseLine" format="dimension"/>
         <attr name="controlBehaviorName" format="string"/>
         <attr name="overScrollDistance" format="dimension"/>
+        <attr name="draingOrderElevation" format="dimension"/>
         <attr name="scrollFlags">
             <!-- The view will be scroll in direct relation to scroll events. This flag needs to be
                  set for any of the other flags to take effect. If any sibling views
@@ -219,6 +220,7 @@
                  layout_collapseParallaxMultiplier attribute to change the multiplier. -->
             <enum name="parallax" value="2"/>
             <enum name="overScrollScale" value="4"/>
+            <enum name="overScrollScaleParallax" value="8"/>
         </attr>
 
         <!-- The multiplier used when layout_collapseMode is set to 'parallax'. The value should

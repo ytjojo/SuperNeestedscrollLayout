@@ -1,186 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#eeeeee">
+    android:background="#eeeeee"
+    android:fitsSystemWindows="true">
+
     <com.ytjojo.viewlib.nestedscrolllayout.demo.RefreshHeaderLoadingView
-        android:layout_width="match_parent"
         android:id="@+id/refreshHeader"
-        app:anchor="@+id/tv_header"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_gravity="top"
         android:fitsSystemWindows="true"
+        app:anchor="@+id/tv_header"
         app:anchorGravity="right|bottom"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior"
-        android:layout_height="60dp"/>
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior"/>
+
     <TextView
-        android:fitsSystemWindows="false"
         android:id="@+id/tv_header"
-        android:text="这是头部"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#ff0000"
+        android:fitsSystemWindows="false"
         android:gravity="center"
+        android:minHeight="?attr/actionBarSize"
+        android:text="这是头部"
         android:textSize="30dp"
         app:controlBehaviorName="ScrollViewBehavior"
-        android:minHeight="?attr/actionBarSize"
-        android:background="#ff0000"
-        app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"/>
+
     <ImageView
-        android:src="@drawable/quila"
-        app:anchor="@id/tv_header"
-        app:anchorGravity="right|bottom"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
-        android:layout_width="60dp"
-        android:layout_height="60dp"/>
+        android:src="@drawable/quila"
+        app:anchor="@id/tv_header"
+        app:anchorGravity="right|bottom"/>
+
     <android.support.v4.widget.NestedScrollView
-        android:fitsSystemWindows="true"
-        app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="#90ffffff"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingTop="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/card_margin">
-
-                <LinearLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Info"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
-
-                <LinearLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Friends"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
-
-                <LinearLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Related"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
-
-                <LinearLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Last"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:background="#00000000"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
-    <TextView
-        app:controlBehaviorName="ScrollViewBehavior"
-        android:text="这是中间"
-        android:gravity="center"
-        android:textSize="30dp"
-        android:background="#70fff000"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"/>
-    <android.support.v4.widget.NestedScrollView
-        app:controlBehaviorName="ScrollViewBehavior"
+        android:fitsSystemWindows="true"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
-        android:background="#EEffffff"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        app:controlBehaviorName="ScrollViewBehavior"
         >
 
         <LinearLayout
@@ -200,17 +65,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Info"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -229,17 +94,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Friends"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -258,17 +123,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Related"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -287,17 +152,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Last"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -306,22 +171,22 @@
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
-    <TextView
 
-        app:controlBehaviorName="BottomSheetBehavior"
-        app:scrollFlags="scroll"
-        android:background="#f2e4e4"
+    <TextView
         android:layout_width="match_parent"
-        android:textSize="15sp"
+        android:layout_height="500dp"
+        android:background="#70fff000"
         android:gravity="center"
-        android:layout_height="200dp"
-        android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我" />
+        android:text="这是中间"
+        android:textSize="30dp"
+        app:controlBehaviorName="ScrollViewBehavior"/>
+
     <android.support.v4.widget.NestedScrollView
-        app:controlBehaviorName="BottomSheetBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.BottomSheetBehavior"
-        android:background="#EEffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#EEffffff"
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        app:controlBehaviorName="ScrollViewBehavior"
         >
 
         <LinearLayout
@@ -341,17 +206,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Info"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -370,17 +235,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Friends"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -399,17 +264,17 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Related"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 
@@ -428,17 +293,165 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="#00000000"
                         android:text="Last"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
                     <TextView
-                        android:background="#00000000"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/cheese_ipsum" />
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <TextView
+
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#f2e4e4"
+        android:gravity="center"
+        android:minHeight="50dp"
+        android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
+        android:textSize="15sp"
+        app:controlBehaviorName="BottomSheetBehavior"
+        app:scrollFlags="scroll|exitUntilCollapsed|enterAlways"/>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#EEffffff"
+        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.BottomSheetBehavior"
+        app:behavior_canExpandedFully="true"
+        app:behavior_hideable="true"
+        app:BottomSheet_peekHeight="50dp"
+        app:BottomSheet_minOffset="50dp"
+        app:controlBehaviorName="BottomSheetBehavior"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Info"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Friends"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Related"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Last"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
 
                 </LinearLayout>
 

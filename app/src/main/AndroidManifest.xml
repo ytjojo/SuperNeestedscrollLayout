@@ -51,6 +51,10 @@
             android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.CollapingLayoutTwoNeestedActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name="com.ytjojo.viewlib.nestedscrolllayout.demo.RecyclerViewActvity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

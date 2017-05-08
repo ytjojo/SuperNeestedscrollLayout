@@ -22,12 +22,14 @@
         android:gravity="center"
         android:textSize="30dp"
         app:controlBehaviorName="ScrollViewBehavior"
+        app:draingOrderElevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:background="#ff0000"
         app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
     <ImageView
+        app:draingOrderElevation="5dp"
         android:src="@drawable/quila"
         app:anchor="@id/tv_header"
         app:anchorGravity="right|bottom"

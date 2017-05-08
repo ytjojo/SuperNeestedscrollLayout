@@ -69,7 +69,7 @@ public class TouchEventWatcher {
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         mTouchSlop = configuration.getScaledTouchSlop();
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity() * 2;
-        mMaximumVelocity = (int) (configuration.getScaledMaximumFlingVelocity() * 0.5f);
+        mMaximumVelocity = (int) (configuration.getScaledMaximumFlingVelocity() * 0.3f);
         setupAnimators();
     }
 
@@ -271,20 +271,6 @@ public class TouchEventWatcher {
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_MOVE: {
-
-                if (isBlockingInteractionBelow == null) {
-                    if (mParent.isBlockingInteractionBelow(mLastMotionX,mLastMotionY)) {
-                        isBlockingInteractionBelow = Boolean.TRUE;
-                    } else {
-                        isBlockingInteractionBelow = Boolean.FALSE;
-                        return false;
-                    }
-
-                } else {
-                    if (isBlockingInteractionBelow && mParent.isNestedScrollInProgress()) {
-                        return false;
-                    }
-                }
                 final int activePointerId = mActivePointerId;
                 if (activePointerId == INVALID_POINTER) {
                     // If we don't have TOP valid id, the touch down wasn't on content.
@@ -300,6 +286,21 @@ public class TouchEventWatcher {
 
                 final int y = (int) MotionEventCompat.getY(ev, pointerIndex);
                 final int yDiff = Math.abs(y - mLastMotionY);
+                if (yDiff > mTouchSlop) {
+                    if (isBlockingInteractionBelow == null) {
+                        if (mParent.isBlockingInteractionBelow(mLastMotionX, mLastMotionY)) {
+                            isBlockingInteractionBelow = Boolean.TRUE;
+                        } else {
+                            isBlockingInteractionBelow = Boolean.FALSE;
+                        }
+
+                    }
+                }
+                if(isBlockingInteractionBelow !=null && isBlockingInteractionBelow&& mParent.isNestedScrollInProgress()){
+                    return false;
+                }
+
+
                 if (yDiff > mTouchSlop
                         && (mParent.getNestedScrollAxes() & ViewCompat.SCROLL_AXIS_VERTICAL) == 0) {
                     Log.e(getClass().getName(), "onInterceptTouchEvent");
@@ -348,7 +349,9 @@ public class TouchEventWatcher {
                 mActivePointerId = INVALID_POINTER;
                 recycleVelocityTracker();
                 //TODO anim
-                mParent.stopNestedScroll();
+                if(!mParent.isNestedScrollInProgress()){
+                    mParent.stopNestedScroll();
+                }
                 break;
             case MotionEventCompat.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
@@ -407,7 +410,7 @@ public class TouchEventWatcher {
                 mLastMotionX = (int) ev.getX();
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mParent.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
-                mParent.onStartDrag(mLastMotionX,mLastMotionY);
+                mParent.onStartDrag(mLastMotionX, mLastMotionY);
                 break;
             }
             case MotionEvent.ACTION_MOVE:
@@ -449,7 +452,7 @@ public class TouchEventWatcher {
                     mLastMotionY = y - mParentOffsetInWindow[1];
 
                     final int scrolledDeltaY = mParent.dragedScrollBy(0, deltaY);
-                    ;
+
                     final int unconsumedY = deltaY - scrolledDeltaY;
                     if (mParent.dispatchNestedScroll(0, scrolledDeltaY, 0, unconsumedY, mParentOffsetInWindow)) {
                         mLastMotionY -= mParentOffsetInWindow[1];
@@ -494,7 +497,7 @@ public class TouchEventWatcher {
 //                        ViewCompat.postInvalidateOnAnimation(mParent);
 //                    }
 //                }
-                if(mIsBeingDragged){
+                if (mIsBeingDragged) {
                     mParent.onStopDrag();
                 }
                 mActivePointerId = INVALID_POINTER;

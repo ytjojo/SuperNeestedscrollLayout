@@ -26,7 +26,7 @@ import android.widget.ListView;
  */
 public class CompatListView extends ListView implements NestedScrollingChild {
     private static final int INVALID_POINTER = -1;
-    private NestedScrollingChildHelper helper;
+    private NestedScrollingChildHelper mHelper;
     private int mLastMotionY;
     private final int[] mScrollOffset = new int[2];
     private final int[] mScrollConsumed = new int[2];
@@ -70,7 +70,7 @@ public class CompatListView extends ListView implements NestedScrollingChild {
 
     public CompatListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        helper = new NestedScrollingChildHelper(this);
+        mHelper = new NestedScrollingChildHelper(this);
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
@@ -88,44 +88,49 @@ public class CompatListView extends ListView implements NestedScrollingChild {
 //    }
 
     @Override
+    public boolean isNestedScrollingEnabled() {
+        return mHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
     public void setNestedScrollingEnabled(boolean enabled) {
-        helper.setNestedScrollingEnabled(enabled);
+        mHelper.setNestedScrollingEnabled(enabled);
     }
 
     @Override
     public boolean startNestedScroll(int axes) {
-        return helper.startNestedScroll(axes);
+        return mHelper.startNestedScroll(axes);
     }
 
     @Override
     public void stopNestedScroll() {
-        helper.stopNestedScroll();
+        mHelper.stopNestedScroll();
     }
 
     @Override
     public boolean hasNestedScrollingParent() {
-        return helper.hasNestedScrollingParent();
+        return mHelper.hasNestedScrollingParent();
     }
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-        return helper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+        return mHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        return helper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        return mHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
 //        Log.e(getClass().getName(),velocityY + "list y");
-        return helper.dispatchNestedFling(velocityX, velocityY, consumed);
+        return mHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-        return helper.dispatchNestedPreFling(velocityX, velocityY);
+        return mHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
 
@@ -344,7 +349,7 @@ public class CompatListView extends ListView implements NestedScrollingChild {
                         }
                     }
                     if(canDispatch){
-                        final int scrolledDeltaY =getScrollDy(ev);;
+                        final int scrolledDeltaY =getScrollDy(ev);
                         final int unconsumedY = deltaY - scrolledDeltaY;
                         if (dispatchNestedScroll(0, scrolledDeltaY, 0, unconsumedY, mScrollOffset)) {
                             mLastMotionY -= mScrollOffset[1];
@@ -520,7 +525,7 @@ public class CompatListView extends ListView implements NestedScrollingChild {
         };
         mValueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
         mValueAnimator.setRepeatCount(Animation.INFINITE);
-        mValueAnimator.setRepeatMode(Animation.RESTART);
+        mValueAnimator.setRepeatMode(ValueAnimator.RESTART);
         mValueAnimator.setDuration(1000);
         //fuck you! the default interpolator is AccelerateDecelerateInterpolator
         mValueAnimator.setInterpolator(new LinearInterpolator());

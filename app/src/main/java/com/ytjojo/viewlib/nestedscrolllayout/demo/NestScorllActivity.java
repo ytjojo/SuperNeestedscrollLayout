@@ -22,12 +22,12 @@ public class NestScorllActivity extends AppCompatActivity {
         headerBehavior.setOnLoadListener(new OnLoadListener() {
             @Override
             public void onLoad() {
-//                headerLoadingView.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        headerBehavior.setRefreshComplete();
-//                    }
-//                },40000);
+                headerLoadingView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerBehavior.setRefreshComplete();
+                    }
+                },40000);
             }
         });
 

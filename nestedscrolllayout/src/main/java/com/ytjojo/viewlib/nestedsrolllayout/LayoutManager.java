@@ -124,6 +124,9 @@ public class LayoutManager {
             }
         }
     }
+    public List<View> getDependencySortedChildren(){
+        return mDependencySortedChildren;
+    }
 
     private void prepareChildren() {
         mDependencySortedChildren.clear();

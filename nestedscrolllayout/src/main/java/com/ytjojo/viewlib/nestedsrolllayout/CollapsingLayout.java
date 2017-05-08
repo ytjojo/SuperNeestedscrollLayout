@@ -4,6 +4,7 @@ package com.ytjojo.viewlib.nestedsrolllayout;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -34,6 +35,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
@@ -378,12 +380,11 @@ public class CollapsingLayout extends FrameLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
     }
+    boolean isSetedClipChidren;
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        ViewCompat.setPivotX(mNestedDirecteChild,mNestedDirecteChild.getMeasuredWidth()/2);
-        ViewCompat.setPivotY(mNestedDirecteChild,mNestedDirecteChild.getMeasuredHeight());
         // Update the collapsed bounds by getting it's transformed bounds. This needs to be done
         // before the children are offset below
         if (mCollapsingTitleEnabled && mDummyView != null) {
@@ -430,6 +431,26 @@ public class CollapsingLayout extends FrameLayout {
                     ViewCompat.offsetTopAndBottom(child, insetTop);
                 }
             }
+            if(!isSetedClipChidren){
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                if(lp.mCollapseMode == LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALE||lp.mCollapseMode == LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALEPARALLAX){
+                    Activity activity = (Activity) getContext();
+                    ViewGroup viewGroup = ((ViewGroup)activity.findViewById(Window.ID_ANDROID_CONTENT));
+                    int childCount = viewGroup.getChildCount();
+                    if(childCount>0){
+                        for (int j = 0; j < childCount ; j++) {
+                            View contentView = viewGroup.getChildAt(j);
+                            if(contentView instanceof ViewGroup){
+                                ((ViewGroup)contentView).setClipChildren(false);
+                            }
+                        }
+                    }
+                    ViewCompat.setClipBounds(CollapsingLayout.this,new Rect(0,-mOverScrollDistance,getWidth(),getMeasuredHeight()));
+                    isSetedClipChidren = true;
+                }
+
+            }
+
 
         }
 
@@ -1102,6 +1123,9 @@ public class CollapsingLayout extends FrameLayout {
 
         public static final int COLLAPSE_MODE_OVSERSCROLLSCALE = 4;
 
+
+        public static final int COLLAPSE_MODE_OVSERSCROLLSCALEPARALLAX = 8;
+
         int mCollapseMode = COLLAPSE_MODE_OFF;
         float mParallaxMult = DEFAULT_PARALLAX_MULTIPLIER;
 
@@ -1217,21 +1241,42 @@ public class CollapsingLayout extends FrameLayout {
                 int curY = (int) ViewCompat.getTranslationY(child);
                 switch (lp.mCollapseMode) {
                     case LayoutParams.COLLAPSE_MODE_PIN:
-                        ViewCompat.setTranslationY(child,CollapsingTextHelper.constrain(verticalOffset, 0, getMaxOffsetForPinChild(child)));
+                        ViewCompat.setTranslationY(child,CollapsingTextHelper.constrain(verticalOffset, -mOverScrollDistance, getMaxOffsetForPinChild(child)));
                         break;
                     case LayoutParams.COLLAPSE_MODE_PARALLAX:
-
-                        ViewCompat.setTranslationY(child,Math.round(verticalOffset * lp.mParallaxMult));
+                        if(verticalOffset >= 0){
+                            ViewCompat.setTranslationY(child,Math.round(verticalOffset * lp.mParallaxMult));
+                        }
+                        break;
+                    case LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALE:
+                        if(verticalOffset<=0){
+                            float h= mNestedDirecteChild.getMeasuredHeight()-verticalOffset;
+                            float ratioScale = h/mNestedDirecteChild.getMeasuredHeight();
+//                        ViewCompat.setScaleX(mNestedDirecteChild,ratioScale);
+//                        ViewCompat.setScaleY(mNestedDirecteChild,ratioScale);
+                            ViewCompat.setPivotX(child,child.getMeasuredWidth()/2);
+                            ViewCompat.setPivotY(child,child.getMeasuredHeight());
+                            ViewCompat.setScaleX(child,ratioScale);
+                            ViewCompat.setScaleY(child,ratioScale);
+                        }
+                        break;
+                    case LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALEPARALLAX:
+                        if(verticalOffset<=0){
+                            float h= mNestedDirecteChild.getMeasuredHeight()-verticalOffset;
+                            float ratioScale = h/mNestedDirecteChild.getMeasuredHeight();
+//                        ViewCompat.setScaleX(mNestedDirecteChild,ratioScale);
+//                        ViewCompat.setScaleY(mNestedDirecteChild,ratioScale);
+                            ViewCompat.setPivotX(child,child.getMeasuredWidth()/2);
+                            ViewCompat.setPivotY(child,child.getMeasuredHeight());
+                            ViewCompat.setScaleX(child,ratioScale);
+                            ViewCompat.setScaleY(child,ratioScale);
+                        }
+                        if(verticalOffset >= 0){
+                            ViewCompat.setTranslationY(child,Math.round(verticalOffset * lp.mParallaxMult));
+                        }
                         break;
                 }
-                if(lp.mCollapseMode == LayoutParams.COLLAPSE_MODE_OVSERSCROLLSCALE){
-                    if(verticalOffset<=0){
-                        float h= mNestedDirecteChild.getMeasuredHeight()-verticalOffset;
-                        float ratioScale = h/mNestedDirecteChild.getMeasuredHeight();
-                        ViewCompat.setScaleX(mNestedDirecteChild,ratioScale);
-                        ViewCompat.setScaleY(mNestedDirecteChild,ratioScale);
-                    }
-                }
+
             }
 
             // Show or hide the scrims if needed
@@ -1242,10 +1287,13 @@ public class CollapsingLayout extends FrameLayout {
             }
 
             // Update the collapsing text's fraction
-            final int expandRange = getHeight() - ViewCompat.getMinimumHeight(
-                    CollapsingLayout.this) - insetTop;
-            mCollapsingTextHelper.setExpansionFraction(
-                    Math.abs(verticalOffset) / (float) expandRange);
+            if(verticalOffset >= 0){
+                final int expandRange = getHeight() - ViewCompat.getMinimumHeight(
+                        CollapsingLayout.this) - insetTop;
+                mCollapsingTextHelper.setExpansionFraction(
+                        Math.abs(verticalOffset) / (float) expandRange);
+            }
+
         }
     }
 }

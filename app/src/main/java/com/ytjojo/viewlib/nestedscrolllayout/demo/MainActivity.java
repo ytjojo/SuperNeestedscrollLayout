@@ -9,10 +9,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 
@@ -42,6 +46,16 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new MyAdapter(new OnItemClick() {
+            @Override
+            public void onItemClick(int postion) {
+                Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
+                startActivity(intent);
+            }
+        }));
+
     }
 
     @Override
@@ -122,5 +136,50 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private class MyAdapter extends RecyclerView.Adapter {
+
+        OnItemClick mOnItemClick;
+        public MyAdapter(OnItemClick onItemClick){
+            this.mOnItemClick = onItemClick;
+        }
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            TextView itemView = new TextView(parent.getContext());
+            itemView.setTextSize(20);
+            return new RecyclerView.ViewHolder(itemView) {
+                @Override
+                public String toString() {
+                    return super.toString();
+                }
+            };
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            ((TextView) holder.itemView).setText(position + ". this is getDirection simple item");
+            holder.itemView.setOnClickListener(new Click(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return 100;
+        }
+
+        public class Click implements View.OnClickListener{
+            int positon;
+            public Click(int postion){
+                this.positon = postion;
+            }
+            @Override
+            public void onClick(View v) {
+                mOnItemClick.onItemClick(positon);
+            }
+        }
+
+    }
+    public  interface OnItemClick{
+        void onItemClick(int postion);
     }
 }

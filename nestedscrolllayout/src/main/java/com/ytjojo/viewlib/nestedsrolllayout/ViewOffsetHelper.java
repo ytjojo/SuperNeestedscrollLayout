@@ -67,10 +67,11 @@ public class ViewOffsetHelper {
     private void updateOffsets() {
         int offsetDy = mOffsetTop - (mView.getTop() -mLayoutTop);
         Logger.e("offsetDy =  " + offsetDy+ "   mOffsetTop = "+ mOffsetTop + " mLayoutTop = " +mLayoutTop);
-        if(mHeader !=null &&mOffsetTop >= mMinHeaderTopOffset ){
+        if(mHeader !=null &&mOffsetTop >= mMinHeaderTopOffset){
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mHeader.getLayoutParams();
             int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
             ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+            int ss = mHeader.getTop();
             dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
         }
         if(mScrollViews !=null){
@@ -158,16 +159,26 @@ public class ViewOffsetHelper {
 
     ValueAnimator mValueAnimator;
     ValueAnimator.AnimatorUpdateListener mUpdateListener;
-    private boolean isNeedCheckHorizontal=false;
+    AnimCallback mAnimcallback;
+    public void setAnimtionCallback(AnimCallback callback){
+        this.mAnimcallback = callback;
+    }
     private void setupAnimators() {
         mUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 if (mScroller.computeScrollOffset()) {
-                    setTopAndBottomOffset(mScroller.getCurrY());
+                    int value = mScroller.getCurrY();
+                    setTopAndBottomOffset(value);
+                    if(mAnimcallback != null){
+                        mAnimcallback.onAnimationUpdate(value);
+                    }
 
                 } else {
                     stopScroll();
+                    if(mAnimcallback != null){
+                        mAnimcallback.onAnimationEnd();
+                    }
                 }
             }
         };
@@ -199,20 +210,21 @@ public class ViewOffsetHelper {
         mScroller.abortAnimation();
     }
 
+    boolean isSnapScroll =false;
     public boolean fling(int velocityY, final int minY, final int maxY) {
         stopScroll();
         if(velocityY>0){
             if(mOffsetTop==Math.max(minY,maxY)){
                 return false;
             }
-            mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0, Math.min(minY, maxY),
-                    Math.max(minY, maxY));
+            mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0,Math.min(minY, maxY),
+                    isSnapScroll ?Math.min(minY, maxY):Math.max(minY,maxY));
         }else{
             if(mOffsetTop==Math.min(minY,maxY)){
                 return false;
             }
-            mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0,  Math.min(minY,maxY),
-                    Math.max(minY,maxY));
+            mScroller.fling(0, mOffsetTop, 0, -velocityY, 0, 0,  isSnapScroll ?Math.max(minY,maxY):Math.min(minY,maxY),
+                   Math.max(minY,maxY));
         }
 
         startAnim();

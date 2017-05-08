@@ -35,6 +35,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public static final int STATE_EXPANDED = 3;
     public static final int STATE_COLLAPSED = 4;
     public static final int STATE_HIDDEN = 5;
+    public static final int STATE_AUTHORPOINT = 6;
+    public static final int STATE_UNKNOWN = -1;
+
 
     public static final int PEEK_HEIGHT_AUTO = -1;
 
@@ -43,7 +46,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     private static final float HIDE_FRICTION = 0.1f;
     ViewOffsetHelper mViewOffsetHelper;
     int mStableState = STABLE_STATE_EXPANDED;
-    int mState = STATE_EXPANDED;
+    int mState = STATE_COLLAPSED;
     boolean canExpandedFully = true;
 
     private int mPeekHeight;
@@ -64,7 +67,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     View mBottomSheet;
     View mBottomSheetHeader;
     int mMaximumVelocity;
-    int mWindowBackgroundColor = 0xA0A0A0;
+    int mMinimumVelocity;
+    int mWindowBackgroundColor = 0xA0A0A0A0;
     @FloatRange(from = 0f, to = 1f)
     float mWindowBackgroundAlpha;
 
@@ -96,8 +100,10 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         setSkipCollapsed(a.getBoolean(R.styleable.BottomSheetBehavior_behavior_skipCollapsed,
                 false));
         a.recycle();
+
         ViewConfiguration configuration = ViewConfiguration.get(context);
-        mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
+        mMaximumVelocity = (int) (configuration.getScaledMaximumFlingVelocity()*0.5f);
+        mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
     }
 
     @Override
@@ -112,7 +118,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             ViewCompat.setFitsSystemWindows(child, true);
         }
         int peekHeight;
-        mParentHeight = nestedScrollLayout.getHeight();
+        mParentHeight = nestedScrollLayout.getHeight() -  nestedScrollLayout.getTopInset();
+
         if (mPeekHeightAuto) {
             if (mPeekHeightMin == 0) {
                 mPeekHeightMin = nestedScrollLayout.getResources().getDimensionPixelSize(
@@ -205,6 +212,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
     private void initValue(NestedScrollLayout nestedScrollLayout, V v) {
         mViewOffsetHelper = ViewOffsetHelper.getViewOffsetHelper(v);
+        mViewOffsetHelper.setAnimtionCallback(mAnimtionCallback);
         mUpPreScrollRange = getViewRangeEnd(nestedScrollLayout, v);
         mUpScrollRange = mUpPreScrollRange;
         mDownPreScrollRange = mUpPreScrollRange;
@@ -407,6 +415,16 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         final float newTop = child.getTop() + yvel * HIDE_FRICTION;
         return Math.abs(newTop - mMaxOffset) / (float) mPeekHeight > HIDE_THRESHOLD;
     }
+    boolean shouldExpandFully(View child) {
+        if(!canExpandedFully){
+            return false;
+        }
+        if (child.getTop() < mMinOffset) {
+            // It should not hide, but collapse.
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void onStopNestedScroll(NestedScrollLayout nestedScrollLayout, V child, View directTargetChild, View target) {
@@ -419,27 +437,49 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         }
         int scrollY = -mViewOffsetHelper.getTopAndBottomOffset();
         if (scrollY > mDownScrollRange) {
-            flingCalculate(nestedScrollLayout, child, target);
+            preScrollFlingCalculate(nestedScrollLayout, child, target,true);
         } else {
-            resetVelocityData();
-            smoothSlideViewAndSetState(child, scrollY);
+            if(isAuthorPoint&& -scrollY>mMinOffset && -scrollY<mMaxOffset){
+                if(canUserVelocity()){
+                    mAnimtionCallback.setEndState(STATE_AUTHORPOINT);
+                    setStateInternal(STATE_SETTLING);
+                    mViewOffsetHelper.fling((int) mYVelocity,mMinOffset,mMaxOffset);
+                }else{
+                    preScrollFlingCalculate(nestedScrollLayout, child, target,true);
+                }
+            }else{
+                resetVelocityData();
+                smoothSlideViewAndSetState(child, scrollY);
+            }
         }
 
         mNestedPreScrollCalled = false;
+        mSkipNestedPreScrollFling = false;
+        mYVelocity = 0;
     }
-
+    private boolean canUserVelocity(){
+        if(Math.abs(mYVelocity) >= mMinimumVelocity ){
+            int offsetTop = mViewOffsetHelper.getTopAndBottomOffset();
+            if(offsetTop>mMinOffset && offsetTop<mMaxOffset){
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean isAuthorPoint = true;
     private void smoothSlideViewAndSetState(View child, int scrollY) {
         int targetState;
         int top;
+
         if (mLastNestedScrollDy > 0) {
-            if (canExpandedFully) {
+            if(shouldExpandFully(mBottomSheetHeader!=null?mBottomSheetHeader:mBottomSheet)){
                 top = 0;
                 targetState = STATE_EXPANDED_FULLY;
             } else {
                 top = mMinOffset;
                 targetState = STATE_EXPANDED;
             }
-        } else if (mHideable && shouldHide(child, mYVelocity)) {
+        } else if (mHideable && shouldHide(mBottomSheetHeader!=null?mBottomSheetHeader:mBottomSheet, mYVelocity)) {
             top = mParentHeight;
             targetState = STATE_HIDDEN;
         } else if (mLastNestedScrollDy == 0) {
@@ -470,7 +510,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     AnimtionCallback mAnimtionCallback = new AnimtionCallback(this);
 
     public static class AnimtionCallback implements ViewOffsetHelper.AnimCallback {
-        int endState;
+        int endState = STATE_UNKNOWN;
         BottomSheetBehavior behavior;
 
         AnimtionCallback(BottomSheetBehavior behavior) {
@@ -488,11 +528,23 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
         @Override
         public void onAnimationEnd() {
-            behavior.setStateInternal(endState);
+            if(endState != STATE_UNKNOWN){
+                behavior.setStateInternal(endState);
+
+            }
+            endState = STATE_UNKNOWN;
         }
     }
 
     void setStateInternal(int state) {
+        if(state == STATE_AUTHORPOINT){
+            if(mViewOffsetHelper.getTopAndBottomOffset() ==mMinOffset){
+                state = STATE_EXPANDED;
+            }
+            if(mViewOffsetHelper.getTopAndBottomOffset() ==mMaxOffset){
+                state = STABLE_STATE_COLLAPSED;
+            }
+        }
         if (mState == state) {
             return;
         }
@@ -503,6 +555,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     }
 
     void dispatchOnSlide(int offsetY) {
+        Logger.e(offsetY + "offsetY" +offsetY + "mMaxOffset" + mMaxOffset + "mMinOffset" + mMinOffset);
         if (mBottomSheet != null && mCallback != null) {
 
             mCallback.onSlide(mBottomSheet, mBottomSheetHeader,
@@ -528,7 +581,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
             }
             ((ViewGroup) mBottomSheet.getParent()).postInvalidate();
-            Logger.e(offsetY + "mWindowBackgroundAlpha" + mWindowBackgroundAlpha + "mMaxOffset" + mMaxOffset + "mMinOffset" + mMinOffset);
+
         }
 
     }
@@ -597,7 +650,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         if (directTargetChild != child) {
             return false;
         }
-        if (mWasNestedFlung) {
+        if(preScrollFlingCalculate(nestedScrollLayout,child,target,false)){
             return true;
         }
         return false;
@@ -738,25 +791,39 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 //       }
 //    }
 
-    private void flingCalculate(NestedScrollLayout nestedScrollLayout, V child, View target) {
+    private boolean preScrollFlingCalculate(NestedScrollLayout nestedScrollLayout, V child, View target, boolean isDoFling) {
         if (!mNestedPreScrollCalled || mSkipNestedPreScrollFling || mTotalDy == 0) {
-            mSkipNestedPreScrollFling = false;
-            return;
+            return false;
         }
         long mTotalDuration = AnimationUtils.currentAnimationTimeMillis() - mBeginTime;
         int velocityY = (int) (mTotalDy * 1000 / mTotalDuration);
+        if(Math.abs(velocityY)<mMinimumVelocity){
+            return false;
+        }
         if (mTotalDy > 0) {
-            if (-mViewOffsetHelper.getTopAndBottomOffset() < mUpPreScrollRange) {
-                mWasNestedFlung = true;
-                mViewOffsetHelper.fling(velocityY, -mDownScrollRange, -mUpPreScrollRange);
+            int offsetTop = mViewOffsetHelper.getTopAndBottomOffset();
+            if(isAuthorPoint && offsetTop>mMinOffset && offsetTop<mMaxOffset){
+                if(isDoFling){
+                    mAnimtionCallback.setEndState(STATE_AUTHORPOINT);
+                    setStateInternal(STATE_SETTLING);
+                    mViewOffsetHelper.fling(velocityY, mMinScrollY,mMaxOffset);
+                }
+                return true;
+            }else if(-offsetTop < mUpPreScrollRange){
+                if(isDoFling){
+                    mViewOffsetHelper.fling(velocityY, -mDownScrollRange, -mUpPreScrollRange);
+                }
+                return true;
             }
         } else {
             if (-mViewOffsetHelper.getTopAndBottomOffset() > mDownPreScrollRange) {
-                mWasNestedFlung = true;
-                mViewOffsetHelper.fling(velocityY, -mDownPreScrollRange, -mUpPreScrollRange);
+                if(isDoFling){
+                    mViewOffsetHelper.fling(velocityY, -mDownPreScrollRange, -mUpPreScrollRange);
+                }
+                return true;
             }
         }
-
+        return false;
 
     }
 
