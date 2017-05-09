@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
     <style name="Widget.CollapsingLayout" parent="android:Widget">
         <item name="expandedTitleMargin">32dp</item>
         <item name="statusBarScrim">?attr/colorPrimary</item>
     </style>
     <style name="Widget.Design.SuperNestedLayout" parent="android:Widget">
         <item name="statusBarBackground">?attr/colorPrimaryDark</item>
+    </style>
+    <style name="Widget.Design.SuperNestedLayout.BottomSheet" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item tools:ignore="NewApi" name="android:elevation">@dimen/design_bottom_sheet_elevation</item>
+        <item name="BottomSheet_peekHeight">autoPeekHeight</item>
+        <item name="behavior_hideable">true</item>
+        <item name="behavior_skipCollapsed">false</item>
     </style>
 </resources>

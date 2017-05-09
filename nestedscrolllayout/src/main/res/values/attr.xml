@@ -6,6 +6,8 @@
         <attr name="BottomSheet_peekHeight" format="dimension">
             <!-- Peek at the 16:9 ratio keyline of its parent -->
             <enum name="autoPeekHeight" value="-1"/>
+            <!-- Peek at (parentHeight - mMinOffset)-->
+            <enum name="followMinOffset" value="-2"/>
         </attr>
         <attr name="BottomSheet_minOffset" format="dimension">
             <!-- Peek at the 16:9 ratio keyline of its parent -->

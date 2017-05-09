@@ -2,4 +2,5 @@
 <resources>
 
     <dimen name="bottom_sheet_peek_height_min">64dp</dimen>
+    <dimen name="design_bottom_sheet_elevation">12dp</dimen>
 </resources>

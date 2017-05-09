@@ -40,6 +40,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
 
     public static final int PEEK_HEIGHT_AUTO = -1;
+    public static final int PEEK_HEIGHT_FOLLOWMINOFFSET = -2;
 
     private static final float HIDE_THRESHOLD = 0.5f;
 
@@ -81,7 +82,6 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.BottomSheetBehavior);
-        TypedValue value = a.peekValue(R.styleable.BottomSheetBehavior_BottomSheet_peekHeight);
         TypedValue minOffsetValue = a.peekValue(R.styleable.BottomSheetBehavior_BottomSheet_minOffset);
         if (minOffsetValue != null && minOffsetValue.data == PEEK_HEIGHT_AUTO) {
             mMinOffset = PEEK_HEIGHT_AUTO;
@@ -90,8 +90,12 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
                     R.styleable.BottomSheetBehavior_BottomSheet_minOffset, PEEK_HEIGHT_AUTO);
         }
         canExpandedFully = a.getBoolean(R.styleable.BottomSheetBehavior_behavior_canExpandedFully, true);
-        if (value != null && value.data == PEEK_HEIGHT_AUTO) {
-            setPeekHeight(value.data);
+        TypedValue peekHeightValue = a.peekValue(R.styleable.BottomSheetBehavior_BottomSheet_peekHeight);
+        if (peekHeightValue != null && peekHeightValue.data == PEEK_HEIGHT_AUTO) {
+            setPeekHeight(peekHeightValue.data);
+        }else if(peekHeightValue != null && peekHeightValue.data == PEEK_HEIGHT_FOLLOWMINOFFSET){
+            mPeekHeight = PEEK_HEIGHT_FOLLOWMINOFFSET;
+
         } else {
             setPeekHeight(a.getDimensionPixelSize(
                     R.styleable.BottomSheetBehavior_BottomSheet_peekHeight, PEEK_HEIGHT_AUTO));
@@ -151,6 +155,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             canExpandedFully = true;
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mBottomSheetHeader.getLayoutParams();
             lp.setScrimColor(mWindowBackgroundColor);
+        }
+        if(mPeekHeight == PEEK_HEIGHT_FOLLOWMINOFFSET){
+           mPeekHeight = mParentHeight-mMinOffset;
         }
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
         if (mState == STATE_EXPANDED) {

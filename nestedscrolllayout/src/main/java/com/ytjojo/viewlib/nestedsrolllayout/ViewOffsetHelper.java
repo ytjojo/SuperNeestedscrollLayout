@@ -73,8 +73,9 @@ public class ViewOffsetHelper {
         if(mHeader !=null &&mOffsetTop <0 &&mOffsetTop >= mMinHeaderTopOffset){
 //            Logger.e("bottom  "+bottom + "   mMinHeaderTopOffsetmHeaderOffsetValue "+ (mMinHeaderTopOffset +mHeaderOffsetValue)+ "  mOffsetTop  "+ mOffsetTop);
             int top = mHeader.getTop()+offsetDy;
-            if(top>0){
-                top = 0;
+            NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mHeader.getLayoutParams();
+            if(top>lp.mLayoutTop){
+                top = lp.mLayoutTop;
             }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue){
                 top = mMinHeaderTopOffset+mHeaderOffsetValue;
             }
