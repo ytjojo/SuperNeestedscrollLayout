@@ -64,14 +64,31 @@ public class ViewOffsetHelper {
             mLayoutTop = lp.getLayoutTop();
         }
     }
+    public int mHeaderOffsetValue;
     private void updateOffsets() {
         int offsetDy = mOffsetTop - (mView.getTop() -mLayoutTop);
         Logger.e("offsetDy =  " + offsetDy+ "   mOffsetTop = "+ mOffsetTop + " mLayoutTop = " +mLayoutTop);
-        if(mHeader !=null &&mOffsetTop >= mMinHeaderTopOffset){
+
+
+        if(mHeader !=null &&mOffsetTop <0 &&mOffsetTop >= mMinHeaderTopOffset){
+//            Logger.e("bottom  "+bottom + "   mMinHeaderTopOffsetmHeaderOffsetValue "+ (mMinHeaderTopOffset +mHeaderOffsetValue)+ "  mOffsetTop  "+ mOffsetTop);
+            int top = mHeader.getTop()+offsetDy;
+            if(top>0){
+                top = 0;
+            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue){
+                top = mMinHeaderTopOffset+mHeaderOffsetValue;
+            }
+
+            int headerDy = top - mHeader.getTop();
+            if(headerDy!=0){
+                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+                dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
+            }
+
+        }else if(mHeader !=null && mOffsetTop >= 0){
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mHeader.getLayoutParams();
             int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
             ViewCompat.offsetTopAndBottom(mHeader,headerDy);
-            int ss = mHeader.getTop();
             dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
         }
         if(mScrollViews !=null){

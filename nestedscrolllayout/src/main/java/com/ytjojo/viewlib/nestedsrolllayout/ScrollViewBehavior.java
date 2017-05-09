@@ -109,6 +109,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         mDownScrollRange = mUpPreScrollRange;
 
         final int childCount = nestedScrollLayout.getChildCount();
+        int headerOffsetValue =0;
         View scrollHeader = null;
         ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
         View lastScrollView = null;
@@ -129,6 +130,9 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
                 }
                 if(child != scrollHeader){
                     mViewOffsetHelper.addScrollViews(child);
+                    if(hasScrollViewBehaviorViews.isEmpty()){
+                        headerOffsetValue += child.getMeasuredHeight();
+                    }
 
                 }
                 if(hasScrollViewBehaviorViews.isEmpty()){
@@ -165,6 +169,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             mViewOffsetHelper.setHeaderView(scrollHeader);
             mViewOffsetHelper.setHeaderViewMinOffsetTop(-mUpPreScrollRange);
             mOverScrollDistance = headerLp.mOverScrollDistance;
+            mViewOffsetHelper.mHeaderOffsetValue = headerOffsetValue;
 
         }
 
@@ -492,8 +497,8 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         if(isDoFling){
             if(Math.abs(velocityY) >sMaxVelocity){
                 velocityY = velocityY>0?sMaxVelocity:-sMaxVelocity;
-                nestedScrollLayout.dispatchNestedFling(0,velocityY,false);
             }
+            nestedScrollLayout.dispatchNestedFling(0,velocityY,false);
         }
         return false;
     }

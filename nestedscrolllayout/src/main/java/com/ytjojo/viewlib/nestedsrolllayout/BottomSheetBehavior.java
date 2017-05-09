@@ -466,7 +466,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         }
         return false;
     }
-    boolean isAuthorPoint = true;
+    boolean isAuthorPoint = false;
     private void smoothSlideViewAndSetState(View child, int scrollY) {
         int targetState;
         int top;

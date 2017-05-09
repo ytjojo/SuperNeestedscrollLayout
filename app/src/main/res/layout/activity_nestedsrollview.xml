@@ -319,6 +319,7 @@
         android:layout_height="200dp"
         android:background="#f2e4e4"
         android:gravity="center"
+        android:fitsSystemWindows="true"
         android:minHeight="50dp"
         android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
         android:textSize="15sp"
@@ -326,14 +327,15 @@
         app:scrollFlags="scroll|exitUntilCollapsed|enterAlways"/>
 
     <android.support.v4.widget.NestedScrollView
+        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
         app:behavior="com.ytjojo.viewlib.nestedsrolllayout.BottomSheetBehavior"
         app:behavior_canExpandedFully="true"
-        app:behavior_hideable="true"
-        app:BottomSheet_peekHeight="50dp"
-        app:BottomSheet_minOffset="50dp"
+        app:behavior_hideable="false"
+        app:BottomSheet_peekHeight="500dp"
+        app:BottomSheet_minOffset="0dp"
         app:controlBehaviorName="BottomSheetBehavior"
         >
 
