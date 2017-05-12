@@ -81,7 +81,7 @@
         android:background="@color/colorAccent"
         android:layout_width="80dp"
         android:layout_height="80dp"/>
-    <com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
+    <com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -100,7 +100,7 @@
             android:background="#00000000"
             android:layout_width="match_parent"
             app:controlBehaviorName="ScrollViewBehavior"
-            app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+            app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
             android:layout_height="match_parent"
 
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -199,7 +199,7 @@
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>
-    </com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>
+    </com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout>
 
 
 

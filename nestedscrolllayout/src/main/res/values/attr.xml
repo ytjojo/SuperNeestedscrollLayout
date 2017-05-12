@@ -26,7 +26,7 @@
         <attr name="baseLine" format="dimension"/>
         <attr name="controlBehaviorName" format="string"/>
         <attr name="overScrollDistance" format="dimension"/>
-        <attr name="draingOrderElevation" format="dimension"/>
+        <attr name="drawingOrderElevation" format="dimension"/>
         <attr name="scrollFlags">
             <!-- The view will be scroll in direct relation to scroll events. This flag needs to be
                  set for any of the other flags to take effect. If any sibling views
@@ -228,5 +228,20 @@
         <!-- The multiplier used when layout_collapseMode is set to 'parallax'. The value should
              be between 0.0 and 1.0. -->
         <attr name="layout_collapseParallaxMultiplier" format="float"/>
+    </declare-styleable>
+
+    <declare-styleable name="DefultRefreshView">
+        <attr name="refreshType" format="enum">
+            <enum name="material" value="0" />
+            <enum name="circles" value="1" />
+            <enum name="water_drop" value="2" />
+            <enum name="ring" value="3" />
+            <enum name="smartisan" value="4" />
+        </attr>
+        <attr name="refreshColors" format="reference"/>
+        <attr name="waveColor" format="color"/>
+        <attr name="refreshColor" format="color"/>
+        <attr name="refreshOffset" format="dimension"/>
+        <attr name="isShowWave" format="boolean"/>
     </declare-styleable>
 </resources>

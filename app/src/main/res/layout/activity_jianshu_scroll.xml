@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
+<com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -24,10 +24,10 @@
 
 
     </LinearLayout>
-    <com.ytjojo.viewlib.nestedsrolllayout.CompatWebView
+    <com.ytjojo.viewlib.nestedscrolllayout.CompatWebView
         android:id="@+id/webview"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbarSize="3dp"
@@ -43,7 +43,7 @@
         android:id="@+id/recyclerView"
         app:controlBehaviorName="ScrollViewBehavior"
         android:nestedScrollingEnabled="true"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#2f00"
@@ -56,4 +56,4 @@
         android:gravity="center"
         android:textSize="20sp"
         android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
-</com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>
+</com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout>

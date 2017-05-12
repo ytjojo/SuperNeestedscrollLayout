@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout
+<com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:fitsSystemWindows="true"
@@ -13,7 +13,7 @@
         android:layout_gravity="top"
         android:fitsSystemWindows="true"
         app:anchorGravity="right|bottom"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
     <TextView
         android:fitsSystemWindows="false"
@@ -22,14 +22,14 @@
         android:gravity="center"
         android:textSize="30dp"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:draingOrderElevation="4dp"
+        app:drawingOrderElevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:background="#ff0000"
         app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
     <ImageView
-        app:draingOrderElevation="5dp"
+        app:drawingOrderElevation="5dp"
         android:src="@drawable/quila"
         app:anchor="@id/tv_header"
         app:anchorGravity="right|bottom"
@@ -40,7 +40,7 @@
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedsrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -179,4 +179,4 @@
         android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我" />
 
 
-</com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout>
+</com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout>

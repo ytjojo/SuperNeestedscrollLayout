@@ -15,10 +15,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ytjojo.viewlib.nestedsrolllayout.NestedScrollLayout;
-import com.ytjojo.viewlib.nestedsrolllayout.PtrIndicator;
-import com.ytjojo.viewlib.nestedsrolllayout.PtrUIHandler;
-import com.ytjojo.viewlib.nestedsrolllayout.RefreshHeaderBehavior;
+import com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout;
+import com.ytjojo.viewlib.nestedscrolllayout.PtrIndicator;
+import com.ytjojo.viewlib.nestedscrolllayout.PtrUIHandler;
+import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 
 
 /**

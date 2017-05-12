@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.ytjojo.viewlib.nestedsrolllayout.CollapsingLayout;
+import com.ytjojo.viewlib.nestedscrolllayout.CollapsingLayout;
 
 /**
  * Created by Administrator on 2017/3/4 0004.
