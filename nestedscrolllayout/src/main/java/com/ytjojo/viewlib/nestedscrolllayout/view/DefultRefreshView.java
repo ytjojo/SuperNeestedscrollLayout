@@ -2,9 +2,11 @@ package com.ytjojo.viewlib.nestedscrolllayout.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -14,10 +16,10 @@ import com.ytjojo.viewlib.nestedscrolllayout.PtrUIHandler;
 import com.ytjojo.viewlib.nestedscrolllayout.R;
 import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.Utils;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.JellyCircleDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.MaterialDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.RefreshDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.RingDrawable;
-import com.ytjojo.viewlib.nestedscrolllayout.drawable.SmartisanDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.WaterDropDrawable;
 
 import java.security.InvalidParameterException;
@@ -28,10 +30,9 @@ import java.security.InvalidParameterException;
 
 public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public static final int STYLE_MATERIAL = 0;
-    public static final int STYLE_CIRCLES = 1;
+    public static final int STYLE_JELLYCIRCLE = 1;
     public static final int STYLE_WATER_DROP = 2;
     public static final int STYLE_RING = 3;
-    public static final int STYLE_SMARTISAN = 4;
 
     public final int  sDefaultHeightDp = 64;
     private int mHeight ;
@@ -42,7 +43,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
 
     private int[] mColorSchemeColors;
 
-    private int mWaveColor =0x880000ff;
+    private int mWaveColor =0x400000ff;
 
     public DefultRefreshView(Context context) {
         this(context,null);
@@ -57,7 +58,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     int mDrawableStyle;
     private void init(final Context context,AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DefultRefreshView);
-        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_MATERIAL);
+        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_JELLYCIRCLE);
         isShowWave = a.getBoolean(R.styleable.DefultRefreshView_isShowWave,true);
         final int colorsId = a.getResourceId(R.styleable.DefultRefreshView_refreshColors, 0);
         final int colorId = a.getResourceId(R.styleable.DefultRefreshView_refreshColor, 0);
@@ -77,11 +78,12 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
         addView(mMaterialWaveView);
 
         mRefreshView = new ImageView(context);
-        addView(mRefreshView);
-        mRefreshView.getLayoutParams().height = mHeight;
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)mRefreshView.getLayoutParams();
-        params.topMargin = mHeight;
-        if(!isShowWave){
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        addView(mRefreshView,params);
+        setRefreshStyle(mDrawableStyle);
+        if(isShowWave && !mRefreshDrawable.isFullCanvas()){
+            mRefreshView.getLayoutParams().height = mHeight;
+        }else{
             mMaterialWaveView.setVisibility(GONE);
         }
 
@@ -90,7 +92,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(isShowWave){
+        if(isShowWave||mRefreshDrawable.isFullCanvas()){
             if(getLayoutParams().height>0){
                 if(getLayoutParams().height< mHeight*2){
                     getLayoutParams().height = (int) (mHeight*2);
@@ -102,25 +104,35 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if(mRefreshDrawable ==null){
-            setRefreshStyle(mDrawableStyle);
-            if(isShowWave){
-                mMaterialWaveView.setDefaulHeadHeight(mHeight);
-                mMaterialWaveView.setDefaulWaveHeight(mHeight*2);
-                NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
-                RefreshHeaderBehavior behavior= (RefreshHeaderBehavior) layoutParams.getBehavior();
-                behavior.setStableRefreshOffset(mHeight);
-                behavior.setMaxContentOffset(getMeasuredHeight());
+
+        if(isShowWave){
+            mMaterialWaveView.setDefaulHeadHeight(mHeight);
+            mMaterialWaveView.setDefaulWaveHeight(mHeight*2);
+
+
+        }
+        if(isShowWave ||mRefreshDrawable.isFullCanvas()){
+            NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
+            RefreshHeaderBehavior behavior= (RefreshHeaderBehavior) layoutParams.getBehavior();
+            behavior.setStableRefreshOffset(mHeight);
+            behavior.setMaxContentOffset(getMeasuredHeight());
+            if(!mRefreshDrawable.isFullCanvas()){
+                mRefreshView.layout(mRefreshView.getLeft(),mRefreshView.getTop()+getMeasuredHeight()-mHeight,mRefreshView.getRight(),mRefreshView.getBottom()+getMeasuredHeight()-mHeight);
+
             }
         }
+
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
     }
 
     public void setRefreshStyle(int type) {
         switch (type) {
             case STYLE_MATERIAL:
-                mRefreshDrawable = new MaterialDrawable(getContext(),mHeight);
-                break;
-            case STYLE_CIRCLES:
+                mRefreshDrawable = new MaterialDrawable(getContext(),this,mHeight);
                 break;
             case STYLE_WATER_DROP:
                 mRefreshDrawable = new WaterDropDrawable(getContext(),mHeight);
@@ -128,46 +140,62 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
             case STYLE_RING:
                 mRefreshDrawable = new RingDrawable(getContext(),mHeight);
                 break;
-            case STYLE_SMARTISAN:
-                mRefreshDrawable = new SmartisanDrawable(getContext(),mHeight);
+            case STYLE_JELLYCIRCLE:
+                mRefreshDrawable = new JellyCircleDrawable(getContext(),mHeight);
+                mMaterialWaveView.setVisibility(GONE);
                 break;
+
             default:
                 throw new InvalidParameterException("Type does not exist");
         }
         mRefreshDrawable.setColorSchemeColors(mColorSchemeColors);
         mRefreshView.setImageDrawable(mRefreshDrawable);
+//        mRefreshView.setImageResource(android.R.drawable.ic_menu_camera);
     }
 
     @Override
     public void onUIReset(NestedScrollLayout parent) {
-        if(mMaterialWaveView!=null)
+        if(showWave())
             mMaterialWaveView.onUIReset(parent);
     }
 
 
     @Override
     public void onUIRefreshPrepare(NestedScrollLayout parent) {
-        if(mMaterialWaveView!=null)
+        if(showWave())
             mMaterialWaveView.onUIRefreshPrepare(parent);
     }
 
     @Override
     public void onUIRefreshBegin(NestedScrollLayout parent) {
-        if(mMaterialWaveView!=null)
+        if(showWave())
         mMaterialWaveView.onUIRefreshBegin(parent);
+        mRefreshDrawable.start();
     }
 
+    private boolean showWave(){
+        if(mMaterialWaveView !=null && mMaterialWaveView.getVisibility() == VISIBLE){
+            return true;
+        }
+        return false;
+    }
     @Override
     public void onUIRefreshComplete(NestedScrollLayout parent) {
-        if(mMaterialWaveView!=null)
+        if(showWave())
             mMaterialWaveView.onUIRefreshComplete(parent);
+
+        mRefreshDrawable.stop();
     }
 
     @Override
     public void onUIPositionChange(NestedScrollLayout parent, boolean isUnderTouch, byte status, PtrIndicator indicator) {
-        if(mMaterialWaveView!=null)
+        if(showWave())
             mMaterialWaveView.onUIPositionChange(parent,isUnderTouch,status,indicator);
+        if(status==  RefreshHeaderBehavior.PTR_STATUS_PREPARE){
+            mRefreshDrawable.setPercent(indicator.getCurrentPercent());
+            mRefreshView.postInvalidate();
+            indicator.setDelayScrollInitail(mRefreshDrawable.getDelayScrollInitail());
+        }
 
-        mRefreshDrawable.setPercent(indicator.getCurrentPercent());
     }
 }

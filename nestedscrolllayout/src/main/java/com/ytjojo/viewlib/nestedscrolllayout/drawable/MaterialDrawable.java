@@ -135,18 +135,20 @@ public class MaterialDrawable extends RefreshDrawable implements Animatable {
     private int mTop;
     private int mDiameter;
     Context mContext;
-    public MaterialDrawable(Context context,int maxOffset) {
+    private int mMaxOffset;
+    public MaterialDrawable(Context context,View parent,int maxOffset) {
         mResources = context.getResources();
-
+        mParent = parent;
         mRing = new Ring(mCallback);
         mRing.setColors(COLORS);
-
+        this.mMaxOffset = maxOffset;
         updateSizes(DEFAULT);
         setupAnimators();
         createCircleDrawable();
         setBackgroundColor(CIRCLE_BG_LIGHT);
         this.mDiameter = (int) Utils.dip2px(context,CIRCLE_DIAMETER);
-        mTop = -mDiameter - (maxOffset - mDiameter) / 2;
+//        mTop = -mDiameter - (maxOffset - mDiameter) / 2;
+        mTop =  (maxOffset - mDiameter) / 2;
     }
 
     private void createCircleDrawable() {
@@ -193,6 +195,7 @@ public class MaterialDrawable extends RefreshDrawable implements Animatable {
             canvas.drawCircle(x, y, (mCircleDiameter / 2 + mShadowRadius),
                     mShadowPaint);
             canvas.drawCircle(x, y, (mCircleDiameter / 2), paint);
+
         }
     }
 
@@ -268,9 +271,12 @@ public class MaterialDrawable extends RefreshDrawable implements Animatable {
 
     @Override
     public void setPercent(float percent) {
-        if (percent < .4f)
-            return;
-        percent = (percent - .4f) / .6f;
+//        if (percent < .4f)
+//            return;
+//        if(percent <=1f){
+//            mTop = (int) (mMaxOffset * percent *0.5);
+//        }
+//        percent = (percent - .4f) / .6f;
         setAlpha((int) (MAX_ALPHA * percent));
         showArrow(true);
         float strokeStart = ((percent) * .8f);
@@ -292,11 +298,6 @@ public class MaterialDrawable extends RefreshDrawable implements Animatable {
         mRing.setColorIndex(0);
     }
 
-    @Override
-    public void offsetTopAndBottom(int offset,int maxOffset) {
-        mTop += offset;
-        invalidateSelf();
-    }
 //
 //    @Override
 //    public int getIntrinsicHeight() {

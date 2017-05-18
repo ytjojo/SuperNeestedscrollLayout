@@ -23,6 +23,13 @@ public class PtrIndicator {
     private int mRefreshCompleteY = 0;
     private int mMaxContentOffsetY;
 
+    private long mDelayScrollInitail;
+    public void setDelayScrollInitail(long delayScrollInitail){
+        this.mDelayScrollInitail = delayScrollInitail;
+    }
+    public long getDelayScrollInitail(){
+        return mDelayScrollInitail;
+    }
 
     public PtrIndicator() {
     }

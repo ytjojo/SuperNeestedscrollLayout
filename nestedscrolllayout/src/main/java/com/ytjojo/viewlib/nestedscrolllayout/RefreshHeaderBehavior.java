@@ -250,7 +250,43 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     public void setRefreshComplete() {
         if (mStatus == PTR_STATUS_LOADING) {
             mStatus = PTR_STATUS_COMPLETE;
+            if(mRefreshIndicator.getDelayScrollInitail()>0){
+                mRefreshHeaderView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
+                    }
+                },mRefreshIndicator.getDelayScrollInitail());
+            }else{
+                startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
+
+            }
+            isIgnore = true;
+            RefreshHeaderBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
+        }
+    }
+    public void setRefreshComplete(long delayToScroll) {
+        if (mStatus == PTR_STATUS_LOADING) {
+            mStatus = PTR_STATUS_COMPLETE;
+            mRefreshHeaderView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
+                }
+            },delayToScroll);
+            isIgnore = true;
+            RefreshHeaderBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
+        }
+    }
+    public void scrollInitialPosition(){
+        if(mStatus != PTR_STATUS_INIT){
+            isIgnore = true;
             startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
+        }
+    }
+    public void callRefreshCompleteOnly() {
+        if (mStatus == PTR_STATUS_LOADING) {
+            mStatus = PTR_STATUS_COMPLETE;
             isIgnore = true;
             RefreshHeaderBehavior.this.onUIRefreshComplete(mNestedScrollLayout);
         }

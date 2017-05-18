@@ -15,7 +15,6 @@ public abstract class RefreshDrawable extends Drawable implements Drawable.Callb
     public abstract void setPercent(float percent);
     public abstract void setColorSchemeColors(int[] colorSchemeColors);
 
-    public abstract void offsetTopAndBottom(int offset,int maxOffsset);
 
     @Override
     public void invalidateDrawable(Drawable who) {
@@ -54,5 +53,12 @@ public abstract class RefreshDrawable extends Drawable implements Drawable.Callb
     @Override
     public void setColorFilter(ColorFilter cf) {
 
+    }
+    public boolean isFullCanvas(){
+        return false;
+    }
+
+    public long getDelayScrollInitail(){
+        return 0;
     }
 }

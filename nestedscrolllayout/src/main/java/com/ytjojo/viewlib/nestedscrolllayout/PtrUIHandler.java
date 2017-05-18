@@ -10,4 +10,6 @@ public interface PtrUIHandler {
     void onUIRefreshComplete(NestedScrollLayout parent);
 
     void onUIPositionChange(NestedScrollLayout parent, boolean isUnderTouch, byte status, PtrIndicator indicator);
+
+
 }

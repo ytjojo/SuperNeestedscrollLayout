@@ -46,8 +46,11 @@ public class RingDrawable extends RefreshDrawable {
 
     @Override
     public void setPercent(float percent) {
+        if(percent>=1f){
+            percent = 1f;
+        }
         mPaint.setColor(evaluate(percent, mColorSchemeColors[0], mColorSchemeColors[1]));
-        mAngle = 340 * percent;
+        mAngle = 330 * percent;
     }
 
     @Override
@@ -55,10 +58,6 @@ public class RingDrawable extends RefreshDrawable {
         mColorSchemeColors = colorSchemeColors;
     }
 
-    @Override
-    public void offsetTopAndBottom(int offset,int maxOffset) {
-        invalidateSelf();
-    }
 
     @Override
     public void start() {

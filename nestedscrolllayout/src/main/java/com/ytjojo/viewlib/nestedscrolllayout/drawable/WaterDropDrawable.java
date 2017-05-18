@@ -7,9 +7,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.os.Handler;
 
 import java.security.InvalidParameterException;
+
+
 
 /**
  * Created by baoyz on 14/10/31.
@@ -17,27 +21,17 @@ import java.security.InvalidParameterException;
 public class WaterDropDrawable extends RefreshDrawable implements Runnable {
 
     private static final float MAX_LEVEL = 10000;
-    private static final float CIRCLE_COUNT = ProgressStates.values().length;
-    private static final float MAX_LEVEL_PER_CIRCLE = MAX_LEVEL / CIRCLE_COUNT;
+    private static final float MAX_LEVEL_PER_CIRCLE = MAX_LEVEL / 4;
 
     private int mLevel;
     private Point p1, p2, p3, p4;
     private Paint mPaint;
     private Path mPath;
-    private int mHeight;
+    private int mCurOffset;
     private int mWidth;
-    private int mTop;
     private int[] mColorSchemeColors;
-    private ProgressStates mCurrentState;
     private Handler mHandler = new Handler();
     private boolean isRunning;
-
-    private enum ProgressStates {
-        ONE,
-        TWO,
-        TREE,
-        FOUR
-    }
     int mMaxOffset;
     public WaterDropDrawable(Context context,int maxOffset) {
         mPaint = new Paint();
@@ -50,45 +44,86 @@ public class WaterDropDrawable extends RefreshDrawable implements Runnable {
         p3 = new Point();
         p4 = new Point();
         this.mMaxOffset =maxOffset;
+
+
     }
 
     @Override
     public void draw(Canvas canvas) {
 
         canvas.save();
-        canvas.translate(0, mTop > 0 ? mTop : 0);
+//        canvas.translate(0,mOffsetY);
+        if(mCurOffset <getBounds().height()){
 
+            canvas.translate(0,getBounds().height()- mCurOffset);
+        }else{
+
+        }
         mPath.reset();
         mPath.moveTo(p1.x, p1.y);
         mPath.cubicTo(p3.x, p3.y, p4.x, p4.y, p2.x, p2.y);
+
         canvas.drawPath(mPath, mPaint);
 
         canvas.restore();
     }
-
+    int mOffsetY;
     @Override
     protected void onBoundsChange(Rect bounds) {
         mWidth = bounds.width();
-        updateBounds();
+        isTriger = false;
+        updateBounds(0f);
         super.onBoundsChange(bounds);
+
+        mPath.reset();
+        mPath.moveTo( mWidth/2 , 0);
+        mPath.cubicTo(-mWidth/2,mMaxOffset,mWidth/2,mMaxOffset,mWidth/2,0);
+        mOffsetY =( mMaxOffset - getPathRect(mPath).height())/2;
+
+
+    }
+    public static Rect getPathRect(Path path){
+        RectF pahtBounds = new RectF();
+        path.computeBounds(pahtBounds,true);
+        Region region = new Region();
+        region.setPath(path,new Region((int) pahtBounds.left,(int) pahtBounds.top,(int) pahtBounds.right,(int) pahtBounds.bottom));
+        Rect rect = region.getBounds();
+        return rect;
     }
 
-    private void updateBounds() {
-
-        int height = mHeight;
-        int width = mWidth;
+    boolean isTriger;
+    private void updateBounds(float percent) {
+        mCurOffset = (int) (mMaxOffset *percent);
+        int height = mCurOffset;
 
         if (height > mMaxOffset) {
             height = mMaxOffset;
         }
-
-        final float percent = height / (float)mMaxOffset;
-        int offsetX = (int) (width / 2 * percent);
+        int offsetX = 0;
         int offsetY = 0;
-        p1.set(offsetX, offsetY);
-        p2.set(width - offsetX, offsetY);
-        p3.set(width / 2 - height, height);
-        p4.set(width / 2 + height, height);
+        if(percent>=1.2){
+            onRefreshBegin();
+        }
+        if(percent<1){
+            isTriger = false;
+            p1.set(0, offsetY);
+            p2.set(mWidth, offsetY);
+            p3.set(mWidth / 3 -height, height);
+            p4.set(3* mWidth / 4 + height/2, height);
+        }else if(percent >= 1&& percent< 1.2f){
+            if(!isTriger){
+                offsetX = (int) (mWidth / 2 * ((percent-1)/0.2f));
+                offsetY = (int) (mOffsetY* ((percent-1)/0.2f));
+                p1.set(offsetX, offsetY);
+                p2.set(mWidth - offsetX, offsetY);
+                p3.set(mWidth / 2 - height, height);
+                p4.set(mWidth / 2 + height, height);
+            }
+
+        }else{
+
+        }
+
     }
 
     @Override
@@ -102,27 +137,47 @@ public class WaterDropDrawable extends RefreshDrawable implements Runnable {
     @Override
     public void setPercent(float percent) {
         mPaint.setColor(evaluate(percent, mColorSchemeColors[0], mColorSchemeColors[1]));
+        updateBounds(percent);
+        invalidateSelf();
     }
 
+    private void onRefreshBegin(){
+        if(!isTriger){
+            p1.set(mWidth/2, mOffsetY);
+            p2.set(mWidth/2, mOffsetY);
+            p3.set(mWidth / 2 - mMaxOffset, mMaxOffset);
+            p4.set(mWidth / 2 + mMaxOffset, mMaxOffset);
+            isTriger = true;
+        }
+    }
     private void updateLevel(int level) {
+        onRefreshBegin();
         int animationLevel = level == MAX_LEVEL ? 0 : level;
 
         int stateForLevel = (int) (animationLevel / MAX_LEVEL_PER_CIRCLE);
-        mCurrentState = ProgressStates.values()[stateForLevel];
 
         float percent = level % 2500 / 2500f;
         int startColor = mColorSchemeColors[stateForLevel];
-        int endColor = mColorSchemeColors[(stateForLevel + 1) % ProgressStates.values().length];
+        int endColor = mColorSchemeColors[(stateForLevel + 1) % 4];
         mPaint.setColor(evaluate(percent, startColor, endColor));
+        int value = 0;
+        boolean isLeft= false;
+        if(level>=0 && level <=2500){
+            isLeft = true;
+            value = (int) (mMaxOffset/5* level/2500f);
+        }else if(level>2500 && level<=5000){
+            isLeft = true;
+            value = (int) (mMaxOffset/5* (5000-level)/2500f);
+        }else if(level>5000 && level<=7500){
+            value = (int) (mMaxOffset/5* (level - 5000)/2500f);
+        }else {
+            value = (int) (mMaxOffset/5* (10000 - level)/2500f);
+        }
+        p3.set(mWidth / 2 - mMaxOffset + (isLeft?value:value/3), mMaxOffset +value/2);
+        p4.set(mWidth / 2 + mMaxOffset - (isLeft?value/3:value), mMaxOffset +value/2);
+
     }
 
-    @Override
-    public void offsetTopAndBottom(int offset,int maxOffset) {
-        mHeight += offset;
-        mTop = mHeight - maxOffset;
-        updateBounds();
-        invalidateSelf();
-    }
 
     @Override
     public void start() {
@@ -134,6 +189,8 @@ public class WaterDropDrawable extends RefreshDrawable implements Runnable {
     @Override
     public void stop() {
         mHandler.removeCallbacks(this);
+        isRunning = false;
+        isTriger = false;
     }
 
     @Override
