@@ -81,6 +81,9 @@ public class ViewOffsetHelper {
             }
 
             int headerDy = top - mHeader.getTop();
+            if(mOffsetTop ==mMinHeaderTopOffset && headerDy>0){
+                headerDy = 0;
+            }
             if(headerDy!=0){
                 ViewCompat.offsetTopAndBottom(mHeader,headerDy);
                 dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);

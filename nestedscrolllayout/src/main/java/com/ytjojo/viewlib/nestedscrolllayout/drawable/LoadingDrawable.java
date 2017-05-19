@@ -1,58 +1,94 @@
 package com.ytjojo.viewlib.nestedscrolllayout.drawable;
 
+import android.animation.ValueAnimator;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 
-public class LoadingDrawable extends Drawable implements Animatable {
-    private final LoadingRenderer mLoadingRender;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-    private final Callback mCallback = new Callback() {
-        @Override
-        public void invalidateDrawable(Drawable d) {
-            invalidateSelf();
+/**
+ * Created by baoyz on 14/10/29.
+ */
+public abstract class LoadingDrawable extends Drawable implements Drawable.Callback, Animatable {
+
+
+
+    public abstract void setPercent(float percent);
+    public abstract void setColorSchemeColors(int[] colorSchemeColors);
+
+
+    @Override
+    public void invalidateDrawable(Drawable who) {
+        final Callback callback = getCallback();
+        if (callback != null) {
+            callback.invalidateDrawable(this);
         }
-
-        @Override
-        public void scheduleDrawable(Drawable d, Runnable what, long when) {
-            scheduleSelf(what, when);
-        }
-
-        @Override
-        public void unscheduleDrawable(Drawable d, Runnable what) {
-            unscheduleSelf(what);
-        }
-    };
-
-    public LoadingDrawable(LoadingRenderer loadingRender) {
-        this.mLoadingRender = loadingRender;
-        this.mLoadingRender.setCallback(mCallback);
     }
 
     @Override
-    protected void onBoundsChange(Rect bounds) {
-        super.onBoundsChange(bounds);
-        this.mLoadingRender.setBounds(bounds);
+    public void scheduleDrawable(Drawable who, Runnable what, long when) {
+        final Callback callback = getCallback();
+        if (callback != null) {
+            callback.scheduleDrawable(this, what, when);
+        }
     }
 
     @Override
-    public void draw(Canvas canvas) {
-        if (!getBounds().isEmpty()) {
-            this.mLoadingRender.draw(canvas);
+    public void unscheduleDrawable(Drawable who, Runnable what) {
+        final Callback callback = getCallback();
+        if (callback != null) {
+            callback.unscheduleDrawable(this, what);
         }
+    }
+
+    public boolean isFullCanvas(){
+        return false;
+    }
+
+    public long getDelayScrollInitail(){
+        return 0;
+    }
+
+    private HashMap<ValueAnimator,ValueAnimator.AnimatorUpdateListener> mUpdateListeners=new HashMap<>();
+
+    private ArrayList<ValueAnimator> mAnimators;
+    private int alpha = 255;
+    private static final Rect ZERO_BOUNDS_RECT = new Rect();
+    protected Rect drawBounds = ZERO_BOUNDS_RECT;
+
+    private boolean mHasAnimators;
+
+    private Paint mPaint=new Paint();
+
+    public LoadingDrawable(){
+        mPaint.setColor(Color.WHITE);
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setAntiAlias(true);
+    }
+
+    public int getColor() {
+        return mPaint.getColor();
+    }
+
+    public void setColor(int color) {
+        mPaint.setColor(color);
     }
 
     @Override
     public void setAlpha(int alpha) {
-        this.mLoadingRender.setAlpha(alpha);
+        this.alpha = alpha;
     }
 
     @Override
-    public void setColorFilter(ColorFilter cf) {
-        this.mLoadingRender.setColorFilter(cf);
+    public int getAlpha() {
+        return alpha;
     }
 
     @Override
@@ -61,27 +97,148 @@ public class LoadingDrawable extends Drawable implements Animatable {
     }
 
     @Override
+    public void setColorFilter(ColorFilter colorFilter) {
+
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        draw(canvas,mPaint);
+    }
+
+    public  void draw(Canvas canvas, Paint paint){
+
+    }
+
+    public  ArrayList<ValueAnimator> onCreateAnimators(){
+        return null;
+    }
+
+    @Override
     public void start() {
-        this.mLoadingRender.start();
+        ensureAnimators();
+
+        if (mAnimators == null) {
+            return;
+        }
+
+        // If the animators has not ended, do nothing.
+        if (isStarted()) {
+            return;
+        }
+        startAnimators();
+        invalidateSelf();
+    }
+
+    private void startAnimators() {
+        for (int i = 0; i < mAnimators.size(); i++) {
+            ValueAnimator animator = mAnimators.get(i);
+
+            //when the animator restart , add the updateListener again because they
+            // was removed by animator stop .
+            ValueAnimator.AnimatorUpdateListener updateListener=mUpdateListeners.get(animator);
+            if (updateListener!=null){
+                animator.addUpdateListener(updateListener);
+            }
+
+            animator.start();
+        }
+    }
+
+    private void stopAnimators() {
+        if (mAnimators!=null){
+            for (ValueAnimator animator : mAnimators) {
+                if (animator != null && animator.isRunning()) {
+                    animator.removeAllUpdateListeners();
+                    animator.end();
+                }
+            }
+        }
+    }
+
+    private void ensureAnimators() {
+        if (!mHasAnimators) {
+            mAnimators = onCreateAnimators();
+            mHasAnimators = true;
+        }
     }
 
     @Override
     public void stop() {
-        this.mLoadingRender.stop();
+        stopAnimators();
+    }
+
+    public abstract void stopIimmediately();
+
+    public boolean isStarted() {
+        for (ValueAnimator animator : mAnimators) {
+            return animator.isRunning();
+        }
+        return false;
     }
 
     @Override
     public boolean isRunning() {
-        return this.mLoadingRender.isRunning();
+        for (ValueAnimator animator : mAnimators) {
+            return animator.isRunning();
+        }
+        return false;
+    }
+
+    /**
+     *  Your should use this to add AnimatorUpdateListener when
+     *  create animator , otherwise , animator doesn't work when
+     *  the animation restart .
+     * @param updateListener
+     */
+    public void addUpdateListener(ValueAnimator animator, ValueAnimator.AnimatorUpdateListener updateListener){
+        mUpdateListeners.put(animator,updateListener);
     }
 
     @Override
-    public int getIntrinsicHeight() {
-        return (int) this.mLoadingRender.mHeight;
+    protected void onBoundsChange(Rect bounds) {
+        super.onBoundsChange(bounds);
+        setDrawBounds(bounds);
     }
 
-    @Override
-    public int getIntrinsicWidth() {
-        return (int) this.mLoadingRender.mWidth;
+    public void setDrawBounds(Rect drawBounds) {
+        setDrawBounds(drawBounds.left, drawBounds.top, drawBounds.right, drawBounds.bottom);
     }
+
+    public void setDrawBounds(int left, int top, int right, int bottom) {
+        this.drawBounds = new Rect(left, top, right, bottom);
+    }
+
+    public void postInvalidate(){
+        invalidateSelf();
+    }
+
+    public Rect getDrawBounds() {
+        return drawBounds;
+    }
+
+    public int getWidth(){
+        return drawBounds.width();
+    }
+
+    public int getHeight(){
+        return drawBounds.height();
+    }
+
+    public int centerX(){
+        return drawBounds.centerX();
+    }
+
+    public int centerY(){
+        return drawBounds.centerY();
+    }
+
+    public float exactCenterX(){
+        return drawBounds.exactCenterX();
+    }
+
+    public float exactCenterY(){
+        return drawBounds.exactCenterY();
+    }
+    public void onReset(){};
 }

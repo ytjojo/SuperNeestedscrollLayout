@@ -18,7 +18,7 @@ import java.security.InvalidParameterException;
 /**
  * Created by baoyz on 14/10/31.
  */
-public class WaterDropDrawable extends RefreshDrawable implements Runnable {
+public class WaterDropDrawable extends LoadingDrawable implements Runnable {
 
     private static final float MAX_LEVEL = 10000;
     private static final float MAX_LEVEL_PER_CIRCLE = MAX_LEVEL / 4;
@@ -191,6 +191,11 @@ public class WaterDropDrawable extends RefreshDrawable implements Runnable {
         mHandler.removeCallbacks(this);
         isRunning = false;
         isTriger = false;
+    }
+
+    @Override
+    public void stopIimmediately() {
+        stop();
     }
 
     @Override

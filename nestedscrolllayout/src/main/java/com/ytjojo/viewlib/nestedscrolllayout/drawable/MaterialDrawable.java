@@ -39,7 +39,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-public class MaterialDrawable extends RefreshDrawable implements Animatable {
+public class MaterialDrawable extends LoadingDrawable implements Animatable {
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
     private static final Interpolator END_CURVE_INTERPOLATOR = new EndCurveInterpolator();
     private static final Interpolator START_CURVE_INTERPOLATOR = new StartCurveInterpolator();
@@ -399,6 +399,11 @@ public class MaterialDrawable extends RefreshDrawable implements Animatable {
         mRing.setShowArrow(false);
         mRing.setColorIndex(0);
         mRing.resetOriginals();
+    }
+
+    @Override
+    public void stopIimmediately() {
+        stop();
     }
 
     private void setupAnimators() {

@@ -27,7 +27,7 @@ import android.util.TypedValue;
  *
  */
 
-public class JellyCircleDrawable extends RefreshDrawable {
+public class JellyCircleDrawable extends LoadingDrawable {
 
     private static final String TAG = "AnimationView";
 
@@ -310,7 +310,7 @@ public class JellyCircleDrawable extends RefreshDrawable {
         int cirCentStart =PULL_DELTA+ PULL_HEIGHT - PULL_HEIGHT/4;
 //        int cirCentStart = (int) (PULL_HEIGHT/2+PULL_DELTA +(PULL_HEIGHT/2)*getPopRatio());
 
-        int cirCenY = (int) (cirCentStart - mRadius  * getPopRatio() -PULL_HEIGHT/4*getPopRatio());
+        int cirCenY = (int) (cirCentStart -PULL_HEIGHT/4*getPopRatio());
         RectF rectF = mRectFPools.acquire();
         rectF.set(mWidth / 2 - mRadius, cirCenY - mRadius, mWidth / 2 + mRadius, cirCenY + mRadius);
         canvas.drawArc(rectF,
@@ -369,7 +369,7 @@ public class JellyCircleDrawable extends RefreshDrawable {
 
         canvas.drawPath(mPath, mBackPaint);
         int innerY = PULL_HEIGHT/2 + PULL_DELTA  ;
-        canvas.drawCircle(mWidth / 2, innerY-(1-getOutRatio())*mRadius, mRadius, mBallPaint);
+        canvas.drawCircle(mWidth / 2, innerY, mRadius, mBallPaint);
     }
 
     private int mRefreshStart = 90;
@@ -636,5 +636,11 @@ public class JellyCircleDrawable extends RefreshDrawable {
     @Override
     public long getDelayScrollInitail() {
         return DONE_DUR;
+    }
+
+    @Override
+    public void stopIimmediately() {
+        mHandler.removeCallbacks(mRunnable);
+        isRunning = false;
     }
 }

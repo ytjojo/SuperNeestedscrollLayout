@@ -3,13 +3,14 @@ package com.ytjojo.viewlib.nestedscrolllayout.drawable;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import java.util.ArrayList;
 
 /**
  * Created by Jack on 2015/10/20.
  */
-public class BallSpinFadeLoaderIndicator extends Indicator {
+public class BallSpinFadeLoaderIndicator extends LoadingDrawable {
 
     public static final float SCALE=1.0f;
 
@@ -35,11 +36,27 @@ public class BallSpinFadeLoaderIndicator extends Indicator {
 
 
     @Override
+    public void setPercent(float percent) {
+
+        invalidateSelf();
+    }
+
+    @Override
+    public void setColorSchemeColors(int[] colorSchemeColors) {
+        setColor(colorSchemeColors[0]);
+    }
+    float radius ;
+    @Override
+    protected void onBoundsChange(Rect bounds) {
+        super.onBoundsChange(bounds);
+        radius=Math.min(getWidth(),getHeight())/15;
+    }
+
+    @Override
     public void draw(Canvas canvas, Paint paint) {
-        float radius=getWidth()/10;
         for (int i = 0; i < 8; i++) {
             canvas.save();
-            Point point=circleAt(getWidth(),getHeight(),getWidth()/2-radius,i*(Math.PI/4));
+            Point point=circleAt(getHeight(),getHeight()/2-2*radius,i*(Math.PI/4));
             canvas.translate(point.x,point.y);
             canvas.scale(scaleFloats[i],scaleFloats[i]);
             paint.setAlpha(alphas[i]);
@@ -83,17 +100,21 @@ public class BallSpinFadeLoaderIndicator extends Indicator {
         return animators;
     }
 
+    @Override
+    public void stopIimmediately() {
+
+    }
+
     /**
      * 圆O的圆心为(a,b),半径为R,点A与到X轴的为角α.
      *则点A的坐标为(a+R*cosα,b+R*sinα)
-     * @param width
      * @param height
      * @param radius
      * @param angle
      * @return
      */
-    Point circleAt(int width,int height,float radius,double angle){
-        float x= (float) (width/2+radius*(Math.cos(angle)));
+    Point circleAt(int height,float radius,double angle){
+        float x= (float) (getWidth()/2+radius*(Math.cos(angle)));
         float y= (float) (height/2+radius*(Math.sin(angle)));
         return new Point(x,y);
     }

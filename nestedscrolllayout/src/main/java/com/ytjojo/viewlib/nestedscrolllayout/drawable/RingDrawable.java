@@ -15,7 +15,7 @@ import static com.ytjojo.viewlib.nestedscrolllayout.Utils.dip2px;
 /**
  * Created by baoyz on 14/11/2.
  */
-public class RingDrawable extends RefreshDrawable {
+public class RingDrawable extends LoadingDrawable {
 
     private static final int MAX_LEVEL = 200;
 
@@ -83,6 +83,11 @@ public class RingDrawable extends RefreshDrawable {
     public void stop() {
         isRunning = false;
         mDegress = 0;
+    }
+
+    @Override
+    public void stopIimmediately() {
+        stop();
     }
 
     @Override

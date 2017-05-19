@@ -16,11 +16,15 @@ import com.ytjojo.viewlib.nestedscrolllayout.PtrUIHandler;
 import com.ytjojo.viewlib.nestedscrolllayout.R;
 import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.Utils;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.BallPulseIndicator;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.BallSpinFadeLoaderIndicator;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.JellyCircleDrawable;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.LoadingDrawable;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.ManyCircle;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.MaterialDrawable;
-import com.ytjojo.viewlib.nestedscrolllayout.drawable.RefreshDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.RingDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.WaterDropDrawable;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.WindowsLoad;
 
 import java.security.InvalidParameterException;
 
@@ -33,13 +37,18 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public static final int STYLE_JELLYCIRCLE = 1;
     public static final int STYLE_WATER_DROP = 2;
     public static final int STYLE_RING = 3;
+    public static final int STYLE_BALLPULSE = 4;
+    public static final int STYLE_BALLSPINFADE = 5;
+    public static final int STYLE_MANYCIRCLE = 6;
+    public static final int STYLE_WINDOWLOAD = 7;
+
 
     public final int  sDefaultHeightDp = 64;
     private int mHeight ;
     boolean isShowWave;
     MaterialWaveView mMaterialWaveView;
     ImageView mRefreshView;
-    private RefreshDrawable mRefreshDrawable;
+    private LoadingDrawable mLoadingDrawable;
 
     private int[] mColorSchemeColors;
 
@@ -58,7 +67,11 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     int mDrawableStyle;
     private void init(final Context context,AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DefultRefreshView);
-        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_JELLYCIRCLE);
+        int defaultStyle = (int) (8* Math.random());
+        if(defaultStyle ==8){
+            defaultStyle = 7;
+        }
+        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_WINDOWLOAD);
         isShowWave = a.getBoolean(R.styleable.DefultRefreshView_isShowWave,true);
         final int colorsId = a.getResourceId(R.styleable.DefultRefreshView_refreshColors, 0);
         final int colorId = a.getResourceId(R.styleable.DefultRefreshView_refreshColor, 0);
@@ -81,7 +94,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addView(mRefreshView,params);
         setRefreshStyle(mDrawableStyle);
-        if(isShowWave && !mRefreshDrawable.isFullCanvas()){
+        if(isShowWave && !mLoadingDrawable.isFullCanvas()){
             mRefreshView.getLayoutParams().height = mHeight;
         }else{
             mMaterialWaveView.setVisibility(GONE);
@@ -92,7 +105,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(isShowWave||mRefreshDrawable.isFullCanvas()){
+        if(isShowWave|| mLoadingDrawable.isFullCanvas()){
             if(getLayoutParams().height>0){
                 if(getLayoutParams().height< mHeight*2){
                     getLayoutParams().height = (int) (mHeight*2);
@@ -111,12 +124,12 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
 
 
         }
-        if(isShowWave ||mRefreshDrawable.isFullCanvas()){
+        if(isShowWave || mLoadingDrawable.isFullCanvas()){
             NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
             RefreshHeaderBehavior behavior= (RefreshHeaderBehavior) layoutParams.getBehavior();
             behavior.setStableRefreshOffset(mHeight);
             behavior.setMaxContentOffset(getMeasuredHeight());
-            if(!mRefreshDrawable.isFullCanvas()){
+            if(!mLoadingDrawable.isFullCanvas()){
                 mRefreshView.layout(mRefreshView.getLeft(),mRefreshView.getTop()+getMeasuredHeight()-mHeight,mRefreshView.getRight(),mRefreshView.getBottom()+getMeasuredHeight()-mHeight);
 
             }
@@ -132,24 +145,37 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public void setRefreshStyle(int type) {
         switch (type) {
             case STYLE_MATERIAL:
-                mRefreshDrawable = new MaterialDrawable(getContext(),this,mHeight);
+                mLoadingDrawable = new MaterialDrawable(getContext(),this,mHeight);
                 break;
             case STYLE_WATER_DROP:
-                mRefreshDrawable = new WaterDropDrawable(getContext(),mHeight);
+                mLoadingDrawable = new WaterDropDrawable(getContext(),mHeight);
                 break;
             case STYLE_RING:
-                mRefreshDrawable = new RingDrawable(getContext(),mHeight);
+                mLoadingDrawable = new RingDrawable(getContext(),mHeight);
                 break;
             case STYLE_JELLYCIRCLE:
-                mRefreshDrawable = new JellyCircleDrawable(getContext(),mHeight);
+                mLoadingDrawable = new JellyCircleDrawable(getContext(),mHeight);
                 mMaterialWaveView.setVisibility(GONE);
                 break;
+            case STYLE_BALLPULSE:
+                mLoadingDrawable = new  BallPulseIndicator();
+                break;
+            case STYLE_BALLSPINFADE:
+                mLoadingDrawable = new BallSpinFadeLoaderIndicator();
+                break;
+            case STYLE_MANYCIRCLE:
+                mLoadingDrawable = new ManyCircle(getContext());
+                break;
+            case STYLE_WINDOWLOAD:
+                mLoadingDrawable = new WindowsLoad(getContext());
+                break;
+
 
             default:
                 throw new InvalidParameterException("Type does not exist");
         }
-        mRefreshDrawable.setColorSchemeColors(mColorSchemeColors);
-        mRefreshView.setImageDrawable(mRefreshDrawable);
+        mLoadingDrawable.setColorSchemeColors(mColorSchemeColors);
+        mRefreshView.setImageDrawable(mLoadingDrawable);
 //        mRefreshView.setImageResource(android.R.drawable.ic_menu_camera);
     }
 
@@ -157,6 +183,9 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public void onUIReset(NestedScrollLayout parent) {
         if(showWave())
             mMaterialWaveView.onUIReset(parent);
+
+
+        mLoadingDrawable.onReset();
     }
 
 
@@ -170,7 +199,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public void onUIRefreshBegin(NestedScrollLayout parent) {
         if(showWave())
         mMaterialWaveView.onUIRefreshBegin(parent);
-        mRefreshDrawable.start();
+        mLoadingDrawable.start();
     }
 
     private boolean showWave(){
@@ -184,7 +213,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
         if(showWave())
             mMaterialWaveView.onUIRefreshComplete(parent);
 
-        mRefreshDrawable.stop();
+        mLoadingDrawable.stop();
     }
 
     @Override
@@ -192,9 +221,9 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
         if(showWave())
             mMaterialWaveView.onUIPositionChange(parent,isUnderTouch,status,indicator);
         if(status==  RefreshHeaderBehavior.PTR_STATUS_PREPARE){
-            mRefreshDrawable.setPercent(indicator.getCurrentPercent());
+            mLoadingDrawable.setPercent(indicator.getCurrentPercent());
             mRefreshView.postInvalidate();
-            indicator.setDelayScrollInitail(mRefreshDrawable.getDelayScrollInitail());
+            indicator.setDelayScrollInitail(mLoadingDrawable.getDelayScrollInitail());
         }
 
     }

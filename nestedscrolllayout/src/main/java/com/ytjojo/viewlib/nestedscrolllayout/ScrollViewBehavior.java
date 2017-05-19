@@ -531,7 +531,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         mLastPreScrollTime = mBeginTime;
 
     }
-    boolean isSnapScroll = true;
+    boolean isSnapScroll = false;
     private long mBeginTime;
     private long mLastPreScrollTime;
     private int mTotalDy = 0;

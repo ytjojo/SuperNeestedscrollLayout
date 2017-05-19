@@ -33,7 +33,7 @@ public class CollapingLayoutTwoNeestedActivity extends AppCompatActivity {
                     public void run() {
                         headerBehavior.setRefreshComplete();
                     }
-                },3000);
+                },6000);
             }
         });
 

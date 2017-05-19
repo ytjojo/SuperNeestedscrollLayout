@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by Jack on 2015/10/16.
  */
-public class BallPulseIndicator extends Indicator {
+public class BallPulseIndicator extends LoadingDrawable {
 
     public static final float SCALE=1.0f;
 
@@ -19,6 +19,22 @@ public class BallPulseIndicator extends Indicator {
             SCALE};
 
 
+    @Override
+    public void setPercent(float percent) {
+        if(percent>1.1f){
+            percent = 1.1f;
+        }
+        for (int i = 0; i < 3; i++) {
+            scaleFloats[i] = 0.5f+ percent*0.5f;
+        }
+        invalidateSelf();
+
+    }
+
+    @Override
+    public void setColorSchemeColors(int[] colorSchemeColors) {
+        setColor(colorSchemeColors[0]);
+    }
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
@@ -59,6 +75,12 @@ public class BallPulseIndicator extends Indicator {
             animators.add(scaleAnim);
         }
         return animators;
+    }
+
+    @Override
+    public void stopIimmediately() {
+        stop();
+
     }
 
 
