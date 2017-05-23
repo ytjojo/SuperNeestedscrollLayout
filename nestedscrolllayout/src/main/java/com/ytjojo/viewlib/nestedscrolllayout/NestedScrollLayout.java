@@ -674,7 +674,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
 
 
     public int dragedScrollBy(int dx, int dy) {
-        mTempIntPair[0] = mTempIntPair[1] = 0;
+
         int childCount = getChildCount();
         int consumedDy = 0;
         for (int i = 0; i < childCount; i++) {
@@ -685,7 +685,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null &&viewBehavior.isAcceptedDrag()) {
-
+                mTempIntPair[0] = mTempIntPair[1] = 0;
                 viewBehavior.onScrollBy(this, child, dx, dy - consumedDy, mTempIntPair);
                 consumedDy += mTempIntPair[1];
                 if (consumedDy == dy) {
@@ -745,7 +745,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
             Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
                 if( viewBehavior.isAcceptedDrag()){
-                    viewBehavior.onStopDrag(this);
+                    viewBehavior.onStopDrag(this,child);
                 }
                 viewBehavior.setCanAcceptedDrag(false);
             }
@@ -1521,14 +1521,21 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     @Override
     public void onDraw(Canvas c) {
         super.onDraw(c);
+
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
         if (mDrawStatusBarBackground && mStatusBarBackground != null) {
             final int inset = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
             if (inset > 0) {
                 mStatusBarBackground.setBounds(0, 0, getWidth(), inset);
-                mStatusBarBackground.draw(c);
+                mStatusBarBackground.draw(canvas);
             }
         }
     }
+
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -1680,5 +1687,8 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     }
     public boolean isPointInChildBounds(View child, int x, int y) {
         return mLayoutManager.isPointInChildBounds(child,x,y);
+    }
+    public boolean isPointBellowChildBounds(View child, int x, int y) {
+        return mLayoutManager.isPointBellowChildBounds(child,x,y);
     }
 }

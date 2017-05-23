@@ -159,6 +159,9 @@ public class LayoutManager {
 
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
+            if(child.getVisibility() ==View.GONE){
+                continue;
+            }
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (lp.checkAnchorChanged()) {
                 throw new IllegalStateException("An anchor may not be changed after CoordinatorLayout"
@@ -671,6 +674,11 @@ public class LayoutManager {
         final Rect r = mTempRect1;
         getDescendantRect(child, r, false);
         return r.contains(x, y);
+    }
+    public boolean isPointBellowChildBounds(View child, int x, int y) {
+        final Rect r = mTempRect1;
+        getDescendantRect(child, r, false);
+        return r.bottom <= y;
     }
 
     /**

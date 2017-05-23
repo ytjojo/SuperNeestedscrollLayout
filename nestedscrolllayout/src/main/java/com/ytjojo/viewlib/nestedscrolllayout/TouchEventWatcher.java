@@ -17,6 +17,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
+import com.orhanobut.logger.Logger;
+
 /**
  * Created by Administrator on 2016/9/26 0026.
  */
@@ -285,6 +287,7 @@ public class TouchEventWatcher {
                 }
 
                 final int y = (int) MotionEventCompat.getY(ev, pointerIndex);
+                final int x = (int) MotionEventCompat.getX(ev, pointerIndex);
                 final int yDiff = Math.abs(y - mLastMotionY);
                 if (yDiff > mTouchSlop) {
                     if (isBlockingInteractionBelow == null) {
@@ -310,9 +313,11 @@ public class TouchEventWatcher {
                     mVelocityTracker.addMovement(ev);
                     mNestedYOffset = 0;
                     final ViewParent parent = mParent.getParent();
-                    if (parent != null) {
+                    int xDiff = Math.abs(x - mLastMotionX);
+                    if (parent != null && yDiff>xDiff) {
                         parent.requestDisallowInterceptTouchEvent(true);
                     }
+
                 }
                 break;
             }
@@ -423,6 +428,7 @@ public class TouchEventWatcher {
 
                 final int y = (int) MotionEventCompat.getY(ev, activePointerIndex);
                 int deltaY = mLastMotionY - y;
+
                 if (mParent.dispatchNestedPreScroll(0, deltaY, mParentScrollConsumed, mParentOffsetInWindow)) {
                     deltaY -= mParentScrollConsumed[1];
                     vtev.offsetLocation(0, mParentOffsetInWindow[1]);
@@ -444,13 +450,14 @@ public class TouchEventWatcher {
                         }
 
                         mParent.dragedScrollBy(0, deltaY);
+                        Logger.e("offsetDydeltaY"+deltaY);
                     }
                 }
                 if (mIsBeingDragged) {
                     Log.e(getClass().getName(), mIsBeingDragged + "isNestedScrollInProgress" + mParent.isNestedScrollInProgress());
                     // Scroll to follow the motion event
                     mLastMotionY = y - mParentOffsetInWindow[1];
-
+                    Logger.e("offsetDydeltaY"+deltaY);
                     final int scrolledDeltaY = mParent.dragedScrollBy(0, deltaY);
 
                     final int unconsumedY = deltaY - scrolledDeltaY;

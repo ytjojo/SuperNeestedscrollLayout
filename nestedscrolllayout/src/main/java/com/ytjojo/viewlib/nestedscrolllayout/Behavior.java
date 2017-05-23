@@ -70,7 +70,7 @@ public abstract class Behavior<V extends View> {
                            int dx, int dy, int[] consumed) {
     }
     public void onStartDrag(NestedScrollLayout nestedScrollLayout, V child,int mInitialTouchX,int mInitialTouchY,boolean acceptedByAnother,Behavior accepteBehavior){}
-    public void onStopDrag(NestedScrollLayout nestedScrollLayout) {
+    public void onStopDrag(NestedScrollLayout nestedScrollLayout,V child) {
     }
     boolean isAcceptedDrag;
     boolean isAcceptedDrag() {

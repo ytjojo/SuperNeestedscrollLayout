@@ -449,8 +449,8 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
 
 
     @Override
-    public void onStopDrag(NestedScrollLayout nestedScrollLayout) {
-        super.onStopDrag(nestedScrollLayout);
+    public void onStopDrag(NestedScrollLayout nestedScrollLayout,V child) {
+        super.onStopDrag(nestedScrollLayout,child);
     }
 
     @Override

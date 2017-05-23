@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    app:statusBarBackground="@color/colorPrimary"
+    android:fitsSystemWindows="true">
+    <com.ytjojo.viewlib.nestedscrolllayout.view.DefultRefreshView
+        android:id="@+id/refreshHeader"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="top"
+        android:fitsSystemWindows="false"
+        app:waveColor="#60FF4081"
+        app:anchor="@+id/toolbar"
+        app:anchorGravity="right|bottom"
+        app:isShowWave="true"
+        app:drawingOrderElevation="3dp"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"/>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:drawingOrderElevation="4dp"
+        app:controlBehaviorName="ScrollViewBehavior"
+        app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+       />
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        app:drawingOrderElevation="2dp"
+        app:controlBehaviorName="ScrollViewBehavior"
+        app:statusBarScrim="?attr/colorPrimary"/>
+
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:elevation="6dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/quila"
+        app:anchor="@id/viewPager"
+        app:anchorGravity="right|bottom"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:controlBehaviorName="ScrollViewBehavior"
+        android:background="#33ff0000"
+        android:orientation="vertical">
+
+        <TextView
+            android:gravity="center"
+            android:text="emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"/>
+        <View
+            android:layout_weight="1"
+            android:layout_width="1px"
+            android:layout_height="0px"/>
+        <TextView
+            android:gravity="center"
+            android:text="emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"/>
+
+    </LinearLayout>
+    <android.support.v4.widget.NestedScrollView
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#90ffffff"
+        android:fitsSystemWindows="false"
+        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:controlBehaviorName="ScrollViewBehavior"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Info"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Friends"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Related"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Last"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="#f2e4e4"
+        android:gravity="center"
+        android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
+        android:textSize="15sp"
+        app:controlBehaviorName="ScrollViewBehavior"/>
+
+
+</com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout>

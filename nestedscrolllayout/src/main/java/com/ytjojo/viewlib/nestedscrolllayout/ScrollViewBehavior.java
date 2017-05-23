@@ -41,9 +41,13 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
 
     @Override
     public void onAllChildLayouted(NestedScrollLayout nestedScrollLayout, V child) {
+        if(child.getVisibility()==GONE){
+            return;
+        }
         calculateScrollRange(nestedScrollLayout,child);
         final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
         mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
+
 
     }
 

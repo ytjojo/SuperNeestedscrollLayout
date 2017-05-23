@@ -76,8 +76,8 @@ public class ViewOffsetHelper {
             NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) mHeader.getLayoutParams();
             if(top>lp.mLayoutTop){
                 top = lp.mLayoutTop;
-            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue){
-                top = mMinHeaderTopOffset+mHeaderOffsetValue;
+            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset){
+                top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
             }
 
             int headerDy = top - mHeader.getTop();

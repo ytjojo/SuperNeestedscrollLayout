@@ -51,8 +51,14 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(new MyAdapter(new OnItemClick() {
             @Override
             public void onItemClick(int postion) {
-                Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
-                startActivity(intent);
+                if(postion %2 ==0){
+                    Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
+                    startActivity(intent);
+                }
+
             }
         }));
 

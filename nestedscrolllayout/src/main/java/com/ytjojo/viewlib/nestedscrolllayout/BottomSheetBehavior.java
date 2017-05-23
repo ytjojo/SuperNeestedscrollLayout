@@ -772,7 +772,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     }
 
     @Override
-    public void onStopDrag(NestedScrollLayout nestedScrollLayout) {
+    public void onStopDrag(NestedScrollLayout nestedScrollLayout,V child) {
         int scrollY = -mViewOffsetHelper.getTopAndBottomOffset();
         if (scrollY > mDownScrollRange) {
 

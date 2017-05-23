@@ -26,12 +26,12 @@ public class WindowsLoad extends LoadingDrawable {
     private ValueAnimator circleAnimator2;
     private ValueAnimator circleAnimator3;
     private float mTrajectoryRadius;
-    private int mDuration =1000;
+    private int mDuration =1300;
     private int mDelay = 80;
 
 
     public WindowsLoad(Context context) {
-        mRadiu = Utils.dip2px(context,3);
+        mRadiu = Utils.dip2px(context,2);
         if(mPathInterpolatorCompat == null){
             Path path =new Path();
             path.cubicTo(0.8f, 0.2f, 0.2f, 0.8f, 1f, 1f);
@@ -50,6 +50,7 @@ public class WindowsLoad extends LoadingDrawable {
 
     @Override
     public void setPercent(float percent) {
+
         invalidateSelf();
     }
 
@@ -61,6 +62,7 @@ public class WindowsLoad extends LoadingDrawable {
     @Override
     public void draw(Canvas canvas,Paint paint) {
         for (int i = 0; i < 3; i++) {
+//            if(i==0)
             canvas.drawCircle(mPointFs.get(i).x, mPointFs.get(i).y, mRadiu, paint);
         }
     }
@@ -128,7 +130,7 @@ public class WindowsLoad extends LoadingDrawable {
 
     @Override
     public void stopIimmediately() {
-
+        stop();
     }
 
     Interpolator mPathInterpolatorCompat;
