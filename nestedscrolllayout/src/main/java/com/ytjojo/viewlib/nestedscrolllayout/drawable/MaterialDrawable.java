@@ -137,6 +137,7 @@ public class MaterialDrawable extends LoadingDrawable implements Animatable {
     Context mContext;
     private int mMaxOffset;
     public MaterialDrawable(Context context,View parent,int maxOffset) {
+        super();
         mResources = context.getResources();
         mParent = parent;
         mRing = new Ring(mCallback);

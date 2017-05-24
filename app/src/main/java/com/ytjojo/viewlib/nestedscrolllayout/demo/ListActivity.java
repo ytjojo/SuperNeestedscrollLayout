@@ -35,7 +35,7 @@ public class ListActivity extends AppCompatActivity {
                 footer.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        behavior.setLoadComplete();
+                        behavior.setRefreshComplete();
                     }
                 },4000);
             }

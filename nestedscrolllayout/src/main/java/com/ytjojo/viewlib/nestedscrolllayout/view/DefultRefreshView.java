@@ -14,6 +14,7 @@ import com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout;
 import com.ytjojo.viewlib.nestedscrolllayout.PtrIndicator;
 import com.ytjojo.viewlib.nestedscrolllayout.PtrUIHandler;
 import com.ytjojo.viewlib.nestedscrolllayout.R;
+import com.ytjojo.viewlib.nestedscrolllayout.RefreshFooterBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.Utils;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.BallPulseIndicator;
@@ -22,6 +23,7 @@ import com.ytjojo.viewlib.nestedscrolllayout.drawable.JellyCircleDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.LoadingDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.ManyCircle;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.MaterialDrawable;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.MetaballDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.RingDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.WaterDropDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.WindowsLoad;
@@ -41,6 +43,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public static final int STYLE_BALLSPINFADE = 5;
     public static final int STYLE_MANYCIRCLE = 6;
     public static final int STYLE_WINDOWLOAD = 7;
+    public static final int STYLE_METABALL= 8;
 
 
     public final int  sDefaultHeightDp = 64;
@@ -67,14 +70,15 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     int mDrawableStyle;
     private void init(final Context context,AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DefultRefreshView);
-        int defaultStyle = (int) (8* Math.random());
-        if(defaultStyle ==8){
-            defaultStyle = 7;
+        int style = (int) (Math.random()*9);
+        if(style ==9){
+            style = 8;
         }
-        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_WINDOWLOAD);
+        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, style);
         isShowWave = a.getBoolean(R.styleable.DefultRefreshView_isShowWave,true);
         final int colorsId = a.getResourceId(R.styleable.DefultRefreshView_refreshColors, 0);
         final int colorId = a.getResourceId(R.styleable.DefultRefreshView_refreshColor, 0);
+        mWaveColor= a.getResourceId(R.styleable.DefultRefreshView_waveColor,mWaveColor);
         a.recycle();
         if (colorsId > 0) {
             mColorSchemeColors = context.getResources().getIntArray(colorsId);
@@ -105,7 +109,11 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(isShowWave|| mLoadingDrawable.isFullCanvas()){
+        NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
+        if(layoutParams.getBehavior() !=null &&layoutParams.getBehavior() instanceof RefreshFooterBehavior){
+            return;
+        }
+        if((isShowWave|| mLoadingDrawable.isFullCanvas())){
             if(getLayoutParams().height>0){
                 if(getLayoutParams().height< mHeight*2){
                     getLayoutParams().height = (int) (mHeight*2);
@@ -126,13 +134,16 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
         }
         if(isShowWave || mLoadingDrawable.isFullCanvas()){
             NestedScrollLayout.LayoutParams layoutParams = (NestedScrollLayout.LayoutParams) getLayoutParams();
-            RefreshHeaderBehavior behavior= (RefreshHeaderBehavior) layoutParams.getBehavior();
-            behavior.setStableRefreshOffset(mHeight);
-            behavior.setMaxContentOffset(getMeasuredHeight());
-            if(!mLoadingDrawable.isFullCanvas()){
-                mRefreshView.layout(mRefreshView.getLeft(),mRefreshView.getTop()+getMeasuredHeight()-mHeight,mRefreshView.getRight(),mRefreshView.getBottom()+getMeasuredHeight()-mHeight);
+            if(layoutParams.getBehavior() !=null &&layoutParams.getBehavior() instanceof RefreshHeaderBehavior){
+                RefreshHeaderBehavior behavior= (RefreshHeaderBehavior) layoutParams.getBehavior();
+                behavior.setStableRefreshOffset(mHeight);
+                behavior.setMaxContentOffset(getMeasuredHeight());
+                if(!mLoadingDrawable.isFullCanvas()){
+                    mRefreshView.layout(mRefreshView.getLeft(),mRefreshView.getTop()+getMeasuredHeight()-mHeight,mRefreshView.getRight(),mRefreshView.getBottom()+getMeasuredHeight()-mHeight);
 
+                }
             }
+
         }
 
     }
@@ -164,10 +175,13 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
                 mLoadingDrawable = new BallSpinFadeLoaderIndicator();
                 break;
             case STYLE_MANYCIRCLE:
-                mLoadingDrawable = new ManyCircle(getContext());
+                mLoadingDrawable = new ManyCircle();
                 break;
             case STYLE_WINDOWLOAD:
                 mLoadingDrawable = new WindowsLoad(getContext());
+                break;
+            case STYLE_METABALL:
+                mLoadingDrawable = new MetaballDrawable(getContext());
                 break;
 
 

@@ -65,13 +65,14 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
 
     private boolean mHasAnimators;
 
-    private Paint mPaint=new Paint();
+    protected Paint mPaint=new Paint();
 
     public LoadingDrawable(){
         mPaint.setColor(Color.WHITE);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
     }
+
 
     public int getColor() {
         return mPaint.getColor();
@@ -241,4 +242,5 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
         return drawBounds.exactCenterY();
     }
     public void onReset(){};
+
 }

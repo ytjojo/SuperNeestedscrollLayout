@@ -31,6 +31,7 @@ public class WindowsLoad extends LoadingDrawable {
 
 
     public WindowsLoad(Context context) {
+        super();
         mRadiu = Utils.dip2px(context,2);
         if(mPathInterpolatorCompat == null){
             Path path =new Path();

@@ -33,6 +33,7 @@ public class RingDrawable extends LoadingDrawable {
     Context mContext;
 
     public RingDrawable(Context context,int maxOffset) {
+        super();
         mContext = context;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);

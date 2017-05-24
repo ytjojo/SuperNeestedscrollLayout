@@ -244,4 +244,8 @@
         <attr name="refreshOffset" format="dimension"/>
         <attr name="isShowWave" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="RefreshFooterBehavior">
+        <attr name="isKeepShowWhenLoading" format="boolean"/>
+        <attr name="isTriggerSensitive" format="boolean"/>
+    </declare-styleable>
 </resources>

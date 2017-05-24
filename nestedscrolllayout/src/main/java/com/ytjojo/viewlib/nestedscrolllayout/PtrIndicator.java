@@ -68,7 +68,7 @@ public class PtrIndicator {
         this.mOffsetToRefresh = (int)((float)this.mStableRefreshOffset * ratio);
     }
 
-    public float getRatioOfHeaderToHeightRefresh() {
+    public float getRatioOfHeaderToHeightToRefresh() {
         return this.mRatioOfHeaderHeightToRefresh;
     }
 
@@ -123,7 +123,7 @@ public class PtrIndicator {
     protected void onUpdatePos(int current, int last) {
     }
 
-    public int getHeaderHeight() {
+    public int getStableRefreshOffset() {
         return this.mStableRefreshOffset;
     }
 

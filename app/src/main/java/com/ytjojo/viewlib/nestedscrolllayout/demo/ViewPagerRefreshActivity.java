@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import com.ytjojo.viewlib.nestedscrolllayout.NestedScrollLayout;
 import com.ytjojo.viewlib.nestedscrolllayout.OnLoadListener;
+import com.ytjojo.viewlib.nestedscrolllayout.RefreshFooterBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 
 /**
@@ -23,7 +24,22 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_viewpager_refresh);
         final View headerLoadingView =findViewById(R.id.refreshHeader);
+        final View footererLoadingView =findViewById(R.id.refreshFooter);
+
         NestedScrollLayout.LayoutParams lp = (NestedScrollLayout.LayoutParams) headerLoadingView.getLayoutParams();
+        NestedScrollLayout.LayoutParams footerLp = (NestedScrollLayout.LayoutParams) footererLoadingView.getLayoutParams();
+        final RefreshFooterBehavior footerBehavior = (RefreshFooterBehavior) footerLp.getBehavior();
+        footerBehavior.setOnLoadListener(new OnLoadListener() {
+            @Override
+            public void onLoad() {
+                footererLoadingView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        footerBehavior.setRefreshComplete();
+                    }
+                },6000);
+            }
+        });
         final RefreshHeaderBehavior headerBehavior = (RefreshHeaderBehavior) lp.getBehavior();
         headerBehavior.setOnLoadListener(new OnLoadListener() {
             @Override

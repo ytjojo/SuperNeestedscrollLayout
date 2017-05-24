@@ -9,8 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
-import com.orhanobut.logger.Logger;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -43,7 +41,19 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     private float  mFrictionFactor = 0.6f;
     private int mMaxHeaderNestedScrollY;
     ViewOffsetHelper mOffsetHelper;
+    private float mParallaxMult=0f;
+    private float mMinHeaderOffset;
+    private float mTotalHeaderOffset;
+    public void setParallaxMult(float parallaxMult){
+        this.mParallaxMult = parallaxMult;
 
+    }
+    private void checkParallaxMultValue(){
+        if(mRefreshIndicator !=null&& mParallaxMult !=0f){
+            mMinHeaderOffset = mRefreshIndicator.getStableRefreshOffset()*mParallaxMult;
+            mTotalHeaderOffset = mRefreshIndicator.getStableRefreshOffset() - mMinHeaderOffset;
+        }
+    }
     @Override
     public boolean onStartNestedScroll(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int nestedScrollAxes) {
         mRefreshHeaderView = header;
@@ -157,7 +167,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             mRefreshIndicator.setStableRefreshOffset(height);
         }
         mMaxHeaderNestedScrollY = (int)(mRefreshIndicator.getMaxContentOffsetY()/mFrictionFactor);
-
+        checkParallaxMultValue();
     }
     public void setStableRefreshOffset(int stableRefreshOffset){
         if(mRefreshIndicator == null){
@@ -168,9 +178,16 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     public void setMaxContentOffset(int maxOffset){
         mRefreshIndicator.setMaxContentOffsetY(maxOffset);
     }
+    private boolean isKeepShowWhenLoading;
 
+    public void setKeepShowWhenLoading(boolean keepShowWhenLoading){
+        isKeepShowWhenLoading = keepShowWhenLoading;
+    }
     @Override
     public void onNestedPreScroll(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int dx, int dy, int[] consumed) {
+        doOnNestedPreScroll(nestedScrollLayout,header,dx,dy,consumed);
+    }
+    private void doOnNestedPreScroll(NestedScrollLayout nestedScrollLayout, V header, int dx, int dy, int[] consumed){
         if ( isIgnore) {
             return;
         }
@@ -179,7 +196,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         }
         if (dy > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
             final int childCount = mToTranslationYViews.size();
-            if(mStatus == PTR_STATUS_LOADING){
+            if(isKeepShowWhenLoading && mStatus == PTR_STATUS_LOADING){
                 float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
                 if(y <=0){
                     return;
@@ -196,17 +213,20 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                     View itemView = mToTranslationYViews.get(i);
                     ViewCompat.setTranslationY(itemView, contentDy);
                 }
-                mNestedScrollLayout.dispatchOnDependentViewChanged();
                 float headerY = ViewCompat.getTranslationY(header);
-                if(contentDy < mRefreshIndicator.getHeaderHeight()){
-                    contentDy =mRefreshIndicator.getHeaderHeight();
+                if(contentDy < mRefreshIndicator.getStableRefreshOffset()){
+                    contentDy =mRefreshIndicator.getStableRefreshOffset();
                 }
                 if(headerY != contentDy){
                     ViewCompat.setTranslationY(header,contentDy);
-                    this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+                    if(mRefreshIndicator.getCurrentPosY() !=contentDy){
+                        mRefreshIndicator.onMove(0,contentDy);
+                        this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+                    }
                 }
+                mNestedScrollLayout.dispatchOnDependentViewChanged();
             }else{
-                float y = (int) ViewCompat.getTranslationY(header);
+                float y = mRefreshIndicator.getCurrentPosY();
                 if(y <=0){
                     return;
                 }
@@ -218,7 +238,8 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 }
                 float finalY = (headerNestedScrollDy * mFrictionFactor);
                 consumed[1] = (int) (start - headerNestedScrollDy);
-                ViewCompat.setTranslationY(header, finalY);
+
+                setHeaderTranslationY(header,finalY);
                 mRefreshIndicator.onMove(0, finalY);
                 this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
                 for (int i = 0; i < childCount; i++) {
@@ -232,8 +253,28 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         }
     }
 
+
+    private void setHeaderTranslationY(V header,float y){
+        if(y >=0 && y< mRefreshIndicator.getStableRefreshOffset()){
+            if(mParallaxMult ==1f){
+                ViewCompat.setTranslationY(header,mMinHeaderOffset);
+            }else if(mParallaxMult !=0f){
+                float ratio = y/mRefreshIndicator.getStableRefreshOffset();
+                ViewCompat.setTranslationY(header,mMinHeaderOffset+ mTotalHeaderOffset*ratio);
+            }else{
+                ViewCompat.setTranslationY(header,y);
+            }
+        }else{
+            ViewCompat.setTranslationY(header,y);
+        }
+    }
+
+
     @Override
     public void onNestedScroll(NestedScrollLayout nestedScrollLayout, V header, View directTargetChild, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
+        doOnestedScroll(nestedScrollLayout,header,dxConsumed,dyConsumed,dxUnconsumed,dyUnconsumed,consumed);
+    }
+    private void doOnestedScroll(NestedScrollLayout nestedScrollLayout, V header,int dxConsumed, int dyConsumed, int dxUnconsumed,int dyUnconsumed, int[] consumed){
         if (isIgnore) {
             return;
         }
@@ -253,31 +294,32 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 this.onUIRefreshPrepare(nestedScrollLayout);
             }
             final int childCount = mToTranslationYViews.size();
-            int consumedDy = 0;
+            float consumedDy = 0f;
             float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
             if(y>=mRefreshIndicator.getMaxContentOffsetY()){
                 return;
             }
-            int contentNestedScrollDy = (int) (y/mFrictionFactor);
-            int tempStart= contentNestedScrollDy;
+            float contentNestedScrollDy = y/mFrictionFactor;
+            float tempStart= contentNestedScrollDy;
             contentNestedScrollDy -=dyUnconsumed;
             if(contentNestedScrollDy > mMaxHeaderNestedScrollY){
                 contentNestedScrollDy = mMaxHeaderNestedScrollY;
             }
             consumedDy =tempStart - contentNestedScrollDy;
             consumed[1] +=  consumedDy;
-            int finalY = (int) (contentNestedScrollDy *mFrictionFactor);
-            int ssy = (int) ViewCompat.getTranslationY(mRefreshHeaderView);
-            Logger.e("getTranslationY" +ssy +"finlay"+finalY);
+            float finalY = contentNestedScrollDy *mFrictionFactor;
+//            int ssy = (int) ViewCompat.getTranslationY(header);
+//            Logger.e("getTranslationY" +ssy +"finlay"+finalY);
             for (int i = 0; i < childCount; i++) {
                 View itemView = mToTranslationYViews.get(i);
                 ViewCompat.setTranslationY(itemView, finalY);
-                if (ViewCompat.getTranslationY(mRefreshHeaderView) < finalY) {
-                    ViewCompat.setTranslationY(mRefreshHeaderView, finalY);
-                    mRefreshIndicator.onMove(0, finalY);
-                    this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
-                }
             }
+            if (mRefreshIndicator.getCurrentPosY() != finalY) {
+                setHeaderTranslationY(header,finalY);
+                mRefreshIndicator.onMove(0, finalY);
+                this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+            }
+
             mNestedScrollLayout.dispatchOnDependentViewChanged();
 
         }
@@ -483,9 +525,13 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
             return;
         }
         if (translationY >= mRefreshIndicator.getOffsetToRefresh() && mStatus == PTR_STATUS_PREPARE) {
-            startValueAnimitor(child, mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+            startValueAnimitor(child, mRefreshIndicator.getStableRefreshOffset(), PTR_STATUS_LOADING);
         } else if (mStatus == PTR_STATUS_LOADING) {
-            startValueAnimitor(child, mRefreshIndicator.getHeaderHeight(), PTR_STATUS_LOADING);
+            if(isKeepShowWhenLoading){
+                startValueAnimitor(child, mRefreshIndicator.getStableRefreshOffset(), PTR_STATUS_LOADING);
+            }else if(mRefreshIndicator.getCurrentPosY()> mRefreshIndicator.getStableRefreshOffset()){
+                startValueAnimitor(child, mRefreshIndicator.getStableRefreshOffset(), PTR_STATUS_LOADING);
+            }
         } else {
             startValueAnimitor(child, 0, PTR_STATUS_INIT);
         }
@@ -493,106 +539,112 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
 
     @Override
     public void onScrollBy(NestedScrollLayout nestedScrollLayout, V child, int dx, int dy, int[] consumed) {
-        if (isIgnore) {
-            return;
+        if(dy<0 ){
+            this.doOnestedScroll(nestedScrollLayout,child,0,0,dx,dy,consumed);
+        }else if(dy >0){
+            this.doOnNestedPreScroll(nestedScrollLayout,child,dx,dy,consumed);
         }
-        if(isRunning()){
-            return;
-        }
-        int dyUnconsumed = dy;
-        if(dyUnconsumed ==0){
-            return;
-        }
-        if (dyUnconsumed < 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_INIT || mStatus == PTR_STATUS_LOADING)) {
-
-
-            if (mStatus == PTR_STATUS_INIT) {
-                mStatus = PTR_STATUS_PREPARE;
-                this.onUIRefreshPrepare(nestedScrollLayout);
-            }
-            final int childCount = mToTranslationYViews.size();
-            int consumedDy = 0;
-            float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
-            if(y>=mRefreshIndicator.getMaxContentOffsetY()){
-                return;
-            }
-            int contentNestedScrollDy = (int) (y/mFrictionFactor);
-            int tempStart= contentNestedScrollDy;
-            contentNestedScrollDy -=dyUnconsumed;
-            if(contentNestedScrollDy > mMaxHeaderNestedScrollY){
-                contentNestedScrollDy = mMaxHeaderNestedScrollY;
-            }
-            consumedDy =tempStart - contentNestedScrollDy;
-            consumed[1] +=  consumedDy;
-            int finalY = (int) (contentNestedScrollDy *mFrictionFactor);
-            int ssy = (int) ViewCompat.getTranslationY(mRefreshHeaderView);
-            Logger.e("getTranslationY" +ssy +"finlay"+finalY);
-            for (int i = 0; i < childCount; i++) {
-                View itemView = mToTranslationYViews.get(i);
-                ViewCompat.setTranslationY(itemView, finalY);
-                if (ViewCompat.getTranslationY(mRefreshHeaderView) < finalY) {
-                    ViewCompat.setTranslationY(mRefreshHeaderView, finalY);
-                    mRefreshIndicator.onMove(0, finalY);
-                    this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
-                }
-            }
-            mNestedScrollLayout.dispatchOnDependentViewChanged();
-
-        }
-
-        if (dy > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
-            final int childCount = mToTranslationYViews.size();
-            if(mStatus == PTR_STATUS_LOADING){
-                float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
-                if(y <=0){
-                    return;
-                }
-                float contentNestedScrollDy =  (y/mFrictionFactor);
-                float tempStart= contentNestedScrollDy;
-                contentNestedScrollDy -=dy;
-                if(contentNestedScrollDy <0){
-                    contentNestedScrollDy = 0;
-                }
-                consumed[1] = (int) (tempStart- contentNestedScrollDy);
-                float contentDy = (contentNestedScrollDy *mFrictionFactor);
-                for (int i = 0; i < childCount; i++) {
-                    View itemView = mToTranslationYViews.get(i);
-                    ViewCompat.setTranslationY(itemView, contentDy);
-                }
-                mNestedScrollLayout.dispatchOnDependentViewChanged();
-                float headerY = ViewCompat.getTranslationY(child);
-                if(contentDy < mRefreshIndicator.getHeaderHeight()){
-                    contentDy =mRefreshIndicator.getHeaderHeight();
-                }
-                if(headerY != contentDy){
-                    ViewCompat.setTranslationY(child,contentDy);
-                    this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
-                }
-            }else{
-                float y = (int) ViewCompat.getTranslationY(child);
-                if(y <=0){
-                    return;
-                }
-                float headerNestedScrollDy =  (y/mFrictionFactor);
-                float start = headerNestedScrollDy;
-                headerNestedScrollDy -=dy;
-                if(headerNestedScrollDy <=0){
-                    headerNestedScrollDy = 0;
-                }
-                float finalY = (headerNestedScrollDy * mFrictionFactor);
-                consumed[1] = (int) (start - headerNestedScrollDy);
-                ViewCompat.setTranslationY(child, finalY);
-                mRefreshIndicator.onMove(0, finalY);
-                this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
-                for (int i = 0; i < childCount; i++) {
-                    View itemView = mToTranslationYViews.get(i);
-                    if(y>finalY){
-                        ViewCompat.setTranslationY(itemView, finalY);
-                    }
-                }
-                mNestedScrollLayout.dispatchOnDependentViewChanged();
-            }
-        }
+//        if (isIgnore) {
+//            return;
+//        }
+//        if(isRunning()){
+//            return;
+//        }
+//        int dyUnconsumed = dy;
+//        if(dyUnconsumed ==0){
+//            return;
+//        }
+//        if (dyUnconsumed < 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_INIT || mStatus == PTR_STATUS_LOADING)) {
+//
+//
+//            if (mStatus == PTR_STATUS_INIT) {
+//                mStatus = PTR_STATUS_PREPARE;
+//                this.onUIRefreshPrepare(nestedScrollLayout);
+//            }
+//            final int childCount = mToTranslationYViews.size();
+//            int consumedDy = 0;
+//            float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
+//            if(y>=mRefreshIndicator.getMaxContentOffsetY()){
+//                return;
+//            }
+//            int contentNestedScrollDy = (int) (y/mFrictionFactor);
+//            int tempStart= contentNestedScrollDy;
+//            contentNestedScrollDy -=dyUnconsumed;
+//            if(contentNestedScrollDy > mMaxHeaderNestedScrollY){
+//                contentNestedScrollDy = mMaxHeaderNestedScrollY;
+//            }
+//            consumedDy =tempStart - contentNestedScrollDy;
+//            consumed[1] +=  consumedDy;
+//            int finalY = (int) (contentNestedScrollDy *mFrictionFactor);
+//            for (int i = 0; i < childCount; i++) {
+//                View itemView = mToTranslationYViews.get(i);
+//                ViewCompat.setTranslationY(itemView, finalY);
+//            }
+//            if (mRefreshIndicator.getCurrentPosY() != finalY) {
+//                setHeaderTranslationY(child,finalY);
+//                mRefreshIndicator.onMove(0, finalY);
+//                this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+//            }
+//            mNestedScrollLayout.dispatchOnDependentViewChanged();
+//
+//        }
+//
+//        if (dy > 0 && (mStatus == PTR_STATUS_PREPARE || mStatus == PTR_STATUS_LOADING)) {
+//            final int childCount = mToTranslationYViews.size();
+//            if(isKeepShowWhenLoading && mStatus == PTR_STATUS_LOADING){
+//                float y =  ViewCompat.getTranslationY(mToTranslationYViews.get(0));
+//                if(y <=0){
+//                    return;
+//                }
+//                float contentNestedScrollDy =  (y/mFrictionFactor);
+//                float tempStart= contentNestedScrollDy;
+//                contentNestedScrollDy -=dy;
+//                if(contentNestedScrollDy <0){
+//                    contentNestedScrollDy = 0;
+//                }
+//                consumed[1] = (int) (tempStart- contentNestedScrollDy);
+//                float contentDy = (contentNestedScrollDy *mFrictionFactor);
+//                for (int i = 0; i < childCount; i++) {
+//                    View itemView = mToTranslationYViews.get(i);
+//                    ViewCompat.setTranslationY(itemView, contentDy);
+//                }
+//                mNestedScrollLayout.dispatchOnDependentViewChanged();
+//                float headerY = ViewCompat.getTranslationY(child);
+//                if(contentDy < mRefreshIndicator.getStableRefreshOffset()){
+//                    contentDy =mRefreshIndicator.getStableRefreshOffset();
+//                }
+//                if(headerY != contentDy){
+//                    ViewCompat.setTranslationY(child,contentDy);
+//                    if(mRefreshIndicator.getCurrentPosY() !=contentDy){
+//                        mRefreshIndicator.onMove(0,contentDy);
+//                        this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+//                    }
+//                }
+//            }else{
+//                float y =mRefreshIndicator.getCurrentPosY();
+//                if(y <=0){
+//                    return;
+//                }
+//                float headerNestedScrollDy =  (y/mFrictionFactor);
+//                float start = headerNestedScrollDy;
+//                headerNestedScrollDy -=dy;
+//                if(headerNestedScrollDy <=0){
+//                    headerNestedScrollDy = 0;
+//                }
+//                float finalY = (headerNestedScrollDy * mFrictionFactor);
+//                consumed[1] = (int) (start - headerNestedScrollDy);
+//                setHeaderTranslationY(child,finalY);
+//                mRefreshIndicator.onMove(0, finalY);
+//                this.onUIPositionChange(nestedScrollLayout, true, mStatus, mRefreshIndicator);
+//                for (int i = 0; i < childCount; i++) {
+//                    View itemView = mToTranslationYViews.get(i);
+//                    if(y>finalY){
+//                        ViewCompat.setTranslationY(itemView, finalY);
+//                    }
+//                }
+//                mNestedScrollLayout.dispatchOnDependentViewChanged();
+//            }
+//        }
     }
 
     @Override

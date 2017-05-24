@@ -145,6 +145,7 @@ public class JellyCircleDrawable extends LoadingDrawable {
 
 
     public JellyCircleDrawable(Context context,int pullHeght) {
+        super();
         initView(context,pullHeght);
     }
 

@@ -34,6 +34,7 @@ public class WaterDropDrawable extends LoadingDrawable implements Runnable {
     private boolean isRunning;
     int mMaxOffset;
     public WaterDropDrawable(Context context,int maxOffset) {
+        super();
         mPaint = new Paint();
         mPaint.setColor(Color.BLUE);
         mPaint.setStyle(Paint.Style.FILL);
