@@ -317,6 +317,7 @@ public class TouchEventWatcher {
                     if (parent != null && yDiff>xDiff) {
                         parent.requestDisallowInterceptTouchEvent(true);
                     }
+                    mParent.onStartDrag(mLastMotionX,mLastMotionY);
 
                 }
                 break;

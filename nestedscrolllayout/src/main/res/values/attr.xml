@@ -244,8 +244,14 @@
         <attr name="refreshOffset" format="dimension"/>
         <attr name="isShowWave" format="boolean"/>
     </declare-styleable>
-    <declare-styleable name="RefreshFooterBehavior">
-        <attr name="isKeepShowWhenLoading" format="boolean"/>
+    <declare-styleable name="RefreshBehavior">
+
         <attr name="isTriggerSensitive" format="boolean"/>
+        <attr name="isKeepShowWhenLoading" format="boolean"/>
+        <attr name="frictionFactor" format="float"/>
+        <attr name="parallaxMult" format="float"/>
+        <attr name="maxDistanceRatio" format="float"/>
+        <attr name="ratioOfHeaderHeightToRefresh" format="float"/>
+        <attr name="maxContentOffsetY" format="dimension"/>
     </declare-styleable>
 </resources>

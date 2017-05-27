@@ -14,7 +14,8 @@ import com.ytjojo.viewlib.nestedscrolllayout.Utils;
 import java.util.ArrayList;
 
 /**
- * Created by dodola on 15/7/27.
+ * https://github.com/dodola/MetaballLoading
+ *
  */
 public class MetaballDrawable extends LoadingDrawable {
 
@@ -302,7 +303,7 @@ public class MetaballDrawable extends LoadingDrawable {
     public ArrayList<ValueAnimator> onCreateAnimators() {
         ArrayList<ValueAnimator> animators=new ArrayList<>();
        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f,1f);
-        valueAnimator.setDuration(2500);
+        valueAnimator.setDuration(2000);
         valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         valueAnimator.setRepeatMode(ValueAnimator.REVERSE);

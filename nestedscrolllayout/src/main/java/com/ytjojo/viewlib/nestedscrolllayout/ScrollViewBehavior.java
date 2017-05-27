@@ -288,6 +288,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         consumed[1] = parentScrollDy;
     }
 
+
     @Override
     public void onStopNestedScroll(NestedScrollLayout nestedScrollLayout, V child,View directTargetChild, View target) {
         if(directTargetChild != child){
@@ -502,6 +503,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             if(Math.abs(velocityY) >sMaxVelocity){
                 velocityY = velocityY>0?sMaxVelocity:-sMaxVelocity;
             }
+
             nestedScrollLayout.dispatchNestedFling(0,velocityY,false);
         }
         return false;

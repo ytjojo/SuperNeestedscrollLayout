@@ -142,8 +142,10 @@ public class PtrIndicator {
         return mMaxContentOffsetY;
     }
     public void setMaxContentOffsetY(int maxOffsetY){
-        mMaxDistanceRatio = INVALID_MAXOFFSETRATIO;
-        mMaxContentOffsetY = maxOffsetY;
+        if(maxOffsetY>0){
+            mMaxDistanceRatio = INVALID_MAXOFFSETRATIO;
+            mMaxContentOffsetY = maxOffsetY;
+        }
     }
 
     public void convertFrom(PtrIndicator ptrSlider) {

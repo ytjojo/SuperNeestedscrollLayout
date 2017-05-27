@@ -1,14 +1,18 @@
 package com.ytjojo.viewlib.nestedscrolllayout.drawable;
 
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.util.Pools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,10 +23,21 @@ import java.util.HashMap;
 public abstract class LoadingDrawable extends Drawable implements Drawable.Callback, Animatable {
 
 
-
     public abstract void setPercent(float percent);
-    public abstract void setColorSchemeColors(int[] colorSchemeColors);
+    private AnimatorSet mAnimatorSet;
 
+    public void setColorSchemeColors(int[] colorSchemeColors) {
+        setColor(colorSchemeColors[0]);
+    }
+
+    /**
+     * animationSet.play(anim1).with(anim2).after(0)
+     * @param list
+     * @return
+     */
+    public AnimatorSet createAnimatorSet(ArrayList<ValueAnimator> list){
+        return null;
+    }
 
     @Override
     public void invalidateDrawable(Drawable who) {
@@ -48,15 +63,15 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
         }
     }
 
-    public boolean isFullCanvas(){
+    public boolean isFullCanvas() {
         return false;
     }
 
-    public long getDelayScrollInitail(){
+    public long getDelayScrollInitail() {
         return 0;
     }
 
-    private HashMap<ValueAnimator,ValueAnimator.AnimatorUpdateListener> mUpdateListeners=new HashMap<>();
+    private HashMap<ValueAnimator, ValueAnimator.AnimatorUpdateListener> mUpdateListeners = new HashMap<>();
 
     private ArrayList<ValueAnimator> mAnimators;
     private int alpha = 255;
@@ -65,9 +80,9 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
 
     private boolean mHasAnimators;
 
-    protected Paint mPaint=new Paint();
+    protected Paint mPaint = new Paint();
 
-    public LoadingDrawable(){
+    public LoadingDrawable() {
         mPaint.setColor(Color.WHITE);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
@@ -104,14 +119,14 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
 
     @Override
     public void draw(Canvas canvas) {
-        draw(canvas,mPaint);
+        draw(canvas, mPaint);
     }
 
-    public  void draw(Canvas canvas, Paint paint){
+    public void draw(Canvas canvas, Paint paint) {
 
     }
 
-    public  ArrayList<ValueAnimator> onCreateAnimators(){
+    public ArrayList<ValueAnimator> onCreateAnimators() {
         return null;
     }
 
@@ -132,13 +147,17 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
     }
 
     private void startAnimators() {
+        if(mAnimatorSet!=null){
+            mAnimatorSet.start();
+            return;
+        }
         for (int i = 0; i < mAnimators.size(); i++) {
             ValueAnimator animator = mAnimators.get(i);
 
             //when the animator restart , add the updateListener again because they
             // was removed by animator stop .
-            ValueAnimator.AnimatorUpdateListener updateListener=mUpdateListeners.get(animator);
-            if (updateListener!=null){
+            ValueAnimator.AnimatorUpdateListener updateListener = mUpdateListeners.get(animator);
+            if (updateListener != null) {
                 animator.addUpdateListener(updateListener);
             }
 
@@ -147,7 +166,11 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
     }
 
     private void stopAnimators() {
-        if (mAnimators!=null){
+        if(mAnimatorSet!=null){
+            mAnimatorSet.end();
+            return;
+        }
+        if (mAnimators != null) {
             for (ValueAnimator animator : mAnimators) {
                 if (animator != null && animator.isRunning()) {
                     animator.removeAllUpdateListeners();
@@ -160,6 +183,7 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
     private void ensureAnimators() {
         if (!mHasAnimators) {
             mAnimators = onCreateAnimators();
+            mAnimatorSet = createAnimatorSet(mAnimators);
             mHasAnimators = true;
         }
     }
@@ -169,17 +193,26 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
         stopAnimators();
     }
 
-    public abstract void stopIimmediately();
+    public void stopIimmediately() {
+        stop();
+    }
 
     public boolean isStarted() {
+        if(mAnimatorSet !=null){
+            return mAnimatorSet.isStarted();
+        }
+
         for (ValueAnimator animator : mAnimators) {
-            return animator.isRunning();
+            return animator.isStarted();
         }
         return false;
     }
 
     @Override
     public boolean isRunning() {
+        if(mAnimatorSet !=null){
+            mAnimatorSet.isRunning();
+        }
         for (ValueAnimator animator : mAnimators) {
             return animator.isRunning();
         }
@@ -187,13 +220,14 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
     }
 
     /**
-     *  Your should use this to add AnimatorUpdateListener when
-     *  create animator , otherwise , animator doesn't work when
-     *  the animation restart .
+     * Your should use this to add AnimatorUpdateListener when
+     * create animator , otherwise , animator doesn't work when
+     * the animation restart .
+     *
      * @param updateListener
      */
-    public void addUpdateListener(ValueAnimator animator, ValueAnimator.AnimatorUpdateListener updateListener){
-        mUpdateListeners.put(animator,updateListener);
+    public void addUpdateListener(ValueAnimator animator, ValueAnimator.AnimatorUpdateListener updateListener) {
+        mUpdateListeners.put(animator, updateListener);
     }
 
     @Override
@@ -210,7 +244,7 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
         this.drawBounds = new Rect(left, top, right, bottom);
     }
 
-    public void postInvalidate(){
+    public void postInvalidate() {
         invalidateSelf();
     }
 
@@ -218,29 +252,79 @@ public abstract class LoadingDrawable extends Drawable implements Drawable.Callb
         return drawBounds;
     }
 
-    public int getWidth(){
+    public int getWidth() {
         return drawBounds.width();
     }
 
-    public int getHeight(){
+    public int getHeight() {
         return drawBounds.height();
     }
 
-    public int centerX(){
+    public int centerX() {
         return drawBounds.centerX();
     }
 
-    public int centerY(){
+    public int centerY() {
         return drawBounds.centerY();
     }
 
-    public float exactCenterX(){
+    public float exactCenterX() {
         return drawBounds.exactCenterX();
     }
 
-    public float exactCenterY(){
+    public float exactCenterY() {
         return drawBounds.exactCenterY();
     }
-    public void onReset(){};
+
+    public void onReset() {
+    }
+
+    Pools.Pool<RectF> mRectFPools;
+    Pools.Pool<PointF> mPointFPools;
+
+    public RectF acquireRectF() {
+        if (mRectFPools == null) {
+            mRectFPools = new Pools.SimplePool<>(6);
+        }
+        RectF rectF = mRectFPools.acquire();
+        if (rectF == null) {
+            rectF = new RectF();
+        }
+        return rectF;
+    }
+
+    public void release(RectF rectF) {
+        if (mRectFPools == null) {
+            mRectFPools = new Pools.SimplePool<>(6);
+        }
+        try {
+            mRectFPools.release(rectF);
+        } catch (IllegalStateException e) {
+
+        }
+    }
+
+    public PointF acquirePointF() {
+        if (mPointFPools == null) {
+            mPointFPools = new Pools.SimplePool<>(6);
+        }
+        PointF pointF = mPointFPools.acquire();
+        if (pointF == null) {
+            pointF = new PointF();
+        }
+        return pointF;
+    }
+
+    public void release(PointF pointF) {
+        if (mPointFPools == null) {
+            mPointFPools = new Pools.SimplePool<>(6);
+        }
+        try {
+            mPointFPools.release(pointF);
+        } catch (IllegalStateException e) {
+
+        }
+
+    }
 
 }

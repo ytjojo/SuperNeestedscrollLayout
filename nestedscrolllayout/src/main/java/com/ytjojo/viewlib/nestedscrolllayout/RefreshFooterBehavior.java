@@ -40,10 +40,14 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
 
     public RefreshFooterBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RefreshFooterBehavior);
-        isTriggerSensitive = a.getBoolean(R.styleable.RefreshFooterBehavior_isTriggerSensitive,false);
-        isKeepShowWhenLoading = a.getBoolean(R.styleable.RefreshFooterBehavior_isKeepShowWhenLoading,true);
+        mRefreshIndicator = new PtrIndicator();
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RefreshBehavior);
+        isTriggerSensitive = a.getBoolean(R.styleable.RefreshBehavior_isTriggerSensitive,false);
+        isKeepShowWhenLoading = a.getBoolean(R.styleable.RefreshBehavior_isKeepShowWhenLoading,false);
+        mFrictionFactor = a.getFloat(R.styleable.RefreshBehavior_frictionFactor,1f);
+        mRefreshIndicator.setMaxDistanceRatio(a.getFloat(R.styleable.RefreshBehavior_maxDistanceRatio,1.5f));
+        mRefreshIndicator.setRatioOfHeaderHeightToRefresh(a.getFloat(R.styleable.RefreshBehavior_ratioOfHeaderHeightToRefresh,1.1f));
+        mRefreshIndicator.setMaxContentOffsetY(a.getDimensionPixelOffset(R.styleable.RefreshBehavior_ratioOfHeaderHeightToRefresh,-1));
         a.recycle();
     }
     @FloatRange(from=0f,to =1f)
@@ -119,12 +123,14 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
         NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
         if (mRefreshIndicator == null) {
             mRefreshIndicator = new PtrIndicator();
+        }
+        if(mRefreshIndicator.getStableRefreshOffset()<=0){
             int height = header.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
             mRefreshIndicator.setStableRefreshOffset(height);
-            if(isTriggerSensitive){
-                if(mRefreshIndicator.getRatioOfHeaderToHeightToRefresh()>0.3f){
-                    mRefreshIndicator.setRatioOfHeaderHeightToRefresh(0.3f);
-                }
+        }
+        if(isTriggerSensitive){
+            if(mRefreshIndicator.getRatioOfHeaderToHeightToRefresh()>0.3f){
+                mRefreshIndicator.setRatioOfHeaderHeightToRefresh(0.3f);
             }
         }
         mMaxHeaderNestedScrollY = (int)(mRefreshIndicator.getMaxContentOffsetY()/mFrictionFactor);

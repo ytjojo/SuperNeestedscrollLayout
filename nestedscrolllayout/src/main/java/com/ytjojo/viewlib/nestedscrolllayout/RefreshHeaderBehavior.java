@@ -3,6 +3,7 @@ package com.ytjojo.viewlib.nestedscrolllayout;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.FloatRange;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -36,6 +37,16 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
 
     public RefreshHeaderBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mRefreshIndicator = new PtrIndicator();
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RefreshBehavior);
+        isKeepShowWhenLoading = a.getBoolean(R.styleable.RefreshBehavior_isKeepShowWhenLoading,true);
+        mParallaxMult = a.getFloat(R.styleable.RefreshBehavior_parallaxMult,0);
+        mFrictionFactor = a.getFloat(R.styleable.RefreshBehavior_frictionFactor,0.6f);
+        mRefreshIndicator.setMaxDistanceRatio(a.getFloat(R.styleable.RefreshBehavior_maxDistanceRatio,3.0f));
+        mRefreshIndicator.setRatioOfHeaderHeightToRefresh(a.getFloat(R.styleable.RefreshBehavior_ratioOfHeaderHeightToRefresh,1.2f));
+        mRefreshIndicator.setMaxContentOffsetY(a.getDimensionPixelOffset(R.styleable.RefreshBehavior_ratioOfHeaderHeightToRefresh,-1));
+
+        a.recycle();
     }
     @FloatRange(from=0f,to =1f)
     private float  mFrictionFactor = 0.6f;
@@ -163,6 +174,9 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         NestedScrollLayout.LayoutParams headerLp = (NestedScrollLayout.LayoutParams) header.getLayoutParams();
         if (mRefreshIndicator == null) {
             mRefreshIndicator = new PtrIndicator();
+
+        }
+        if(mRefreshIndicator.getStableRefreshOffset()<=0){
             int height = header.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
             mRefreshIndicator.setStableRefreshOffset(height);
         }

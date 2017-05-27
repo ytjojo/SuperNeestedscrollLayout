@@ -37,7 +37,7 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
                     public void run() {
                         footerBehavior.setRefreshComplete();
                     }
-                },6000);
+                },10000);
             }
         });
         final RefreshHeaderBehavior headerBehavior = (RefreshHeaderBehavior) lp.getBehavior();

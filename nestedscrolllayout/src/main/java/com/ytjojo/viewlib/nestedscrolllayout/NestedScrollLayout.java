@@ -301,11 +301,16 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
         return mNestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
     }
-
+    boolean mAlreadyDispatchFling;
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
 //                Log.e(getClass().getName(),velocityY + "dispatchNestedFling");
-        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+        if(!mAlreadyDispatchFling){
+            mAlreadyDispatchFling = true;
+            return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+        }else{
+            return false;
+        }
     }
 
 
@@ -405,6 +410,7 @@ public class NestedScrollLayout extends FrameLayout implements NestedScrollingCh
         mNestedScrollingTarget = null;
         mNestedScrollInProgress = false;
         mSkipNestedPreScrollFling = false;
+        mAlreadyDispatchFling = false;
     }
 
     private boolean mSkipNestedPreScrollFling;

@@ -19,6 +19,7 @@ import com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior;
 import com.ytjojo.viewlib.nestedscrolllayout.Utils;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.BallPulseIndicator;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.BallSpinFadeLoaderIndicator;
+import com.ytjojo.viewlib.nestedscrolllayout.drawable.CardiogramDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.JellyCircleDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.LoadingDrawable;
 import com.ytjojo.viewlib.nestedscrolllayout.drawable.ManyCircle;
@@ -44,6 +45,7 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     public static final int STYLE_MANYCIRCLE = 6;
     public static final int STYLE_WINDOWLOAD = 7;
     public static final int STYLE_METABALL= 8;
+    public static final int STYLE_CARDIOGRAM = 9;
 
 
     public final int  sDefaultHeightDp = 64;
@@ -70,11 +72,11 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     int mDrawableStyle;
     private void init(final Context context,AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DefultRefreshView);
-        int style = (int) (Math.random()*9);
-        if(style ==9){
-            style = 8;
-        }
-        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, style);
+//        int style = (int) (Math.random()*9);
+//        if(style ==9){
+//            style = 8;
+//        }
+        mDrawableStyle = a.getInteger(R.styleable.DefultRefreshView_refreshType, STYLE_CARDIOGRAM);
         isShowWave = a.getBoolean(R.styleable.DefultRefreshView_isShowWave,true);
         final int colorsId = a.getResourceId(R.styleable.DefultRefreshView_refreshColors, 0);
         final int colorId = a.getResourceId(R.styleable.DefultRefreshView_refreshColor, 0);
@@ -183,7 +185,10 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
             case STYLE_METABALL:
                 mLoadingDrawable = new MetaballDrawable(getContext());
                 break;
+            case STYLE_CARDIOGRAM:
 
+                mLoadingDrawable = new CardiogramDrawable(getContext());
+                break;
 
             default:
                 throw new InvalidParameterException("Type does not exist");
