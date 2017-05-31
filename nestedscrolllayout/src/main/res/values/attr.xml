@@ -22,7 +22,7 @@
     <declare-styleable name="SuperNestedScrollLayout">
         <attr name="statusBarBackground" format="reference"/>
     </declare-styleable>
-    <declare-styleable name="NestedScrollLayout_LayoutParams">
+    <declare-styleable name="SuperNestedLayout_LayoutParams">
         <attr name="baseLine" format="dimension"/>
         <attr name="controlBehaviorName" format="string"/>
         <attr name="overScrollDistance" format="dimension"/>
@@ -120,7 +120,7 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="Nested_CollapsingLayout">
+    <declare-styleable name="SuperNested_CollapsingLayout">
         <!--  Specifies extra space on the start, top, end and bottom
               sides of the the expanded title text. Margin values should be positive. -->
         <attr name="expandedTitleMargin" format="dimension"/>
@@ -212,7 +212,7 @@
         <!-- The title to show when titleEnabled is set to true. -->
         <attr name="title"/>
     </declare-styleable>
-    <declare-styleable name="Nested_CollapsingLayout_Layout">
+    <declare-styleable name="SuperNested_CollapsingLayout_Layout">
         <attr name="SuperNested_collapseMode">
             <!-- The view will act as normal with no collapsing behavior. -->
             <enum name="none" value="0"/>
@@ -237,6 +237,11 @@
             <enum name="water_drop" value="2" />
             <enum name="ring" value="3" />
             <enum name="smartisan" value="4" />
+            <enum name="ballspinfade" value="5" />
+            <enum name="manycircle" value="6" />
+            <enum name="windload" value="7" />
+            <enum name="metaball" value="8" />
+            <enum name="cardiogram" value="8" />
         </attr>
         <attr name="refreshColors" format="reference"/>
         <attr name="waveColor" format="color"/>

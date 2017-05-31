@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ytjojo.viewlib.nestedscrolllayout">
+          package="com.ytjojo.viewlib.supernestedlayout">
 
     <application
         android:allowBackup="true"
