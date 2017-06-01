@@ -18,7 +18,7 @@
         app:anchor="@+id/collapsingLayout"
         app:anchorGravity="right|bottom"
         app:isShowWave="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"/>
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"/>
 
     <com.ytjojo.viewlib.supernestedlayout.CollapsingLayout
         android:id="@+id/collapsingLayout"
@@ -79,7 +79,7 @@
         android:layout_height="match_parent"
         android:background="#90ffffff"
         android:fitsSystemWindows="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -220,7 +220,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 

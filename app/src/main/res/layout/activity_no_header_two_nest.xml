@@ -11,14 +11,14 @@
         android:id="@+id/refreshHeader"
         android:layout_gravity="top"
         app:anchorGravity="right|bottom"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
 
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
         app:baseLine="200dp"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -157,7 +157,7 @@
         android:layout_height="500dp"/>
     <android.support.v4.widget.NestedScrollView
         app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:background="#EEffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

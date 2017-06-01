@@ -17,7 +17,7 @@
         app:anchor="@+id/toolbar"
         app:anchorGravity="right|bottom"
         app:isShowWave="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"/>
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"/>
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         app:drawingOrderElevation="4dp"
@@ -52,7 +52,7 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         android:background="#33ff0000"
         android:orientation="vertical">
@@ -79,7 +79,7 @@
         android:layout_height="match_parent"
         android:background="#90ffffff"
         android:fitsSystemWindows="false"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -229,5 +229,5 @@
         app:anchorGravity="right|top"
         app:waveColor="#60FF4081"
         app:isShowWave="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshFooterBehavior"/>
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshFooterBehavior"/>
 </com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>

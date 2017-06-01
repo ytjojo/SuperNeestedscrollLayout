@@ -1008,7 +1008,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             super(c, attrs);
             final TypedArray a = c.obtainStyledAttributes(attrs, com.ytjojo.viewlib.supernestedlayout.R.styleable.SuperNestedLayout_LayoutParams);
             this.gravity = a.getInteger(
-                    R.styleable.NestedScrollLayout_LayoutParams_android_layout_gravity,
+                    R.styleable.SuperNestedLayout_LayoutParams_android_layout_gravity,
                     Gravity.NO_GRAVITY);
             mAnchorId = a.getResourceId(R.styleable.SuperNestedLayout_LayoutParams_anchor,
                     View.NO_ID);

@@ -27,7 +27,7 @@
     <com.ytjojo.viewlib.supernestedlayout.CompatWebView
         android:id="@+id/webview"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbarSize="3dp"
@@ -43,7 +43,7 @@
         android:id="@+id/recyclerView"
         app:controlBehaviorName="ScrollViewBehavior"
         android:nestedScrollingEnabled="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#2f00"

@@ -1,6 +1,9 @@
 package com.ytjojo.viewlib.supernestedlayout;
 
 import android.content.Context;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.Region;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.AbsListView;
@@ -52,6 +55,29 @@ public class Utils {
         result = result > min ? result : min;
         result = result < max ? result : max;
         return result;
+    }
+    public static boolean intersection(Path path1, Path path2, Rect rect){
+        Region clip = new Region(rect.left,rect.top,rect.right,rect.bottom);
+        Region region1 = new Region();
+        region1.setPath(path1, clip);
+        Region region2 = new Region();
+        region2.setPath(path2, clip);
+
+        if (!region1.quickReject(region2) && region1.op(region2, Region.Op.INTERSECT)) {
+            // Collision!
+            return true;
+        }
+        return false;
+    }
+    public static Path op(Path path1, Path path2, Rect rect,Region.Op op){
+        Region clip = new Region(rect.left,rect.top,rect.right,rect.bottom);
+        Region region1 = new Region();
+        region1.setPath(path1, clip);
+        Region region2 = new Region();
+        region2.setPath(path2, clip);
+        Region region = new Region();
+        region.op(region1,region2,op);
+        return region.getBoundaryPath();
     }
 
 }

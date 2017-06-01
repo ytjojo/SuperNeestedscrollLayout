@@ -22,7 +22,7 @@ android:layout_height="match_parent"
         app:controlBehaviorName="ScrollViewBehavior"
         app:scrollFlags="scroll"
         android:background="#88EEEEEE"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></com.ytjojo.viewlib.supernestedlayout.CompatListView>
     <com.ytjojo.viewlib.supernestedlayout.demo.RefreshHeaderLoadingView
@@ -30,6 +30,6 @@ android:layout_height="match_parent"
         android:id="@+id/refreshFooter"
         android:layout_gravity="top"
         android:fitsSystemWindows="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshFooterBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshFooterBehavior"
         android:layout_height="60dp"/>
 </com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>

@@ -15,7 +15,7 @@
         android:fitsSystemWindows="true"
         app:anchor="@+id/tv_header"
         app:anchorGravity="right|bottom"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.RefreshHeaderBehavior"/>
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"/>
 
     <TextView
         android:id="@+id/tv_header"
@@ -44,7 +44,7 @@
         android:layout_height="match_parent"
         android:background="#90ffffff"
         android:fitsSystemWindows="true"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -185,7 +185,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.ScrollViewBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -331,7 +331,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
-        app:behavior="com.ytjojo.viewlib.nestedscrolllayout.BottomSheetBehavior"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.BottomSheetBehavior"
         app:behavior_canExpandedFully="true"
         app:behavior_hideable="false"
         app:BottomSheet_peekHeight="followMinOffset"
