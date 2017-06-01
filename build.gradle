@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:2.3.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -16,8 +16,25 @@ allprojects {
     repositories {
         jcenter()
     }
+    tasks.withType(JavaCompile){
+        options.encoding = "UTF-8"
+        sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+        targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+    }
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
 }
 
 task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+task deleteDescriptors(type: Exec) { //执行shell命令
+    executable "sh"
+    args "-c", "rm -rf ~/.gradle/caches/modules-2/metadata-2.16/descriptors/com.company.appname"
+    //此处的“com.company.appname“就是之前定义的“repositoryGroup“。
+}
+
+task clean(type: Delete, dependsOn: deleteDescriptors) { //clean工程时顺带执行上述任务
     delete rootProject.buildDir
 }
