@@ -895,7 +895,6 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                 SCROLL_FLAG_EXIT_UNTIL_COLLAPSED,
                 SCROLL_FLAG_ENTER_ALWAYS,
                 SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED,
-                SCROLL_FLAG_SNAP
         })
         @Retention(RetentionPolicy.SOURCE)
         public @interface ScrollFlags {
@@ -937,31 +936,12 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         /**
          * 用于header 当 onNestedScroll dy<0 没有被其他view 消耗
          */
-        public static final int SCROLL_FLAG_PIN = 0x16;
-//        /**
-//         * 用于header 当 onNestedScroll dy<0 没有被其他view 消耗
-//         */
-//        public static final int SCROLL_FLAG_ENTER_DOWN = 0x32;
-//        /**
-//         * 用于footer 当 onNestedScroll dy>0 没有被其他view 消耗
-//         */
-//        public static final int SCROLL_FLAG_ENTER_UP = 0x33;
 
-//        public static final int SCROLL_FLAG_SCROLL_INTERUPTED = 0x128;
-
-        /**
-         * Upon TOP scroll ending, if the view is only partially visible then it will be snapped
-         * and scrolled to it's closest edge. For example, if the view only has it's bottom 25%
-         * displayed, it will be scrolled off screen completely. Conversely, if it's bottom 75%
-         * is visible then it will be scrolled fully into view.
-         */
-        public static final int SCROLL_FLAG_SNAP = 0x10;
 
         /**
          * Internal flags which allows quick checking features
          */
         static final int FLAG_QUICK_RETURN = SCROLL_FLAG_SCROLL | SCROLL_FLAG_ENTER_ALWAYS;
-        static final int FLAG_SNAP = SCROLL_FLAG_SCROLL | SCROLL_FLAG_SNAP;
         public static final boolean isLolipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
         public static final int LAYOUT_FLAG_FRAMLAYOUT = 0x1;
@@ -993,7 +973,6 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         private int mUpScrollRange = INVALID_SCROLL_RANGE;
 
         private int mRelativeOffsetRange = INVALID_SCROLL_RANGE;
-        float mRelativeOffsetRangeRate;
         protected float mDrawingOrderElevation;
         boolean mBehaviorResolved;
         int mOverScrollDistance;
@@ -1016,7 +995,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                     R.styleable.SuperNestedLayout_LayoutParams_anchorGravity,
                     Gravity.NO_GRAVITY);
             mControlBehaviorName = a.getString(R.styleable.SuperNestedLayout_LayoutParams_controlBehaviorName);
-            mScrollFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_scrollFlags, 0);
+            mScrollFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_scrollFlags, SCROLL_FLAG_SCROLL);
             mLayoutFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_layoutFlags, LAYOUT_FLAG_LINEARVERTICAL);
             if (mLayoutFlags == LAYOUT_FLAG_FRAMLAYOUT) {
                 mScrollFlags = 0;
@@ -1207,6 +1186,12 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             }
             return false;
         }
+        public boolean isEnterAlwaysFlag(){
+            if ((mScrollFlags & LayoutParams.FLAG_QUICK_RETURN) == LayoutParams.FLAG_QUICK_RETURN) {
+                return true;
+            }
+            return false;
+        }
 
         public boolean isControlViewByBehavior(String behavoirName) {
             if (behavoirName.equals(mControlBehaviorName)) {
@@ -1296,18 +1281,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             return mUpScrollRange = 0;
         }
 
-        private int getRelativeOffsetRange() {
-            if (mRelativeOffsetRange != INVALID_SCROLL_RANGE)
-                return mRelativeOffsetRange;
-            return mRelativeOffsetRange = (int) (getMeasuredHeight() * mRelativeOffsetRangeRate);
-        }
 
-        private void setelativeOffsetRangeRate(float rateToHeight) {
-            mRelativeOffsetRangeRate = rateToHeight;
-            if (mAttachedView.getMeasuredHeight() > 0) {
-                mRelativeOffsetRange = (int) (getMeasuredHeight() * rateToHeight);
-            }
-        }
 
         /**
          * Set the id of this view's anchor.

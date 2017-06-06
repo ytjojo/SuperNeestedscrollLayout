@@ -1036,5 +1036,26 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public final int getState() {
         return mState;
     }
+
+    /**
+     * A utility function to get the {@link BottomSheetBehavior} associated with the {@code view}.
+     *
+     * @param view The {@link View} with {@link BottomSheetBehavior}.
+     * @return The {@link BottomSheetBehavior} associated with the {@code view}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <V extends View> BottomSheetBehavior<V> from(V view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        if (!(params instanceof SuperNestedLayout.LayoutParams)) {
+            throw new IllegalArgumentException("The view is not a child of SuperNestedLayout");
+        }
+        Behavior behavior = ((SuperNestedLayout.LayoutParams) params)
+                .getBehavior();
+        if (!(behavior instanceof BottomSheetBehavior)) {
+            throw new IllegalArgumentException(
+                    "The view is not associated with BottomSheetBehavior");
+        }
+        return (BottomSheetBehavior<V>) behavior;
+    }
 }
 

@@ -8,7 +8,6 @@
         app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#e1e1e1"
         android:minHeight="?actionBarSize"
         app:controlBehaviorName="ScrollViewBehavior"
         android:orientation="vertical">
@@ -17,7 +16,7 @@
             android:layout_height="300dp"
             android:gravity="center"
             android:textSize="20sp"
-            android:background="@android:color/white"
+
             android:text="cdsadadlick"/>
         <android.support.v7.widget.Toolbar
             android:background="@color/colorPrimary"
@@ -28,7 +27,7 @@
     <TextView
         app:controlBehaviorName="ScrollViewBehavior"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="20sp"
         android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
@@ -49,4 +48,13 @@
         android:gravity="center"
         android:textSize="20sp"
         android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
+    <TextView
+        android:visibility="gone"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.BottomQuickReturnBehavior"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:background="@android:color/white"
+        android:text="底部QuickReturn"/>
 </com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>

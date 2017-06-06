@@ -31,10 +31,10 @@ task clean(type: Delete) {
 }
 task deleteDescriptors(type: Exec) { //执行shell命令
     executable "sh"
-    args "-c", "rm -rf ~/.gradle/caches/modules-2/metadata-2.16/descriptors/com.company.appname"
+    args "-c", "rm -rf ~/.gradle/caches/modules-2/metadata-2.16/descriptors/com.ytjojo"
     //此处的“com.company.appname“就是之前定义的“repositoryGroup“。
 }
 
-task clean(type: Delete, dependsOn: deleteDescriptors) { //clean工程时顺带执行上述任务
+task cleanLocalAAR(type: Delete, dependsOn: deleteDescriptors) { //clean工程时顺带执行上述任务
     delete rootProject.buildDir
 }

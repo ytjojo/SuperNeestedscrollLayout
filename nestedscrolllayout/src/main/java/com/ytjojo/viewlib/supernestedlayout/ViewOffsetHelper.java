@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
-import com.orhanobut.logger.Logger;
-
 import java.util.ArrayList;
 
 /**
@@ -67,11 +65,8 @@ public class ViewOffsetHelper {
     public int mHeaderOffsetValue;
     private void updateOffsets() {
         int offsetDy = mOffsetTop - (mView.getTop() -mLayoutTop);
-        Logger.e("offsetDy =  " + offsetDy+ "   mOffsetTop = "+ mOffsetTop + " mLayoutTop = " +mLayoutTop);
-
 
         if(mHeader !=null &&mOffsetTop <0 &&mOffsetTop >= mMinHeaderTopOffset){
-//            Logger.e("bottom  "+bottom + "   mMinHeaderTopOffsetmHeaderOffsetValue "+ (mMinHeaderTopOffset +mHeaderOffsetValue)+ "  mOffsetTop  "+ mOffsetTop);
             int top = mHeader.getTop()+offsetDy;
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
             if(top>lp.mLayoutTop){
@@ -80,13 +75,21 @@ public class ViewOffsetHelper {
                 top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
             }
 
+
             int headerDy = top - mHeader.getTop();
             if(mOffsetTop ==mMinHeaderTopOffset && headerDy>0){
                 headerDy = 0;
             }
+            if(offsetDy>0){
+                if(mOffsetTop-offsetDy < mMinHeaderTopOffset ){
+                    headerDy =offsetDy -( mMinHeaderTopOffset - (mOffsetTop-offsetDy));
+                }
+            }else{
+
+            }
             if(headerDy!=0){
                 ViewCompat.offsetTopAndBottom(mHeader,headerDy);
-                dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
+                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
             }
 
         }else if(mHeader !=null && mOffsetTop >= 0){
@@ -94,6 +97,19 @@ public class ViewOffsetHelper {
             int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
             ViewCompat.offsetTopAndBottom(mHeader,headerDy);
             dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
+        }else{
+            if(mOffsetTop-offsetDy > mMinHeaderTopOffset ){
+               int headerDy =mMinHeaderTopOffset - (mOffsetTop-offsetDy);
+                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
+            }
+//            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
+//            if(lp.isEnterAlwaysFlag()&&ViewCompat.getMinimumHeight(mHeader)>0){
+//                int top = mHeader.getTop()+offsetDy;
+//                ViewCompat.offsetTopAndBottom(mHeader,offsetDy);
+//
+//            }
+
         }
         if(mScrollViews !=null){
             for(View v:mScrollViews){

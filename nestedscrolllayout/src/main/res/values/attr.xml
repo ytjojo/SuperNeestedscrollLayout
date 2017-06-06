@@ -48,10 +48,7 @@
                  into view. -->
             <flag name="enterAlwaysCollapsed" value="0x8"/>
 
-            <!-- Upon TOP scroll ending, if the view is only partially visible then it will be
-                 snapped and scrolled to it's closest edge. -->
-            <flag name="snap" value="0x10"/>
-            <flag name="pin" value="0x16"/>
+
         </attr>
 
         <attr name="layoutFlags">

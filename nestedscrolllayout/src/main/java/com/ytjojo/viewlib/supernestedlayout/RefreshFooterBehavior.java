@@ -8,6 +8,7 @@ import android.support.annotation.FloatRange;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
@@ -639,4 +640,24 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
         }
     }
 
+    /**
+     * A utility function to get the {@link RefreshFooterBehavior} associated with the {@code view}.
+     *
+     * @param view The {@link View} with {@link RefreshFooterBehavior}.
+     * @return The {@link RefreshFooterBehavior} associated with the {@code view}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <V extends View> RefreshFooterBehavior<V> from(V view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        if (!(params instanceof SuperNestedLayout.LayoutParams)) {
+            throw new IllegalArgumentException("The view is not a child of SuperNestedLayout");
+        }
+        Behavior behavior = ((SuperNestedLayout.LayoutParams) params)
+                .getBehavior();
+        if (!(behavior instanceof RefreshFooterBehavior)) {
+            throw new IllegalArgumentException(
+                    "The view is not associated with RefreshFooterBehavior");
+        }
+        return (RefreshFooterBehavior<V>) behavior;
+    }
 }
