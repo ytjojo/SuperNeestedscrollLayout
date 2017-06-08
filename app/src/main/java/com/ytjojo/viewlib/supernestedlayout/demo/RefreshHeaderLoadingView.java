@@ -6,19 +6,21 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout;
 import com.ytjojo.viewlib.supernestedlayout.PtrIndicator;
 import com.ytjojo.viewlib.supernestedlayout.PtrUIHandler;
 import com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior;
+import com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout;
 
 
 /**
@@ -54,6 +56,18 @@ public class RefreshHeaderLoadingView extends FrameLayout implements PtrUIHandle
     }
     TextView mTextView;
     private void init(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+//            setFitsSystemWindows(true);
+
+            ViewCompat.setOnApplyWindowInsetsListener(this,
+                    new android.support.v4.view.OnApplyWindowInsetsListener() {
+                        @Override
+                        public WindowInsetsCompat onApplyWindowInsets(View v,
+                                                                      WindowInsetsCompat insets) {
+                            return insets;
+                        }
+                    });
+        }
         int padding =dip2px(15);
         setBackgroundColor(0x2211ff00);
         this.setPadding(padding,padding,padding,padding);
@@ -70,9 +84,11 @@ public class RefreshHeaderLoadingView extends FrameLayout implements PtrUIHandle
         mValueAinimator = createValueAnim();
 
         mTextView = new TextView(getContext());
-        mTextView.setText("------------sdw睡得晚-------------------------");
+        mTextView.setText("----init----");
         mTextView.setTextColor(Color.BLACK);
+        mTextView.setGravity(Gravity.CENTER);
         addView(mTextView);
+
     }
     @Override
     protected void onFinishInflate() {
@@ -87,8 +103,13 @@ public class RefreshHeaderLoadingView extends FrameLayout implements PtrUIHandle
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
+    @Override
     public void onUIRefreshPrepare(SuperNestedLayout frame) {
-        mTextView.setText("准备开始下拉了");
+        mTextView.setText("pulling");
     }
 
     @Override
@@ -96,7 +117,7 @@ public class RefreshHeaderLoadingView extends FrameLayout implements PtrUIHandle
 
 
         mValueAinimator.start();
-        mTextView.setText("刷新动画开始，网络开始请求");
+        mTextView.setText("refresh begin");
     }
 
     @Override
@@ -106,7 +127,7 @@ public class RefreshHeaderLoadingView extends FrameLayout implements PtrUIHandle
             mRotateView.clearAnimation();
         }
 
-        mTextView.setText("网络请求结束，准备滚动回初始位置" +mValueAinimator.isRunning());
+        mTextView.setText("networkCompleate,animate to init position");
     }
 
     @Override

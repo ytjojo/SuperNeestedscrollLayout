@@ -171,6 +171,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             mDownScrollRange =-superNestedLayout.getPaddingTop()+headerLp.getLayoutTop()-headerLp.topMargin-(applyInsets? superNestedLayout.getTopInset():0);
             mUpScrollRange = Math.max(mUpPreScrollRange,mUpScrollRange);
             mViewOffsetHelper.setHeaderView(scrollHeader);
+            mViewOffsetHelper.mMinEnterAwaylsOffset =  mDownPreScrollRange -mUpPreScrollRange ;
             mViewOffsetHelper.setHeaderViewMinOffsetTop(-mUpPreScrollRange);
             mOverScrollDistance = headerLp.mOverScrollDistance;
             mViewOffsetHelper.mHeaderOffsetValue = headerOffsetValue;
@@ -179,7 +180,7 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
 
 
     }
-    public boolean isApllyInsets(View child, SuperNestedLayout superNestedLayout){
+    public static boolean isApllyInsets(View child, SuperNestedLayout superNestedLayout){
             return superNestedLayout.getLastInsets() != null && ViewCompat.getFitsSystemWindows(superNestedLayout)
                 && !ViewCompat.getFitsSystemWindows(child);
     }

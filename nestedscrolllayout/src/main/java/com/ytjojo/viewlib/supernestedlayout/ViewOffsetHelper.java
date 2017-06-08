@@ -18,6 +18,7 @@ public class ViewOffsetHelper {
     private final ScrollerCompat mScroller;
     private ValueAnimator mOffsetAnimator;
     private SuperNestedLayout mParent;
+    public int mMinEnterAwaylsOffset;
 
     public static ViewOffsetHelper getViewOffsetHelper(View view) {
         ViewOffsetHelper offsetHelper = (ViewOffsetHelper) view.getTag(com.ytjojo.viewlib.supernestedlayout.R.id.view_offset_helper);
@@ -66,51 +67,88 @@ public class ViewOffsetHelper {
     private void updateOffsets() {
         int offsetDy = mOffsetTop - (mView.getTop() -mLayoutTop);
 
-        if(mHeader !=null &&mOffsetTop <0 &&mOffsetTop >= mMinHeaderTopOffset){
-            int top = mHeader.getTop()+offsetDy;
+//        if(mHeader !=null &&mOffsetTop <0 &&mOffsetTop >= mMinHeaderTopOffset){
+//            int top = mHeader.getTop()+offsetDy;
+//            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
+//            if(top>lp.mLayoutTop){
+//                top = lp.mLayoutTop;
+//            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset){
+//                top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
+//            }
+//
+//
+//            int headerDy = top - mHeader.getTop();
+//            if(mOffsetTop ==mMinHeaderTopOffset && headerDy>0){
+//                headerDy = 0;
+//            }
+//            if(offsetDy>0){
+//                if(mOffsetTop-offsetDy < mMinHeaderTopOffset ){
+//                    headerDy =offsetDy -( mMinHeaderTopOffset - (mOffsetTop-offsetDy));
+//                }
+//            }else{
+//
+//            }
+//            if(headerDy!=0){
+//                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+//                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
+//            }
+//
+//        }else if(mHeader !=null && mOffsetTop >= 0){
+//            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
+//            int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
+//            ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+//            dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
+//        }else{
+//            if(mOffsetTop-offsetDy > mMinHeaderTopOffset ){
+//               int headerDy =mMinHeaderTopOffset - (mOffsetTop-offsetDy);
+//                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+//                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
+//            }
+//
+//
+//        }
+        if(mHeader !=null){
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
-            if(top>lp.mLayoutTop){
-                top = lp.mLayoutTop;
-            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset){
-                top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
-            }
+            int minOffset = lp.getDownNestedPreScrollRange();
+            if(lp.isEnterAlwaysFlag()&&ViewCompat.getMinimumHeight(mHeader)>0){
+                boolean handler = mOffsetTop-mHeaderOffsetValue -minOffset< mMinHeaderTopOffset;
+                if(handler){
+                    int top = mHeader.getTop()+offsetDy;
+                    if(top>mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset+minOffset){
+                        top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset+minOffset;
+                    }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset){
+                        top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
+                    }
+                    int headerDy = top - mHeader.getTop();
+                    if(headerDy!=0){
+                        ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+                        dispatchScrollChanged(mHeader,mHeader.getTop()-lp.mTopInset,mHeader.getTop()-lp.mTopInset+headerDy,headerDy,mMinHeaderTopOffset);
+                    }
+                }else{
+                    if(mOffsetTop>=mMinHeaderTopOffset){
+                        int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
+                        ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+                        dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
 
-
-            int headerDy = top - mHeader.getTop();
-            if(mOffsetTop ==mMinHeaderTopOffset && headerDy>0){
-                headerDy = 0;
-            }
-            if(offsetDy>0){
-                if(mOffsetTop-offsetDy < mMinHeaderTopOffset ){
-                    headerDy =offsetDy -( mMinHeaderTopOffset - (mOffsetTop-offsetDy));
+                    }
                 }
             }else{
+//                SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
+                if(mOffsetTop>=mMinHeaderTopOffset){
+                    int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
+                    ViewCompat.offsetTopAndBottom(mHeader,headerDy);
+                    dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
+
+                }
 
             }
-            if(headerDy!=0){
-                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
-                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
-            }
-
-        }else if(mHeader !=null && mOffsetTop >= 0){
+        }else if(mHeader!=null &&mOffsetTop>=0){
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
             int headerDy = mOffsetTop - (mHeader.getTop() -lp.getLayoutTop());
             ViewCompat.offsetTopAndBottom(mHeader,headerDy);
             dispatchScrollChanged(mHeader,mOffsetTop - offsetDy,mOffsetTop,offsetDy,mMinHeaderTopOffset);
-        }else{
-            if(mOffsetTop-offsetDy > mMinHeaderTopOffset ){
-               int headerDy =mMinHeaderTopOffset - (mOffsetTop-offsetDy);
-                ViewCompat.offsetTopAndBottom(mHeader,headerDy);
-                dispatchScrollChanged(mHeader,mHeader.getTop(),mHeader.getTop()+headerDy,headerDy,mMinHeaderTopOffset);
-            }
-//            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
-//            if(lp.isEnterAlwaysFlag()&&ViewCompat.getMinimumHeight(mHeader)>0){
-//                int top = mHeader.getTop()+offsetDy;
-//                ViewCompat.offsetTopAndBottom(mHeader,offsetDy);
-//
-//            }
-
         }
+
         if(mScrollViews !=null){
             for(View v:mScrollViews){
                 ViewCompat.offsetTopAndBottom(v,offsetDy);

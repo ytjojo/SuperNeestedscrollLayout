@@ -254,9 +254,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 float finalY = (headerNestedScrollDy * mFrictionFactor);
                 consumed[1] = (int) (start - headerNestedScrollDy);
 
-                setHeaderTranslationY(header,finalY);
-                mRefreshIndicator.onMove(0, finalY);
-                this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
+                setHeaderTranslationY(superNestedLayout,header,finalY,false);
                 for (int i = 0; i < childCount; i++) {
                     View itemView = mToTranslationYViews.get(i);
                     if(y>finalY){
@@ -269,19 +267,32 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     }
 
 
-    private void setHeaderTranslationY(V header,float y){
+    private void setHeaderTranslationY(SuperNestedLayout superNestedLayout,V header,float y,boolean scrollDown){
         if(y >=0 && y< mRefreshIndicator.getStableRefreshOffset()){
             if(mParallaxMult ==1f){
                 ViewCompat.setTranslationY(header,mMinHeaderOffset);
             }else if(mParallaxMult !=0f){
                 float ratio = y/mRefreshIndicator.getStableRefreshOffset();
-                ViewCompat.setTranslationY(header,mMinHeaderOffset+ mTotalHeaderOffset*ratio);
+                float finalY = mMinHeaderOffset+ mTotalHeaderOffset*ratio;
+                if(scrollDown){
+                    if(ViewCompat.getTranslationY(header)>finalY){
+                        return;
+                    }
+                }
+                ViewCompat.setTranslationY(header,finalY);
             }else{
+                if(scrollDown){
+                    if(ViewCompat.getTranslationY(header)>y){
+                        return;
+                    }
+                }
                 ViewCompat.setTranslationY(header,y);
             }
         }else{
             ViewCompat.setTranslationY(header,y);
         }
+        mRefreshIndicator.onMove(0, y);
+        this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
     }
 
 
@@ -330,9 +341,8 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 ViewCompat.setTranslationY(itemView, finalY);
             }
             if (mRefreshIndicator.getCurrentPosY() != finalY) {
-                setHeaderTranslationY(header,finalY);
-                mRefreshIndicator.onMove(0, finalY);
-                this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
+                setHeaderTranslationY(superNestedLayout,header,finalY,true);
+
             }
 
             mSuperNestedLayout.dispatchOnDependentViewChanged();
@@ -676,6 +686,10 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         }else{
             int left = superNestedLayout.getPaddingLeft() + lp.leftMargin;
             int top = -lp.bottomMargin - child.getMeasuredHeight();
+            boolean isApplyInsets = ScrollViewBehavior.isApllyInsets(child,superNestedLayout);
+            if(isApplyInsets){
+                top+=superNestedLayout.getTopInset();
+            }
             child.layout(left, top, left + child.getMeasuredWidth(), top + child.getMeasuredHeight());
         }
 

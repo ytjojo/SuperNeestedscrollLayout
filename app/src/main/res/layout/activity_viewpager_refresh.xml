@@ -22,7 +22,7 @@
         android:id="@+id/toolbar"
         app:drawingOrderElevation="4dp"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
+        app:scrollFlags="scroll|exitUntilCollapsed"
         android:layout_width="match_parent"
         android:minHeight="?attr/actionBarSize"
         android:layout_height="?attr/actionBarSize"

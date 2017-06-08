@@ -25,7 +25,7 @@
         app:drawingOrderElevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:background="#ff0000"
-        app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
+        app:scrollFlags="scroll|exitUntilCollapsed"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
     <ImageView

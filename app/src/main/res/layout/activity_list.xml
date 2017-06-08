@@ -9,7 +9,7 @@ android:layout_height="match_parent"
     <TextView
         android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
+        app:scrollFlags="scroll|exitUntilCollapsed"
         android:text="这是头部"
         android:gravity="center"
         android:textSize="20sp"

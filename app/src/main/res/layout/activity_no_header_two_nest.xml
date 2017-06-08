@@ -2,7 +2,7 @@
 <com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eeeeee">
@@ -10,14 +10,11 @@
         android:layout_width="match_parent"
         android:id="@+id/refreshHeader"
         android:layout_gravity="top"
-        app:anchorGravity="right|bottom"
         app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
 
     <android.support.v4.widget.NestedScrollView
-        android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:baseLine="200dp"
         app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"

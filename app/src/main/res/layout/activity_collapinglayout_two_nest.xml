@@ -32,7 +32,7 @@
         app:controlBehaviorName="ScrollViewBehavior"
         app:expandedTitleLayoutGravity="start|left|bottom"
         app:overScrollDistance="70dp"
-        app:scrollFlags="scroll|enterAlways|exitUntilCollapsed"
+        app:scrollFlags="scroll|exitUntilCollapsed"
         app:statusBarScrim="?attr/colorPrimary">
 
         <ImageView

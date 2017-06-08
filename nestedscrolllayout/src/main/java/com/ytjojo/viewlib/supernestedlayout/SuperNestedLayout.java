@@ -1207,6 +1207,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                 return mDownPreScrollRange;
             }
             int range = 0;
+
             if ((mScrollFlags & LayoutParams.FLAG_QUICK_RETURN) == LayoutParams.FLAG_QUICK_RETURN) {
                 // First take the margin into account
                 range += this.topMargin + this.bottomMargin;
@@ -1216,40 +1217,20 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                     range += ViewCompat.getMinimumHeight(mAttachedView);
                 } else if ((mScrollFlags & LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED) != 0) {
                     // Only enter by the amount of the collapsed height
-                    range = ViewCompat.getMinimumHeight(mAttachedView);
+                    range += getMeasuredHeight();
                 } else {
                     // Else use the full height
                     range += getMeasuredHeight();
                 }
+            }else if((mScrollFlags & LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED) != 0){
+                range = ViewCompat.getMinimumHeight(mAttachedView);
+            }else if((mScrollFlags & LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED) != 0){
+                range += this.topMargin + this.bottomMargin;
+                range += ViewCompat.getMinimumHeight(mAttachedView);
             }
             return mDownPreScrollRange = range;
         }
 
-        public int getDownNestedScrollRange() {
-            if (mDownScrollRange != INVALID_SCROLL_RANGE) {
-                // If we already have TOP valid value, return it
-                return mDownScrollRange;
-            }
-
-            int range = 0;
-            int childHeight = getMeasuredHeight();
-            childHeight += this.topMargin + this.bottomMargin;
-            if ((mScrollFlags & LayoutParams.SCROLL_FLAG_SCROLL) != 0) {
-                // We're set to scroll so add the child's height
-                range += childHeight;
-
-                if ((mScrollFlags & LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED) != 0) {
-                    // For TOP collapsing exit scroll, we to take the collapsed height into account.
-                    // We also break the range straight away since later views can't scroll
-                    // beneath us
-                    range -= ViewCompat.getMinimumHeight(mAttachedView);
-                }
-            } else {
-                // As soon as TOP view doesn't have the scroll flag, we end the range calculation.
-                // This is because views below can not scroll under TOP fixed view.
-            }
-            return mDownScrollRange = Math.max(0, range);
-        }
 
         public int getUpNestedPreScrollRange() {
             if (mUpPreScrollRange != INVALID_SCROLL_RANGE) {
@@ -1258,14 +1239,11 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             }
             int range = 0;
             if ((mScrollFlags & LayoutParams.SCROLL_FLAG_SCROLL) != 0) {
+                if ((mScrollFlags & LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED) != 0) {
+                    range = ViewCompat.getMinimumHeight(mAttachedView)+((SuperNestedLayout)mAttachedView.getParent()).getTopInset();
 
-
-                if ((mScrollFlags & LayoutParams.FLAG_QUICK_RETURN) == LayoutParams.FLAG_QUICK_RETURN) {
-                    if ((mScrollFlags & LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED) != 0) {
-                        range = ViewCompat.getMinimumHeight(mAttachedView)+((SuperNestedLayout)mAttachedView.getParent()).getTopInset();
-
-                    }
                 }
+
             }
             return mUpPreScrollRange = range;
         }

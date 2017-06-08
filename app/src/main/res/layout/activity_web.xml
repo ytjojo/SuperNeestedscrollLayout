@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
 >
     <TextView
-        app:scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+        app:scrollFlags="scroll"
         android:text="这是头部"
         app:controlBehaviorName="ScrollViewBehavior"
         android:gravity="center"

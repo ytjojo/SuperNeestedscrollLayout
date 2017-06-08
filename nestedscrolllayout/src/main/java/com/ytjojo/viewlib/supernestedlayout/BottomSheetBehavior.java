@@ -16,8 +16,6 @@ import android.view.ViewParent;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 
-import com.orhanobut.logger.Logger;
-
 /**
  * Created by Administrator on 2017/3/7 0007.
  */
@@ -562,7 +560,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     }
 
     void dispatchOnSlide(int offsetY) {
-        Logger.e(offsetY + "offsetY" +offsetY + "mMaxOffset" + mMaxOffset + "mMinOffset" + mMinOffset);
+//        Logger.e(offsetY + "offsetY" +offsetY + "mMaxOffset" + mMaxOffset + "mMinOffset" + mMinOffset);
         if (mBottomSheet != null && mCallback != null) {
 
             mCallback.onSlide(mBottomSheet, mBottomSheetHeader,

@@ -324,7 +324,7 @@
         android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
         android:textSize="15sp"
         app:controlBehaviorName="BottomSheetBehavior"
-        app:scrollFlags="scroll|exitUntilCollapsed|enterAlways"/>
+        app:scrollFlags="scroll|exitUntilCollapsed"/>
 
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="false"
