@@ -18,7 +18,6 @@ public class ViewOffsetHelper {
     private final ScrollerCompat mScroller;
     private ValueAnimator mOffsetAnimator;
     private SuperNestedLayout mParent;
-    public int mMinEnterAwaylsOffset;
 
     public static ViewOffsetHelper getViewOffsetHelper(View view) {
         ViewOffsetHelper offsetHelper = (ViewOffsetHelper) view.getTag(com.ytjojo.viewlib.supernestedlayout.R.id.view_offset_helper);
@@ -75,7 +74,6 @@ public class ViewOffsetHelper {
 //            }else if(top<mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset){
 //                top = mMinHeaderTopOffset+mHeaderOffsetValue+lp.mTopInset;
 //            }
-//
 //
 //            int headerDy = top - mHeader.getTop();
 //            if(mOffsetTop ==mMinHeaderTopOffset && headerDy>0){

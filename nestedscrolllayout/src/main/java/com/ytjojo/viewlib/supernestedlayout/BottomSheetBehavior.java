@@ -115,6 +115,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
     @Override
     public void onAllChildLayouted(SuperNestedLayout superNestedLayout, V child) {
+        if(child.getVisibility()==View.GONE){
+            return;
+        }
         calculateScrollRange(superNestedLayout, child);
         if (ViewCompat.getFitsSystemWindows(superNestedLayout) && !ViewCompat.getFitsSystemWindows(child)) {
             ViewCompat.setFitsSystemWindows(child, true);

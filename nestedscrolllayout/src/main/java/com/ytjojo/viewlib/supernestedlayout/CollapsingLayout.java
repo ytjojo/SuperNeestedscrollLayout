@@ -216,7 +216,7 @@ public class CollapsingLayout extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         // Remove our OnOffsetChangedListener if possible and it exists
-        final View parent = (View) getParent();
+        View parent = (View) getParent();
         ViewGroup.LayoutParams lp = parent.getLayoutParams();
         if (lp instanceof SuperNestedLayout.LayoutParams) {
             if (mOnOffsetChangedListener != null) {
@@ -228,6 +228,15 @@ public class CollapsingLayout extends FrameLayout {
         if(parent instanceof SuperNestedLayout){
             SuperNestedLayout.LayoutParams layoutParams = (SuperNestedLayout.LayoutParams) getLayoutParams();
             layoutParams.removeOnOffsetChangedListener(mOnOffsetChangedListener);
+            ((SuperNestedLayout)parent).donotDrawStatusBarBackground();
+        }else{
+            while (parent.getParent() !=null){
+                parent = (View) getParent();
+                if(parent instanceof SuperNestedLayout){
+                    ((SuperNestedLayout)parent).donotDrawStatusBarBackground();
+                    break;
+                }
+            }
         }
 
 
@@ -242,7 +251,6 @@ public class CollapsingLayout extends FrameLayout {
             requestLayout();
         }
         if(consumeSystemWindowInsets){
-
             return insets.consumeSystemWindowInsets();
         }else{
             return insets;

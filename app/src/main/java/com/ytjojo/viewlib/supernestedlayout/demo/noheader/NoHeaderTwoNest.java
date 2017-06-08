@@ -1,8 +1,10 @@
-package com.ytjojo.viewlib.supernestedlayout.demo;
+package com.ytjojo.viewlib.supernestedlayout.demo.noheader;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
+import com.ytjojo.viewlib.supernestedlayout.demo.R;
 
 /**
  * Created by Administrator on 2017/3/4 0004.

@@ -4,18 +4,22 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout;
 import com.ytjojo.viewlib.supernestedlayout.PtrIndicator;
 import com.ytjojo.viewlib.supernestedlayout.PtrUIHandler;
 import com.ytjojo.viewlib.supernestedlayout.R;
 import com.ytjojo.viewlib.supernestedlayout.RefreshFooterBehavior;
 import com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior;
+import com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout;
 import com.ytjojo.viewlib.supernestedlayout.Utils;
 import com.ytjojo.viewlib.supernestedlayout.drawable.BallPulseIndicator;
 import com.ytjojo.viewlib.supernestedlayout.drawable.BallSpinFadeLoaderIndicator;
@@ -72,6 +76,16 @@ public class DefultRefreshView extends FrameLayout implements PtrUIHandler {
     int mDrawableStyle;
     private void init(final Context context,AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DefultRefreshView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            ViewCompat.setOnApplyWindowInsetsListener(this,
+                    new android.support.v4.view.OnApplyWindowInsetsListener() {
+                        @Override
+                        public WindowInsetsCompat onApplyWindowInsets(View v,
+                                                                      WindowInsetsCompat insets) {
+                            return insets;
+                        }
+                    });
+        }
 //        int style = (int) (Math.random()*9);
 //        if(style ==9){
 //            style = 8;

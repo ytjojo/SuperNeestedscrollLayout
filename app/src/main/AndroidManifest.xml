@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.DetailActivity"
+            android:name="com.ytjojo.viewlib.supernestedlayout.demo.WithCoordinatorLayoutActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
@@ -44,7 +44,7 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.NoHeaderTwoNest"
+            android:name="com.ytjojo.viewlib.supernestedlayout.demo.noheader.NoHeaderTwoNest"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity

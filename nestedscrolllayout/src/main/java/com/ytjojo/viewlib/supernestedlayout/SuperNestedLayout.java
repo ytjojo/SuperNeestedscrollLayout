@@ -1614,11 +1614,13 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             mLastInsets = insets;
             mDrawStatusBarBackground = insets != null && insets.getSystemWindowInsetTop() > 0;
             setWillNotDraw(!mDrawStatusBarBackground && getBackground() == null);
-
             // Now dispatch to the Behaviors
             requestLayout();
         }
         return insets;
+    }
+    public void donotDrawStatusBarBackground(){
+        mDrawStatusBarBackground = false;
     }
     private class ApplyInsetsListener
             implements android.support.v4.view.OnApplyWindowInsetsListener {

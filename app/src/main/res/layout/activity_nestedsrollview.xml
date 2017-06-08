@@ -314,7 +314,7 @@
     </android.support.v4.widget.NestedScrollView>
 
     <TextView
-
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:background="#f2e4e4"
@@ -327,6 +327,7 @@
         app:scrollFlags="scroll|exitUntilCollapsed"/>
 
     <android.support.v4.widget.NestedScrollView
+        android:visibility="gone"
         android:fitsSystemWindows="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
