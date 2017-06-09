@@ -22,10 +22,7 @@ import android.widget.AbsListView;
 
 public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public static final String sBehaviorName = "BottomSheetBehavior";
-    public static final int STABLE_STATE_EXPANDED_FULLY = 0;
-    public static int STABLE_STATE_EXPANDED = 3;
-    public static int STABLE_STATE_COLLAPSED = 4;
-    public static int STABLE_STATE_HIDDEN = 4;
+
 
     public static final int STATE_EXPANDED_FULLY = 0;
     public static final int STATE_DRAGGING = 1;
@@ -35,6 +32,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public static final int STATE_HIDDEN = 5;
     public static final int STATE_AUTHORPOINT = 6;
     public static final int STATE_UNKNOWN = -1;
+
+    public static int STABLE_STATE_EXPANDED = STATE_EXPANDED;
+    public static int STABLE_STATE_COLLAPSED = STATE_COLLAPSED;
 
 
     public static final int PEEK_HEIGHT_AUTO = -1;
@@ -67,7 +67,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     View mBottomSheetHeader;
     int mMaximumVelocity;
     int mMinimumVelocity;
-    int mWindowBackgroundColor = 0xA0A0A0A0;
+    int mWindowBackgroundColor = 0x90000000;
     @FloatRange(from = 0f, to = 1f)
     float mWindowBackgroundAlpha;
 
@@ -101,6 +101,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_behavior_hideable, false));
         setSkipCollapsed(a.getBoolean(R.styleable.BottomSheetBehavior_behavior_skipCollapsed,
                 false));
+        mState = a.getInt(R.styleable.BottomSheetBehavior_initState,STATE_COLLAPSED);
+        isAuthorPoint = a.getBoolean(R.styleable.BottomSheetBehavior_behavior_isAuthorPoint,false);
+        mWindowBackgroundColor = a.getColor(R.styleable.BottomSheetBehavior_windowBackgroundColor,mWindowBackgroundColor);
         a.recycle();
 
         ViewConfiguration configuration = ViewConfiguration.get(context);
@@ -161,7 +164,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
            mPeekHeight = mParentHeight-mMinOffset;
         }
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
-        if (mState == STATE_EXPANDED) {
+        if (mState == STATE_EXPANDED||mState == STATE_AUTHORPOINT) {
             mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
             dispatchOnSlide(-mMinOffset);
         } else if (mHideable && mState == STATE_HIDDEN) {
@@ -444,7 +447,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             return;
         }
         int scrollY = -mViewOffsetHelper.getTopAndBottomOffset();
-        if (scrollY > mDownScrollRange) {
+        if (scrollY >= mDownScrollRange) {
             preScrollFlingCalculate(superNestedLayout, child, target,true);
         } else {
             if(isAuthorPoint&& -scrollY>mMinOffset && -scrollY<mMaxOffset){
@@ -582,17 +585,13 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             if (mBottomSheetHeader != null) {
                 SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mBottomSheetHeader.getLayoutParams();
                 lp.setScrimOpacity(mWindowBackgroundAlpha);
-//                mBottomSheetHeader.postInvalidate();
-            } else {
-                SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mBottomSheet.getLayoutParams();
-                lp.setScrimOpacity(mWindowBackgroundAlpha);
-
             }
             ((ViewGroup) mBottomSheet.getParent()).postInvalidate();
 
         }
 
     }
+
 
     private BottomSheetCallback mCallback;
 
@@ -789,15 +788,15 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         return mWindowBackgroundColor;
     }
 
-//    @Override
-//    public float getScrimOpacity(NestedScrollLayout parent, V child) {
-//       if(mWindowBackgroundColor == Color.TRANSPARENT){
-//
-//           return super.getScrimOpacity(parent, child);
-//       }else{
-//            return mWindowBackgroundAlpha;
-//       }
-//    }
+    @Override
+    public float getScrimOpacity(SuperNestedLayout parent, V child) {
+        if(mWindowBackgroundColor == Color.TRANSPARENT||mBottomSheetHeader!=null){
+
+            return super.getScrimOpacity(parent, child);
+        }else{
+            return mWindowBackgroundAlpha;
+        }
+    }
 
     private boolean preScrollFlingCalculate(SuperNestedLayout superNestedLayout, V child, View target, boolean isDoFling) {
         if (!mNestedPreScrollCalled || mSkipNestedPreScrollFling || mTotalDy == 0) {
@@ -1027,7 +1026,15 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         }
 
     }
-
+    public boolean isHiddenState(){
+        if(mPeekHeight ==0 && mState ==STATE_COLLAPSED){
+            return true;
+        }
+        if(mState == STATE_HIDDEN){
+            return true;
+        }
+        return false;
+    }
     /**
      * Gets the current state of the bottom sheet.
      *

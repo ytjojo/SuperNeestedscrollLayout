@@ -493,6 +493,10 @@ public class TouchEventWatcher {
                         if (!mParent.dispatchNestedPreFling(0, -initialVelocity)) {
                             mParent.dispatchNestedFling(0, -initialVelocity, false);
                         }
+                    }else{
+                        if(mParent.isClickable()){
+                            mParent.performClick();
+                        }
                     }
                 }
                 mActivePointerId = INVALID_POINTER;

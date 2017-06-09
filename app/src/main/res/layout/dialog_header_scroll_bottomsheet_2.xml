@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                        xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                        android:orientation="vertical"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#f2e4e4"
+        android:gravity="center"
+        android:fitsSystemWindows="false"
+        android:minHeight="50dp"
+        android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
+        android:textSize="15sp"
+        app:controlBehaviorName="BottomSheetBehavior"
+        app:scrollFlags="scroll|exitUntilCollapsed"/>
+    <android.support.v4.widget.NestedScrollView
+        android:fitsSystemWindows="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#EEffffff"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.BottomSheetBehavior"
+        app:behavior_canExpandedFully="true"
+        app:behavior_hideable="true"
+        app:BottomSheet_peekHeight="80dp"
+        app:BottomSheet_minOffset="0dp"
+        app:controlBehaviorName="BottomSheetBehavior"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Info"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Friends"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Related"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <LinearLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="Last"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#00000000"
+                        android:text="@string/cheese_ipsum"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+</com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>

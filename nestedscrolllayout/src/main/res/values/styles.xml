@@ -8,11 +8,29 @@
     <style name="Widget.Design.SuperNestedLayout" parent="android:Widget">
         <item name="statusBarBackground">?attr/colorPrimaryDark</item>
     </style>
-    <style name="Widget.Design.SuperNestedLayout.BottomSheet" parent="android:Widget">
+    <style name="Widget.SuperNestedLayout.BottomSheet" parent="android:Widget">
         <item name="android:background">?android:attr/colorBackground</item>
         <item tools:ignore="NewApi" name="android:elevation">@dimen/design_bottom_sheet_elevation</item>
         <item name="BottomSheet_peekHeight">autoPeekHeight</item>
         <item name="behavior_hideable">true</item>
         <item name="behavior_skipCollapsed">false</item>
     </style>
+
+    <style name="Theme.BottomSheetDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.BottomSheetDialog</item>
+        <item name="SuperbottomSheetStyle">@style/Widget.SuperNestedLayout.BottomSheet</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    <style name="Theme.Light.BottomSheetDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.BottomSheetDialog</item>
+        <item name="SuperbottomSheetStyle">@style/Widget.SuperNestedLayout.BottomSheet</item>
+        <item name="android:backgroundDimEnabled">false</item><!--模糊-->
+    </style>
+    <style name="Animation.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
+        <item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
+    </style>
+
 </resources>

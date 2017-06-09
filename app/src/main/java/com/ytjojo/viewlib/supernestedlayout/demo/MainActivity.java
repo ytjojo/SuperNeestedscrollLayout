@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
+import com.ytjojo.viewlib.supernestedlayout.BottomSheetDialog;
 import com.ytjojo.viewlib.supernestedlayout.demo.noheader.NoHeaderTwoNest;
 
 public class MainActivity extends AppCompatActivity
@@ -52,13 +53,17 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(new MyAdapter(new OnItemClick() {
             @Override
             public void onItemClick(int postion) {
-                if(postion %2 ==0){
-                    Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
-                    startActivity(intent);
-                }else{
-                    Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
-                    startActivity(intent);
-                }
+//                if(postion %2 ==0){
+//                    Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
+//                    startActivity(intent);
+//                }else{
+//                    Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
+//                    startActivity(intent);
+//
+//                }
+                BottomSheetDialog dialog =  new BottomSheetDialog(MainActivity.this);
+                dialog.setContentView(R.layout.dialog_header_scroll_bottomsheet_5);
+                dialog.show();
 
             }
         }));

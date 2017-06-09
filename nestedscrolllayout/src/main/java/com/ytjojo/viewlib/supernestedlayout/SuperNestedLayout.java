@@ -257,6 +257,10 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
     public boolean onTouchEvent(MotionEvent event) {
         return mEventWatcher.onTouchEvent(event);
     }
+    public boolean callParentonTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {

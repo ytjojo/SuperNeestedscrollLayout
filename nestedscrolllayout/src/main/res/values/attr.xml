@@ -18,6 +18,15 @@
         <attr name="behavior_hideable" format="boolean"/>
         <!-- Skip the collapsed state once expanded; no effect unless it is hideable -->
         <attr name="behavior_skipCollapsed" format="boolean"/>
+        <attr name="behavior_isAuthorPoint" format="boolean"/>
+        <attr name="windowBackgroundColor" format="color"/>
+        <attr name="initState">
+            <flag name="expandedFully" value="0x0"/>
+            <flag name="expanded" value="0x3"/>
+            <flag name="collapsed" value="0x4"/>
+            <flag name="hidden" value="0x5"/>
+            <flag name="authorpoint" value="0x6"/>
+        </attr>
     </declare-styleable>
     <declare-styleable name="SuperNestedScrollLayout">
         <attr name="statusBarBackground" format="reference"/>
@@ -255,5 +264,16 @@
         <attr name="maxDistanceRatio" format="float"/>
         <attr name="ratioOfHeaderHeightToRefresh" format="float"/>
         <attr name="maxContentOffsetY" format="dimension"/>
+    </declare-styleable>
+
+
+    <declare-styleable name="SuperNestedLayoutTheme">
+        <!-- Theme to use for modal bottom sheet dialogs spawned from this theme. -->
+        <attr name="SuperbottomSheetDialogTheme" format="reference" />
+        <!-- Style to use for modal bottom sheets in this theme. -->
+        <attr name="SuperbottomSheetStyle" format="reference" />
+
+        <!-- Text color used to indicate an error has occurred. -->
+        <attr name="textColorError" format="color" />
     </declare-styleable>
 </resources>
