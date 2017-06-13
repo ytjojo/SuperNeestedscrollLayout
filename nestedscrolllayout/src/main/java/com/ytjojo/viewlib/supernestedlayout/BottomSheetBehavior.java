@@ -977,6 +977,39 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             return;
         }
         final View child = mBottomSheet;
+        ViewParent parent = child.getParent();
+        if(parent.isLayoutRequested() ){
+            if (state == STATE_COLLAPSED || state == STATE_EXPANDED ||
+                    (mHideable && state == STATE_HIDDEN)) {
+                mState = state;
+            }
+        }else{
+            startSettlingAnimation(child, state);
+        }
+    }
+     public void setHiddenState(){
+         mState = STATE_HIDDEN;
+     }
+    /**
+     * Sets the state of the bottom sheet. The bottom sheet will transition to that state with
+     * animation.if not layouted will post a runnable to animate view;
+     *
+     * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED}, or
+     *              {@link #STATE_HIDDEN}.
+     */
+    public final void setStatePost(final int state) {
+        if (state == mState) {
+            return;
+        }
+        if (mBottomSheet == null) {
+            // The view is not laid out yet; modify mState and let onLayoutChild handle it later
+            if (state == STATE_COLLAPSED || state == STATE_EXPANDED ||
+                    (mHideable && state == STATE_HIDDEN)) {
+                mState = state;
+            }
+            return;
+        }
+        final View child = mBottomSheet;
         // Start the animation; wait until a pending layout if there is one.
         ViewParent parent = child.getParent();
         if (parent != null && parent.isLayoutRequested() && ViewCompat.isAttachedToWindow(child)) {

@@ -1013,6 +1013,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             if (mBehaviorResolved) {
                 mBehavior = parseBehavior(c, attrs, a.getString(
                         R.styleable.SuperNestedLayout_LayoutParams_behavior));
+                mBehavior.onAttachedToLayoutParams(this);
             }
             if((mScrollFlags & SCROLL_FLAG_SCROLL) != 0){
                 mBaseLine=a.getDimensionPixelSize(R.styleable.SuperNestedLayout_LayoutParams_baseLine,Integer.MAX_VALUE);
@@ -1309,6 +1310,9 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             return mAnchorView;
         }
 
+        public int getAnchorId(){
+            return mAnchorId;
+        }
         /**
          * Verify that the previously resolved anchor view is still valid - that it is still
          * TOP descendant of the expected parent view, it is not the child this LayoutParams

@@ -36,6 +36,9 @@ public class ViewOffsetHelper {
     public void setHeaderViewMinOffsetTop(int minHeaderTopOffset){
         this.mMinHeaderTopOffset = minHeaderTopOffset;
     }
+    public int getMinHeaderTopOffset(){
+        return mMinHeaderTopOffset;
+    }
     public void setHeaderView(View header){
         mHeader = header;
     }

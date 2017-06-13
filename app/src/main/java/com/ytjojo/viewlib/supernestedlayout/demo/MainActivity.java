@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity
 //
 //                }
                 BottomSheetDialog dialog =  new BottomSheetDialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_header_scroll_bottomsheet_5);
+                dialog.setContentView(R.layout.dialog_collapsinglayout);
                 dialog.show();
 
             }

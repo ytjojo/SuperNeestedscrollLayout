@@ -73,6 +73,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/quila"
         app:anchor="@id/collapsingLayout"
+        app:behavior="com.ytjojo.viewlib.supernestedlayout.FloatActionButtonBehavior"
         app:anchorGravity="right|bottom"/>
 
     <android.support.v4.widget.NestedScrollView

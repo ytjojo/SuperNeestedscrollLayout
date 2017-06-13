@@ -48,6 +48,7 @@ public class BottomSheetDialog extends AppCompatDialog {
         mCancelable = cancelable;
     }
 
+
     @Override
     public void setContentView(@LayoutRes int layoutResId) {
         super.setContentView(wrapInBottomSheet(layoutResId, null, null));
@@ -58,6 +59,10 @@ public class BottomSheetDialog extends AppCompatDialog {
         super.onCreate(savedInstanceState);
         getWindow().setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        if(mAnimDismiss){
+            getWindow().setWindowAnimations(0);
+        }
+
     }
 
     @Override
@@ -91,9 +96,15 @@ public class BottomSheetDialog extends AppCompatDialog {
                 @Override
                 public void run() {
                     mBehavior.setState(mInitState);
+                    mBehavior.setHiddenState();
                 }
             });
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+       mBehavior.setStatePost(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     @Override

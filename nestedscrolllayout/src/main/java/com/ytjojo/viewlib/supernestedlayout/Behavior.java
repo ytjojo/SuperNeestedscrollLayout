@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -114,6 +115,9 @@ public abstract class Behavior<V extends View> {
 
     public boolean blocksInteractionBelow(SuperNestedLayout parent, V child, int mInitialTouchX, int mInitialTouchY) {
         return getScrimOpacity(parent, child) > 0.f;
+    }
+    public void onAttachedToLayoutParams(@NonNull SuperNestedLayout.LayoutParams lp){
+
     }
 
 
