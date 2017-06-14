@@ -166,7 +166,6 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         mLayoutManager.onLayout(changed, left, top, right, bottom);
         if (mEventWatcher == null) {
             mEventWatcher = new TouchEventWatcher(this);
-//            scrollTo(0, getEndPosition());
         }
     }
 

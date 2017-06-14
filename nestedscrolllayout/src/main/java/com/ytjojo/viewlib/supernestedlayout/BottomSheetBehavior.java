@@ -126,7 +126,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             ViewCompat.setFitsSystemWindows(child, true);
         }
         int peekHeight;
-        mParentHeight = superNestedLayout.getHeight() -  superNestedLayout.getTopInset();
+        boolean isApplyInsets = mBottomSheetHeader!=null?ViewCompat.getFitsSystemWindows(mBottomSheetHeader):ViewCompat.getFitsSystemWindows(mBottomSheet);
+        mParentHeight = superNestedLayout.getHeight() -  superNestedLayout.getTopInset()+(isApplyInsets?superNestedLayout.getTopInset():0);
 
         if (mPeekHeightAuto) {
             if (mPeekHeightMin == 0) {

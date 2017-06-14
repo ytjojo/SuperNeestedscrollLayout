@@ -21,12 +21,14 @@
         <item name="android:windowAnimationStyle">@style/Animation.BottomSheetDialog</item>
         <item name="SuperbottomSheetStyle">@style/Widget.SuperNestedLayout.BottomSheet</item>
         <item name="android:backgroundDimEnabled">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.Light.BottomSheetDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowAnimationStyle">@style/Animation.BottomSheetDialog</item>
         <item name="SuperbottomSheetStyle">@style/Widget.SuperNestedLayout.BottomSheet</item>
         <item name="android:backgroundDimEnabled">false</item><!--模糊-->
+        <item name="windowNoTitle">true</item>
     </style>
     <style name="Animation.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
         <item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
