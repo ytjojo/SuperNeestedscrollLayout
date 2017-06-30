@@ -4,12 +4,12 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Created by Administrator on 2017/1/5 0005.
@@ -156,7 +156,12 @@ public class ViewOffsetHelper {
             }
         }
         mParent.dispatchOnDependentViewChanged();
+        if(mOnOffsetChangedListeners !=null){
+            for (OffsetTopChangeCallback l:mOnOffsetChangedListeners){
+                l.onOffsetTopChanged(mOffsetTop,offsetDy);
 
+            }
+        }
 
     }
 
@@ -356,9 +361,9 @@ public class ViewOffsetHelper {
     }
     private void dispatchScrollChanged(View child, int startOffsetTop, int endOffsetTop, int parentScrollDy, int rangeEnd){
         final SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
-//        if(!lp.hasOffsetChangedListener()){
-//            return;
-//        }
+        if(!lp.hasOffsetChangedListener()){
+            return;
+        }
         final int min = Math.min(rangeEnd,lp.mOverScrollDistance);
         final int  max = Math.max(rangeEnd,lp.mOverScrollDistance);
         int range = 0 - min;
@@ -381,14 +386,14 @@ public class ViewOffsetHelper {
             offsetDy = endScrollYModify - startOffsetTop;
             lp.onScrollChanged(rate,offsetDy,offsetPix,range,parentScrollDy);
         }
-        Log.e("endOffsetTop","endOffsetTop" +endOffsetTop);
+//        Log.e("endOffsetTop","endOffsetTop" +endOffsetTop);
 
     }
     private void dispatchScrollChanged(View child, int startOffsetTop, int endOffsetTop, int parentScrollDy){
         final SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
-//        if(!lp.hasOffsetChangedListener()){
-//            return;
-//        }
+        if(!lp.hasOffsetChangedListener()){
+            return;
+        }
         final int top = child.getTop();
         if(top<=0&&top>=-child.getMeasuredHeight()){
 
@@ -449,5 +454,25 @@ public class ViewOffsetHelper {
     public  interface AnimCallback{
         void onAnimationUpdate(int value);
         void onAnimationEnd();
+    }
+
+    LinkedList<OffsetTopChangeCallback> mOnOffsetChangedListeners;
+
+    public void addOnOffsetChangedListener(OffsetTopChangeCallback l) {
+        if (mOnOffsetChangedListeners == null) {
+            mOnOffsetChangedListeners = new LinkedList<>();
+        }
+        if(!mOnOffsetChangedListeners.contains(l))
+            mOnOffsetChangedListeners.add(l);
+    }
+
+    public void removeOnOffsetChangedListener(OffsetTopChangeCallback l) {
+        if (mOnOffsetChangedListeners != null) {
+            mOnOffsetChangedListeners.remove(l);
+        }
+
+    }
+    public interface OffsetTopChangeCallback{
+        void onOffsetTopChanged(int offsetTop,int dv);
     }
 }

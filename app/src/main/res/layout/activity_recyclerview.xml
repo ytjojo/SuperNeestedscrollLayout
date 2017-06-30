@@ -45,15 +45,15 @@
     <TextView
         app:controlBehaviorName="ScrollViewBehavior"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="200dp"
         android:gravity="center"
         android:textSize="20sp"
         android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
     <TextView
-        android:visibility="gone"
+        android:visibility="visible"
         app:behavior="com.ytjojo.viewlib.supernestedlayout.BottomQuickReturnBehavior"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="200dp"
         android:gravity="center"
         android:textSize="20sp"
         android:background="@android:color/white"

@@ -165,6 +165,11 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
            mPeekHeight = mParentHeight-mMinOffset;
         }
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
+        final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
+        if(lastOffsetValue !=0){
+            mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
+            return;
+        }
         if (mState == STATE_EXPANDED||mState == STATE_AUTHORPOINT) {
             mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
             dispatchOnSlide(-mMinOffset);
@@ -540,7 +545,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
         @Override
         public void onAnimationEnd() {
+            //TODO
             if(endState != STATE_UNKNOWN){
+                behavior.mViewOffsetHelper.getTopAndBottomOffset();
                 behavior.setStateInternal(endState);
 
             }
@@ -553,7 +560,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             if(mViewOffsetHelper.getTopAndBottomOffset() ==mMinOffset){
                 state = STATE_EXPANDED;
             }
-            if(mViewOffsetHelper.getTopAndBottomOffset() ==mMaxOffset){
+            if(mViewOffsetHelper.getTopAndBottomOffset() <=mMaxOffset){
                 state = STABLE_STATE_COLLAPSED;
             }
         }
@@ -988,9 +995,6 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             startSettlingAnimation(child, state);
         }
     }
-     public void setHiddenState(){
-         mState = STATE_HIDDEN;
-     }
     /**
      * Sets the state of the bottom sheet. The bottom sheet will transition to that state with
      * animation.if not layouted will post a runnable to animate view;

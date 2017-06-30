@@ -53,20 +53,26 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(new MyAdapter(new OnItemClick() {
             @Override
             public void onItemClick(int postion) {
-//                if(postion %2 ==0){
-//                    Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
-//                    startActivity(intent);
-//                }else{
-//                    Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
-//                    startActivity(intent);
-//
-//                }
-                BottomSheetDialog dialog =  new BottomSheetDialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_collapsinglayout);
-                dialog.show();
+                if(postion %2 ==0){
+                    Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
+                    startActivity(intent);
+
+                }
+
 
             }
         }));
+        findViewById(R.id.iv_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog =  new BottomSheetDialog(MainActivity.this);
+                dialog.setContentView(R.layout.dialog_collapsinglayout);
+                dialog.show();
+            }
+        });
 
     }
 

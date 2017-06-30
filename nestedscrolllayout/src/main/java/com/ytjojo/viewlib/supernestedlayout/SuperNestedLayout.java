@@ -11,6 +11,7 @@ import android.graphics.Region;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
@@ -31,6 +32,7 @@ import android.support.v4.widget.ScrollerCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -234,6 +236,57 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
 //        }
 //    }
 
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof Behavior.SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        final Behavior.SavedState ss = (Behavior.SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        final SparseArray<Parcelable> behaviorStates = ss.behaviorStates;
+
+        for (int i = 0, count = getChildCount(); i < count; i++) {
+            final View child = getChildAt(i);
+            final int childId = child.getId();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final Behavior b = lp.getBehavior();
+
+            if (childId != NO_ID && b != null) {
+                Parcelable savedState = behaviorStates.get(childId);
+                if (savedState != null) {
+                    b.onRestoreInstanceState(this, child, savedState);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final Behavior.SavedState ss = new Behavior.SavedState(super.onSaveInstanceState());
+
+        final SparseArray<Parcelable> behaviorStates = new SparseArray<>();
+        for (int i = 0, count = getChildCount(); i < count; i++) {
+            final View child = getChildAt(i);
+            final int childId = child.getId();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final Behavior b = lp.getBehavior();
+
+            if (childId != NO_ID && b != null) {
+                // If the child has an ID and a Behavior, let it save some state...
+                Parcelable state = b.onSaveInstanceState(this, child);
+                if (state != null) {
+                    behaviorStates.append(childId, state);
+                }
+            }
+        }
+        ss.behaviorStates = behaviorStates;
+        return ss;
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
         if(mEventWatcher.isBlockingInteractionBelow!=null&&mEventWatcher.isBlockingInteractionBelow){
@@ -242,13 +295,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         if (b) {
             mEventWatcher.recycleVelocityTracker();
         }
-        // if this is TOP List < L or another view that doesn't support nested
-        // scrolling, ignore this request so that the vertical scroll event
-        // isn't stolen
-//        if (mNestedScrollingTarget != null && !ViewCompat.isNestedScrollingEnabled(mNestedScrollingTarget)) {
-//            // Nope.
-//        } else {
-//        }
+
         super.requestDisallowInterceptTouchEvent(b);
     }
 

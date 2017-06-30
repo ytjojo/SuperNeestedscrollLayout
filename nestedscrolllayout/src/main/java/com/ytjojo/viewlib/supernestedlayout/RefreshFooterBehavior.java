@@ -31,7 +31,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     public static final byte PTR_STATUS_LOADING = 4;
     public static final byte PTR_STATUS_COMPLETE = 5;
     ArrayList<View> mToTranslationYViews = new ArrayList<>();
-    V mRefreshHeaderView;
+    V mRefreshFooterView;
     PtrIndicator mRefreshIndicator;
     private boolean canLoad = true;
 
@@ -58,10 +58,10 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     ViewOffsetHelper mOffsetHelper;
 
     @Override
-    public boolean onStartNestedScroll(SuperNestedLayout superNestedLayout, V header, View directTargetChild, View target, int nestedScrollAxes) {
-        mRefreshHeaderView = header;
-        if(ViewCompat.getFitsSystemWindows(header)){
-            ViewCompat.setFitsSystemWindows(header,false);
+    public boolean onStartNestedScroll(SuperNestedLayout superNestedLayout, V footer, View directTargetChild, View target, int nestedScrollAxes) {
+        mRefreshFooterView = footer;
+        if(ViewCompat.getFitsSystemWindows(footer)){
+            ViewCompat.setFitsSystemWindows(footer,false);
 
         }
         if (!canLoad) {
@@ -69,7 +69,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
         }
         final int childCount = superNestedLayout.getChildCount();
         mToTranslationYViews.clear();
-        SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) header.getLayoutParams();
+        SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) footer.getLayoutParams();
         View mAnchorDirectChild = headerLp.mAnchorDirectChild;
         ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
         for (int i = 0; i < childCount; i++) {
@@ -95,7 +95,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
                     break;
                 }
             } else {
-                if(header ==itemView){
+                if(footer ==itemView){
                     break;
                 }
             }
@@ -109,24 +109,24 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     }
 
     @Override
-    public void onNestedScrollAccepted(SuperNestedLayout superNestedLayout, V header, View directTargetChild, View target, int nestedScrollAxes) {
-        super.onNestedScrollAccepted(superNestedLayout, header, directTargetChild, target, nestedScrollAxes);
+    public void onNestedScrollAccepted(SuperNestedLayout superNestedLayout, V footer, View directTargetChild, View target, int nestedScrollAxes) {
+        super.onNestedScrollAccepted(superNestedLayout, footer, directTargetChild, target, nestedScrollAxes);
         mSuperNestedLayout = superNestedLayout;
         if(mOffsetHelper== null){
-            mOffsetHelper = ViewOffsetHelper.getViewOffsetHelper(header);
+            mOffsetHelper = ViewOffsetHelper.getViewOffsetHelper(footer);
         }
-        addUIHandler((PtrUIHandler) header);
+        addUIHandler((PtrUIHandler) footer);
         isIgnore = false;
         if (!canLoad) {
             isIgnore = true;
             return;
         }
-        SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) header.getLayoutParams();
+        SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) footer.getLayoutParams();
         if (mRefreshIndicator == null) {
             mRefreshIndicator = new PtrIndicator();
         }
         if(mRefreshIndicator.getStableRefreshOffset()<=0){
-            int height = header.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
+            int height = footer.getMeasuredHeight() + headerLp.topMargin + headerLp.bottomMargin;
             mRefreshIndicator.setStableRefreshOffset(height);
         }
         if(isTriggerSensitive){
@@ -155,7 +155,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     }
 
     @Override
-    public void onNestedPreScroll(SuperNestedLayout superNestedLayout, V header, View directTargetChild, View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(SuperNestedLayout superNestedLayout, V footer, View directTargetChild, View target, int dx, int dy, int[] consumed) {
         if ( isIgnore) {
             return;
         }
@@ -182,20 +182,20 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
                     ViewCompat.setTranslationY(itemView, contentDy);
                 }
                 mSuperNestedLayout.dispatchOnDependentViewChanged();
-                float headerY = ViewCompat.getTranslationY(header);
+                float footerY = ViewCompat.getTranslationY(footer);
                 if(!isTriggerSensitive &&contentDy > -mRefreshIndicator.getStableRefreshOffset()){
                     contentDy = -mRefreshIndicator.getStableRefreshOffset();
                 }
-                if(headerY != contentDy){
-                    ViewCompat.setTranslationY(header,contentDy);
+                if(footerY != contentDy){
+                    ViewCompat.setTranslationY(footer,contentDy);
                     this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
                 }
             }else{
-                float headerY = (int) ViewCompat.getTranslationY(header);
-                if(headerY >=0){
+                float footerY = (int) ViewCompat.getTranslationY(footer);
+                if(footerY >=0){
                     return;
                 }
-                float headerNestedScrollDy =  (headerY /mFrictionFactor);
+                float headerNestedScrollDy =  (footerY /mFrictionFactor);
                 float start = headerNestedScrollDy;
                 headerNestedScrollDy -=dy;
                 if(headerNestedScrollDy >=0){
@@ -203,12 +203,12 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
                 }
                 float finalY = (headerNestedScrollDy * mFrictionFactor);
                 consumed[1] = (int) (start - headerNestedScrollDy);
-                ViewCompat.setTranslationY(header, finalY);
+                ViewCompat.setTranslationY(footer, finalY);
                 mRefreshIndicator.onMove(0, finalY);
                 this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
                 for (int i = 0; i < childCount; i++) {
                     View itemView = mToTranslationYViews.get(i);
-                    if(headerY <finalY){
+                    if(footerY <finalY){
                         ViewCompat.setTranslationY(itemView, finalY);
                     }
                 }
@@ -218,7 +218,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     }
 
     @Override
-    public void onNestedScroll(SuperNestedLayout superNestedLayout, V header, View directTargetChild, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
+    public void onNestedScroll(SuperNestedLayout superNestedLayout, V footer, View directTargetChild, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
         if (isIgnore) {
             return;
         }
@@ -256,14 +256,14 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
                 View itemView = mToTranslationYViews.get(i);
                 ViewCompat.setTranslationY(itemView, finalY);
             }
-            if (ViewCompat.getTranslationY(header) > finalY) {
-                ViewCompat.setTranslationY(header, finalY);
+            if (ViewCompat.getTranslationY(footer) > finalY) {
+                ViewCompat.setTranslationY(footer, finalY);
                 mRefreshIndicator.onMove(0, finalY);
                 this.onUIPositionChange(superNestedLayout, true, mStatus, mRefreshIndicator);
             }
             mSuperNestedLayout.dispatchOnDependentViewChanged();
             if(isTriggerSensitive){
-                if (mStatus == PTR_STATUS_PREPARE&& ViewCompat.getTranslationY(header) < -mRefreshIndicator.getOffsetToRefresh()) {
+                if (mStatus == PTR_STATUS_PREPARE&& ViewCompat.getTranslationY(footer) < -mRefreshIndicator.getOffsetToRefresh()) {
                     mStatus = PTR_STATUS_LOADING;
                     RefreshFooterBehavior.this.onUIRefreshBegin(mSuperNestedLayout);
                 }
@@ -281,7 +281,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
     public void setRefreshComplete() {
         if (mStatus == PTR_STATUS_LOADING) {
             mStatus = PTR_STATUS_COMPLETE;
-            startValueAnimitor(mRefreshHeaderView, 0, PTR_STATUS_INIT);
+            startValueAnimitor(mRefreshFooterView, 0, PTR_STATUS_INIT);
             isIgnore = true;
             RefreshFooterBehavior.this.onUIRefreshComplete(mSuperNestedLayout);
         }

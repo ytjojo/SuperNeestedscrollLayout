@@ -96,7 +96,6 @@ public class BottomSheetDialog extends AppCompatDialog {
                 @Override
                 public void run() {
                     mBehavior.setState(mInitState);
-                    mBehavior.setHiddenState();
                 }
             });
         }
