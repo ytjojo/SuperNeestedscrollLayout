@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import com.orhanobut.logger.Logger;
+
 import java.util.ArrayList;
 
 import static android.support.v4.view.ViewCompat.getTranslationY;
@@ -193,6 +195,7 @@ public class BottomQuickReturnBehavior<V extends View> extends Behavior<V> imple
                 ViewCompat.setTranslationY(child,y);
             }
         }
+        Logger.e(dy+"dy");
 
     }
     private void onStop(V child){
@@ -318,6 +321,7 @@ public class BottomQuickReturnBehavior<V extends View> extends Behavior<V> imple
     public void onOffsetTopChanged(int offsetTop, int dv) {
         if(mView !=null && mView.getVisibility() == View.VISIBLE){
             scroll(mView,-dv);
+
         }
     }
 }

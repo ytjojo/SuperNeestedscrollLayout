@@ -125,6 +125,10 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         if (ViewCompat.getFitsSystemWindows(superNestedLayout) && !ViewCompat.getFitsSystemWindows(child)) {
             ViewCompat.setFitsSystemWindows(child, true);
         }
+        if (ViewCompat.getFitsSystemWindows(superNestedLayout) && mBottomSheetHeader !=null &&!ViewCompat.getFitsSystemWindows(mBottomSheetHeader)) {
+            ViewCompat.setFitsSystemWindows(mBottomSheetHeader, true);
+        }
+
         int peekHeight;
         boolean isApplyInsets = mBottomSheetHeader!=null?ViewCompat.getFitsSystemWindows(mBottomSheetHeader):ViewCompat.getFitsSystemWindows(mBottomSheet);
         mParentHeight = superNestedLayout.getHeight() -  superNestedLayout.getTopInset()+(isApplyInsets?superNestedLayout.getTopInset():0);
@@ -452,6 +456,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         if (!mNestedPreScrollCalled) {
             return;
         }
+        mNestedPreScrollCalled = false;
         int scrollY = -mViewOffsetHelper.getTopAndBottomOffset();
         if (scrollY >= mDownScrollRange) {
             preScrollFlingCalculate(superNestedLayout, child, target,true);
@@ -547,7 +552,6 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         public void onAnimationEnd() {
             //TODO
             if(endState != STATE_UNKNOWN){
-                behavior.mViewOffsetHelper.getTopAndBottomOffset();
                 behavior.setStateInternal(endState);
 
             }
@@ -560,7 +564,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             if(mViewOffsetHelper.getTopAndBottomOffset() ==mMinOffset){
                 state = STATE_EXPANDED;
             }
-            if(mViewOffsetHelper.getTopAndBottomOffset() <=mMaxOffset){
+            if(mViewOffsetHelper.getTopAndBottomOffset() >=mMaxOffset){
                 state = STABLE_STATE_COLLAPSED;
             }
         }
