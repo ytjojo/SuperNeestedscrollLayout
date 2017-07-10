@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout
+<com.github.ytjojo.supernestedlayout.SuperNestedLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eeeeee">
-    <com.ytjojo.viewlib.supernestedlayout.demo.RefreshHeaderLoadingView
+    <com.github.ytjojo.supernestedlayout.demo.RefreshHeaderLoadingView
         android:layout_width="match_parent"
         android:id="@+id/refreshHeader"
         app:anchor="@+id/tv_header"
         android:layout_gravity="top"
         android:fitsSystemWindows="true"
         app:anchorGravity="right|bottom"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.RefreshHeaderBehavior"
         android:layout_height="60dp"/>
     <TextView
         android:fitsSystemWindows="false"
@@ -40,7 +40,7 @@
     <android.support.v4.widget.NestedScrollView
         android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         android:background="#90ffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -179,4 +179,4 @@
         android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我" />
 
 
-</com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>
+</com.github.ytjojo.supernestedlayout.SuperNestedLayout>

@@ -1,0 +1,222 @@
+package com.github.ytjojo.supernestedlayout;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
+import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
+import android.util.SparseArray;
+import android.view.View;
+
+/**
+ * Created by Administrator on 2017/1/8 0008.
+ */
+public abstract class Behavior<V extends View> {
+    protected int mMinScrollY;
+    protected int mMaxScrollY;
+    public Behavior() {
+    }
+    public Behavior(Context context, AttributeSet attrs) {
+    }
+    private boolean hasNestedScrollChild;
+    public boolean hasNestedScrollChild(){
+        return false;
+    }
+    public boolean onStartNestedScroll(SuperNestedLayout superNestedLayout,
+                                       V child, View directTargetChild, View target, int nestedScrollAxes) {
+
+        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
+    }
+
+    public int getMinScrollY() {
+        return mMinScrollY;
+    }
+
+    public void setMinScrollY(int minScrollY) {
+        mMinScrollY = minScrollY;
+    }
+
+    public int getMaxScrollY() {
+        return mMaxScrollY;
+    }
+
+    public void setMaxScrollY(int maxScrollY) {
+        mMaxScrollY = maxScrollY;
+    }
+
+    public void onNestedScrollAccepted(SuperNestedLayout superNestedLayout, V child,
+                                       View directTargetChild, View target, int nestedScrollAxes) {
+    }
+
+    public void onStopNestedScroll(SuperNestedLayout superNestedLayout, V child, View directTargetChild, View target) {
+        // Do nothing
+    }
+    public void onNestedScroll(SuperNestedLayout superNestedLayout, V child, View directTargetChild, View target,
+                               int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] consumed) {
+        // Do nothing
+    }
+
+    public void onNestedPreScroll(SuperNestedLayout superNestedLayout, V child, View directTargetChild, View target,
+                                  int dx, int dy, int[] consumed) {
+        // Do nothing
+    }
+
+    public boolean onNestedFling(SuperNestedLayout superNestedLayout, V child, View directTargetChild, View target,
+                                 float velocityX, float velocityY, boolean consumed) {
+        return false;
+    }
+
+    public void onScrollBy(SuperNestedLayout superNestedLayout, V child,
+                           int dx, int dy, int[] consumed) {
+    }
+    public void onStartDrag(SuperNestedLayout superNestedLayout, V child, int mInitialTouchX, int mInitialTouchY, boolean acceptedByAnother, Behavior accepteBehavior){}
+    public void onStopDrag(SuperNestedLayout superNestedLayout, V child) {
+    }
+    boolean isAcceptedDrag;
+    boolean isAcceptedDrag() {
+        return isAcceptedDrag;
+    }
+    public void setCanAcceptedDrag(boolean isAcceptedDrag) {
+        this.isAcceptedDrag = isAcceptedDrag;
+    }
+    public boolean onFling(SuperNestedLayout superNestedLayout, V child,
+                           float velocityX, float velocityY) {
+        return false;
+    }
+    public boolean onNestedPreFling(SuperNestedLayout parent, V child , View directTargetChild, View target,
+                                    float velocityX, float velocityY) {
+        return false;
+    }
+    public boolean onLayoutChild(SuperNestedLayout parent, V child, int layoutDirection){
+        return false;
+    }
+    public boolean onMeasureChild(SuperNestedLayout parent, V child, int parentWidthMeasureSpec, int widthUsed,
+                                  int parentHeightMeasureSpec, int heightUsed){
+        return false;
+    }
+    public boolean layoutDependsOn(SuperNestedLayout parent, V child, View dependency) {
+        return false;
+    }
+    public void onAllChildLayouted(SuperNestedLayout parent, V child){
+
+    }
+    public boolean onDependentViewChanged(SuperNestedLayout parent, V child, View dependency) {
+        return false;
+    }
+    @ColorInt
+    public int getScrimColor(SuperNestedLayout parent, V child) {
+        return Color.BLACK;
+    }
+    @FloatRange(from = 0, to = 1)
+    public float getScrimOpacity(SuperNestedLayout parent, V child) {
+        return 0.f;
+    }
+
+    public boolean blocksInteractionBelow(SuperNestedLayout parent, V child, int mInitialTouchX, int mInitialTouchY) {
+        return getScrimOpacity(parent, child) > 0.f;
+    }
+    public void onAttachedToLayoutParams(@NonNull SuperNestedLayout.LayoutParams lp){
+
+    }
+
+    /**
+     * Hook allowing a behavior to re-apply a representation of its internal state that had
+     * previously been generated by {@link #onSaveInstanceState}. This function will never
+     * be called with a null state.
+     *
+     * @param parent the parent CoordinatorLayout
+     * @param child child view to restore from
+     * @param state The frozen state that had previously been returned by
+     *        {@link #onSaveInstanceState}.
+     *
+     * @see SuperNestedLayout#onSaveInstanceState()
+     */
+    public void onRestoreInstanceState(SuperNestedLayout parent, V child, Parcelable state) {
+        // no-op
+    }
+
+    /**
+     * Hook allowing a behavior to generate a representation of its internal state
+     * that can later be used to create a new instance with that same state.
+     * This state should only contain information that is not persistent or can
+     * not be reconstructed later.
+     *
+     * <p>Behavior state is only saved when both the parent {@link SuperNestedLayout} and
+     * a view using this behavior have valid IDs set.</p>
+     *
+     * @param parent the parent CoordinatorLayout
+     * @param child child view to restore from
+     *
+     * @return Returns a Parcelable object containing the behavior's current dynamic
+     *         state.
+     *
+     * @see SuperNestedLayout#onRestoreInstanceState(android.os.Parcelable)
+     * @see View#onSaveInstanceState()
+     */
+    public Parcelable onSaveInstanceState(SuperNestedLayout parent, V child) {
+        return View.BaseSavedState.EMPTY_STATE;
+    }
+
+    protected static class SavedState extends AbsSavedState {
+        SparseArray<Parcelable> behaviorStates;
+
+        public SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+
+            final int size = source.readInt();
+
+            final int[] ids = new int[size];
+            source.readIntArray(ids);
+
+            final Parcelable[] states = source.readParcelableArray(loader);
+
+            behaviorStates = new SparseArray<>(size);
+            for (int i = 0; i < size; i++) {
+                behaviorStates.append(ids[i], states[i]);
+            }
+        }
+
+        public SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+
+            final int size = behaviorStates != null ? behaviorStates.size() : 0;
+            dest.writeInt(size);
+
+            final int[] ids = new int[size];
+            final Parcelable[] states = new Parcelable[size];
+
+            for (int i = 0; i < size; i++) {
+                ids[i] = behaviorStates.keyAt(i);
+                states[i] = behaviorStates.valueAt(i);
+            }
+            dest.writeIntArray(ids);
+            dest.writeParcelableArray(states, flags);
+
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return new SavedState(in, loader);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        });
+    }
+}

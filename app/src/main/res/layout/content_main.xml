@@ -10,9 +10,9 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:fitsSystemWindows="true"
-    app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
+    app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
     app:controlBehaviorName="ScrollViewBehavior"
-    tools:context="com.ytjojo.viewlib.supernestedlayout.demo.MainActivity"
+    tools:context="com.github.ytjojo.supernestedlayout.demo.MainActivity"
     tools:showIn="@layout/app_bar_main">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ytjojo.viewlib.supernestedlayout.demo">
+          package="com.github.ytjojo.supernestedlayout.demo">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.MainActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -20,43 +20,43 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.WithCoordinatorLayoutActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.WithCoordinatorLayoutActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.ListActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.ListActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.WebActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.WebActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.NestScorllActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.NestScorllActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.JianshuActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.JianshuActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.ExistUntilOneNest"
+            android:name="com.github.ytjojo.supernestedlayout.demo.ExistUntilOneNest"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.noheader.NoHeaderTwoNest"
+            android:name="com.github.ytjojo.supernestedlayout.demo.noheader.NoHeaderTwoNest"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.CollapingLayoutTwoNeestedActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.CollapingLayoutTwoNeestedActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.RecyclerViewActvity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.RecyclerViewActvity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.ytjojo.viewlib.supernestedlayout.demo.ViewPagerRefreshActivity"
+            android:name="com.github.ytjojo.supernestedlayout.demo.ViewPagerRefreshActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>

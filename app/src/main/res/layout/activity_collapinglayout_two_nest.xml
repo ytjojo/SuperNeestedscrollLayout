@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout
+<com.github.ytjojo.supernestedlayout.SuperNestedLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,7 +8,7 @@
     app:statusBarBackground="@null"
     android:fitsSystemWindows="true">
 
-    <com.ytjojo.viewlib.supernestedlayout.view.DefultRefreshView
+    <com.github.ytjojo.supernestedlayout.view.DefultRefreshView
         android:id="@+id/refreshHeader"
         android:layout_width="match_parent"
         android:layout_height="64dp"
@@ -19,9 +19,9 @@
         app:anchor="@+id/collapsingLayout"
         app:anchorGravity="right|bottom"
         app:isShowWave="true"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.RefreshHeaderBehavior"/>
+        app:behavior="com.github.ytjojo.supernestedlayout.RefreshHeaderBehavior"/>
 
-    <com.ytjojo.viewlib.supernestedlayout.CollapsingLayout
+    <com.github.ytjojo.supernestedlayout.CollapsingLayout
         android:id="@+id/collapsingLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
         </android.support.v7.widget.Toolbar>
 
 
-    </com.ytjojo.viewlib.supernestedlayout.CollapsingLayout>
+    </com.github.ytjojo.supernestedlayout.CollapsingLayout>
 
     <ImageView
         android:layout_width="60dp"
@@ -73,7 +73,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/quila"
         app:anchor="@id/collapsingLayout"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.FloatActionButtonBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.FloatActionButtonBehavior"
         app:anchorGravity="right|bottom"/>
 
     <android.support.v4.widget.NestedScrollView
@@ -81,7 +81,7 @@
         android:layout_height="match_parent"
         android:background="#90ffffff"
         android:fitsSystemWindows="true"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -222,7 +222,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.ScrollViewBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
 
@@ -360,4 +360,4 @@
         app:controlBehaviorName="ScrollViewBehavior"/>
 
 
-</com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>
+</com.github.ytjojo.supernestedlayout.SuperNestedLayout>

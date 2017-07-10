@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                        xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<com.github.ytjojo.supernestedlayout.SuperNestedLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                       android:orientation="vertical"
+                                                       android:layout_width="match_parent"
+                                                       android:layout_height="match_parent">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
-        app:behavior="com.ytjojo.viewlib.supernestedlayout.BottomSheetBehavior"
+        app:behavior="com.github.ytjojo.supernestedlayout.BottomSheetBehavior"
         app:behavior_canExpandedFully="true"
         app:behavior_hideable="false"
         app:BottomSheet_peekHeight="followMinOffset"
@@ -151,4 +151,4 @@
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
-</com.ytjojo.viewlib.supernestedlayout.SuperNestedLayout>
+</com.github.ytjojo.supernestedlayout.SuperNestedLayout>
