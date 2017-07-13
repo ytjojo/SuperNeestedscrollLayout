@@ -423,6 +423,15 @@ public class CompatListView extends ListView implements NestedScrollingChild {
 //        Log.e(getClass().getName(), (cury) + "cur mFirstY =" + mFirstDownY + mIsBeingDragged);
         return super.onTouchEvent(ev);
     }
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (disallowIntercept) {
+            if(mVelocityTracker !=null){
+                mVelocityTracker.clear();
+            }
+        }
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+    }
 
     private int getScrollDy(MotionEvent ev){
         View c = this.getChildAt(0);

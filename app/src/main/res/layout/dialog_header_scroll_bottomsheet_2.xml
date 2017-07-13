@@ -22,7 +22,7 @@
         android:background="#EEffffff"
         app:behavior="com.github.ytjojo.supernestedlayout.BottomSheetBehavior"
         app:behavior_canExpandedFully="true"
-        app:behavior_hideable="true"
+        app:behavior_hideable="false"
         app:BottomSheet_peekHeight="80dp"
         app:BottomSheet_minOffset="0dp"
         app:controlBehaviorName="BottomSheetBehavior"

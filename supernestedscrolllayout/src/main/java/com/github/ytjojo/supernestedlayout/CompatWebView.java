@@ -422,7 +422,9 @@ public class CompatWebView extends WebView implements NestedScrollingChild {
     @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         if (disallowIntercept) {
-            recycleVelocityTracker();
+            if(mVelocityTracker !=null){
+                mVelocityTracker.clear();
+            }
         }
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
     }

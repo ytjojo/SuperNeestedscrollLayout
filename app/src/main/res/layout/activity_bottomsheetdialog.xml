@@ -8,27 +8,11 @@
     android:fitsSystemWindows="true"
     app:statusBarBackground="@null">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:fitsSystemWindows="false"
-        app:drawingOrderElevation="10dp"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:text="动作栏"
-            android:textSize="20sp"/>
-    </android.support.v7.widget.Toolbar>
 
     <com.github.ytjojo.supernestedlayout.CollapsingLayout
         android:id="@+id/collapsingLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="3dp"
         android:fitsSystemWindows="true"
         app:controlBehaviorName="ScrollViewBehavior"
         android:minHeight="?attr/actionBarSize">
@@ -129,4 +113,22 @@
         android:scrollbars="vertical"
         app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"/>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:fitsSystemWindows="false"
+        android:background="@color/colorPrimary"
+        app:behavior="com.github.ytjojo.supernestedlayout.demo.behavior.TranslateUpDownBehavior"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+        <TextView
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="动作栏"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"/>
+    </android.support.v7.widget.Toolbar>
 </com.github.ytjojo.supernestedlayout.SuperNestedLayout>
