@@ -59,6 +59,10 @@
             android:name="com.github.ytjojo.supernestedlayout.demo.ViewPagerRefreshActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name="com.github.ytjojo.supernestedlayout.demo.BottomSheetDialogActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

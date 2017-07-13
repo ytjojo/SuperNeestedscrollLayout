@@ -17,7 +17,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
-import com.orhanobut.logger.Logger;
+//import com.orhanobut.logger.Logger;
 
 /**
  * Created by Administrator on 2016/9/26 0026.
@@ -451,14 +451,14 @@ public class TouchEventWatcher {
                         }
 
                         mParent.dragedScrollBy(0, deltaY);
-                        Logger.e("offsetDydeltaY"+deltaY);
+//                        Logger.e("offsetDydeltaY"+deltaY);
                     }
                 }
                 if (mIsBeingDragged) {
                     Log.e(getClass().getName(), mIsBeingDragged + "isNestedScrollInProgress" + mParent.isNestedScrollInProgress());
                     // Scroll to follow the motion event
                     mLastMotionY = y - mParentOffsetInWindow[1];
-                    Logger.e("offsetDydeltaY"+deltaY);
+//                    Logger.e("offsetDydeltaY"+deltaY);
                     final int scrolledDeltaY = mParent.dragedScrollBy(0, deltaY);
 
                     final int unconsumedY = deltaY - scrolledDeltaY;

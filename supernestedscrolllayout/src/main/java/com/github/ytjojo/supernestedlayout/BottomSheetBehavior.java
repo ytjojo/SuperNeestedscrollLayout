@@ -166,7 +166,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             lp.setScrimColor(mWindowBackgroundColor);
         }
         if(mPeekHeight == PEEK_HEIGHT_FOLLOWMINOFFSET){
-           mPeekHeight = mParentHeight-mMinOffset;
+            peekHeight = mPeekHeight = mParentHeight-mMinOffset;
+            mMaxOffset = mParentHeight- mPeekHeight;
         }
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
         final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
@@ -553,13 +554,11 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             //TODO
             if(endState != STATE_UNKNOWN){
                 behavior.setStateInternal(endState);
-
             }
             endState = STATE_UNKNOWN;
         }
     }
-
-    void setStateInternal(int state) {
+    int amentState(int state){
         if(state == STATE_AUTHORPOINT){
             if(mViewOffsetHelper.getTopAndBottomOffset() ==mMinOffset){
                 state = STATE_EXPANDED;
@@ -568,10 +567,16 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
                 state = STABLE_STATE_COLLAPSED;
             }
         }
+        return state;
+    }
+
+    void setStateInternal(int state) {
+        state = amentState(state);
         if (mState == state) {
             return;
         }
         mState = state;
+        mState = amentState(mState);
         if (mBottomSheet != null && mCallback != null) {
             mCallback.onStateChanged(mBottomSheet, mBottomSheetHeader, state);
         }
@@ -935,6 +940,9 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
      */
     public void setHideable(boolean hideable) {
         mHideable = hideable;
+    }
+    public boolean getHideable(){
+        return mHideable;
     }
 
     /**

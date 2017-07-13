@@ -266,7 +266,6 @@ public class ViewOffsetHelper {
         mValueAnimator =  new ValueAnimator();
         mValueAnimator.setIntValues(0, 10000);
         mValueAnimator.setRepeatCount(0);
-        //fuck you! the default interpolator is AccelerateDecelerateInterpolator
 
     }
     LinearInterpolator mLinearInterpolator =new LinearInterpolator();
@@ -274,20 +273,21 @@ public class ViewOffsetHelper {
     public void startAnim() {
         mValueAnimator.removeAllListeners();
         mValueAnimator.removeAllUpdateListeners();
-        mValueAnimator.addUpdateListener(mUpdateListener);
-        mValueAnimator.setDuration(1000);
+        mValueAnimator.setDuration(1500);
         mValueAnimator.setIntValues(0, 10000);
         mValueAnimator.setInterpolator(mLinearInterpolator);
         mValueAnimator.start();
+        mValueAnimator.addUpdateListener(mUpdateListener);
+        mValueAnimator.addListener(mAnimatorListener);
     }
 
     public void stopScroll() {
+        mValueAnimator.removeAllListeners();
         if(mValueAnimator.isRunning()){
             mValueAnimator.cancel();
         }
         mValueAnimator.removeAllUpdateListeners();
         mValueAnimator.setDuration(0);
-        mValueAnimator.end();
         mScroller.abortAnimation();
     }
 

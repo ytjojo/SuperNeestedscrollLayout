@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 
+import com.orhanobut.logger.Logger;
+
 /**
  * Base class for {@link android.app.Dialog}s styled as a bottom sheet.
  */
@@ -89,21 +91,38 @@ public class BottomSheetDialog extends AppCompatDialog {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mBehavior != null&&mAnimDismiss) {
-            mInitState = mBehavior.getState();
-            mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            mBottomSheet.post(new Runnable() {
-                @Override
-                public void run() {
-                    mBehavior.setState(mInitState);
+        if (mBehavior != null) {
+            if(mAnimDismiss){
+                mInitState = mBehavior.getState();
+                if(!mBehavior.getHideable()){
+                    mBehavior.setHideable(true);
                 }
-            });
+                mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+                mBottomSheet.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBehavior.setState(mInitState);
+                        mBehavior.setBottomSheetCallback(mBottomSheetCallback);
+                        if(mCancelable!=mBehavior.getHideable()){
+                            mBehavior.setHideable(mCancelable);
+                        }
+                    }
+                });
+            }else{
+                mBehavior.setBottomSheetCallback(mBottomSheetCallback);
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-       mBehavior.setStatePost(BottomSheetBehavior.STATE_HIDDEN);
+        if(mAnimDismiss){
+            mBehavior.setHideable(true);
+            mBehavior.setStatePost(BottomSheetBehavior.STATE_HIDDEN);
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -160,8 +179,8 @@ public class BottomSheetDialog extends AppCompatDialog {
         if(bottomSheet ==null){
             throw new IllegalArgumentException("can't find BottomSheetBehavior in children's LayoutParams");
         }
-        mBehavior.setBottomSheetCallback(mBottomSheetCallback);
-        mBehavior.setHideable(mCancelable);
+        mCancelable = mBehavior.getHideable();
+//        mBehavior.setHideable(mCancelable);
 
         // Handle accessibility events
         ViewCompat.setAccessibilityDelegate(bottomSheet, new AccessibilityDelegateCompat() {
@@ -246,6 +265,7 @@ public class BottomSheetDialog extends AppCompatDialog {
             }
             if (mBehavior.isHiddenState()) {
                 cancel();
+                Logger.e("cancel");
             }
 
         }
@@ -255,5 +275,8 @@ public class BottomSheetDialog extends AppCompatDialog {
 
         }
     };
+    public BottomSheetBehavior getBehavior(){
+        return mBehavior;
+    }
 
 }

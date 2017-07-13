@@ -18,9 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.orhanobut.logger.Logger;
-import com.github.ytjojo.supernestedlayout.BottomSheetDialog;
 import com.github.ytjojo.supernestedlayout.demo.noheader.NoHeaderTwoNest;
+import com.orhanobut.logger.Logger;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -68,9 +67,8 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.iv_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BottomSheetDialog dialog =  new BottomSheetDialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_collapsinglayout);
-                dialog.show();
+                Intent intent = new Intent(MainActivity.this,BottomSheetDialogActivity.class);
+                startActivity(intent);
             }
         });
 
