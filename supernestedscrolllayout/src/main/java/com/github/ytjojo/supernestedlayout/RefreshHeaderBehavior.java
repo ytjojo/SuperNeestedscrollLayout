@@ -69,52 +69,18 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
     @Override
     public boolean onStartNestedScroll(SuperNestedLayout superNestedLayout, V header, View directTargetChild, View target, int nestedScrollAxes) {
         mRefreshHeaderView = header;
-        if(ViewCompat.getFitsSystemWindows(header)){
-            ViewCompat.setFitsSystemWindows(header,false);
-
-        }
         if (!canRefresh) {
             return false;
         }
-        final int childCount = superNestedLayout.getChildCount();
-        boolean found = false;
-        mToTranslationYViews.clear();
-        SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) header.getLayoutParams();
-        View mAnchorDirectChild = headerLp.mAnchorDirectChild;
-        ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
-        for (int i = 0; i < childCount; i++) {
-            View itemView = superNestedLayout.getChildAt(i);
-            if(itemView.getVisibility() ==View.GONE){
-                continue;
-            }
-            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) itemView.getLayoutParams();
-            Behavior viewBehavior = lp.getBehavior();
-            if (viewBehavior != null&& viewBehavior instanceof ScrollViewBehavior) {
-                hasScrollViewBehaviorViews.add(itemView);
-            }
-            if (mAnchorDirectChild != null) {
-                if (mAnchorDirectChild == itemView) {
-                    found = true;
-                    continue;
-                }
-            } else {
-                if(header ==itemView){
-                    found = true;
-                    continue;
-                }
-            }
-
-            if (found && lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)) {
-                mToTranslationYViews.add(itemView);
-            }
-        }
+        ArrayList<View> hasScrollViewBehaviorViews = addToTranslationYViews(superNestedLayout,header);
         if (hasScrollViewBehaviorViews.size() >= 1) {
            return hasScrollViewBehaviorViews.get(0) ==directTargetChild;
         }
 
         return false;
     }
-    private void addToTranslationYViews(SuperNestedLayout superNestedLayout, V header){
+
+    private ArrayList<View> addToTranslationYViews(SuperNestedLayout superNestedLayout, V header){
         mRefreshHeaderView = header;
         if(ViewCompat.getFitsSystemWindows(header)){
             ViewCompat.setFitsSystemWindows(header,false);
@@ -123,6 +89,7 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
         final int childCount = superNestedLayout.getChildCount();
         boolean found = false;
         mToTranslationYViews.clear();
+        String mControlBehaviorName = null;
         SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) header.getLayoutParams();
         View mAnchorDirectChild = headerLp.mAnchorDirectChild;
         ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
@@ -132,8 +99,10 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 continue;
             }
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) itemView.getLayoutParams();
-            Behavior viewBehavior = lp.getBehavior();
-            if (viewBehavior != null&& viewBehavior instanceof ScrollViewBehavior) {
+            if(mControlBehaviorName ==null && lp.getLayoutFlags() == SuperNestedLayout.LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                mControlBehaviorName = lp.mControlBehaviorName;
+            }
+            if (Utils.isHeightMatchParentLinearView(itemView,lp)) {
                 hasScrollViewBehaviorViews.add(itemView);
             }
             if (mAnchorDirectChild != null) {
@@ -148,10 +117,11 @@ public class RefreshHeaderBehavior<V extends View> extends Behavior<V> implement
                 }
             }
 
-            if (found && lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)) {
+            if (found &&mControlBehaviorName !=null && lp.isControlViewByBehavior(mControlBehaviorName)) {
                 mToTranslationYViews.add(itemView);
             }
         }
+        return hasScrollViewBehaviorViews;
 
     }
 

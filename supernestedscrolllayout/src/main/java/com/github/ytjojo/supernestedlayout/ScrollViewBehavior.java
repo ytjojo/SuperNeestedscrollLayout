@@ -61,8 +61,8 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             final ViewConfiguration configuration = ViewConfiguration.get(v.getContext());
             sMinVelocity = (int) (configuration.getScaledMinimumFlingVelocity());
         }
-        mMinScrollY = mDownScrollRange;
-        mMaxScrollY = mUpScrollRange;
+        mMinScrollValue = mDownScrollRange;
+        mMaxScrollValue = mUpScrollRange;
 
     }
     public void setIsSnapScroll(boolean isSnapScroll){
@@ -333,29 +333,29 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         }
         int scrollY =- mViewOffsetHelper.getTopAndBottomOffset();
         if(!consumed){
-            if( scrollY>mMinScrollY&&scrollY<mMaxScrollY){
-                mViewOffsetHelper.fling((int) velocityY,-mMinScrollY,-mMaxScrollY);
+            if( scrollY> mMinScrollValue &&scrollY< mMaxScrollValue){
+                mViewOffsetHelper.fling((int) velocityY,-mMinScrollValue,-mMaxScrollValue);
                 mWasNestedFlung = true;
                 return true;
             }
         }else{
             if(velocityY>0){
                 if(scrollY > mUpPreScrollRange){
-                    mViewOffsetHelper.fling((int) velocityY,-mMinScrollY,-mMaxScrollY);
+                    mViewOffsetHelper.fling((int) velocityY,-mMinScrollValue,-mMaxScrollValue);
                     mWasNestedFlung = true;
                     return true;
                 }
             }else{
                 if(!canChildScrollUp(target)){
-                    if(scrollY > mMinScrollY&& scrollY < mDownPreScrollRange){
-                        mViewOffsetHelper.fling((int) velocityY,-mMinScrollY,-mMaxScrollY);
+                    if(scrollY > mMinScrollValue && scrollY < mDownPreScrollRange){
+                        mViewOffsetHelper.fling((int) velocityY,-mMinScrollValue,-mMaxScrollValue);
                         mWasNestedFlung = true;
                         return true;
                     }
 
                 }else{
                     if(scrollY < mUpPreScrollRange&& scrollY >mDownPreScrollRange){
-                        mViewOffsetHelper.fling((int) velocityY,-mDownPreScrollRange,-mMaxScrollY);
+                        mViewOffsetHelper.fling((int) velocityY,-mDownPreScrollRange,-mMaxScrollValue);
                         mWasNestedFlung = true;
                         return true;
 
@@ -398,11 +398,11 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             mMinDragRange =mDownScrollRange;
             mMaxDragRange = mUpPreScrollRange;
         }else if(startScrollY == mUpPreScrollRange){
-            mMinDragRange = mMinScrollY;
-            mMaxDragRange = mMaxScrollY;
+            mMinDragRange = mMinScrollValue;
+            mMaxDragRange = mMaxScrollValue;
         }else{
             mMinDragRange = mUpPreScrollRange;
-            mMaxDragRange = mMaxScrollY;
+            mMaxDragRange = mMaxScrollValue;
         }
 
     }

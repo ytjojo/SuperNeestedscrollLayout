@@ -24,13 +24,14 @@
             app:layout_collapseParallaxMultiplier="0.2"
             app:SuperNested_collapseMode="parallax"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="200dp"
             android:columnCount="4"
             android:orientation="horizontal"
-            android:rowCount="2"
+            android:rowCount="3"
             >
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:paddingTop="20dp"
@@ -40,6 +41,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -49,6 +51,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -58,6 +61,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -67,6 +71,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -76,6 +81,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -85,6 +91,7 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
@@ -94,12 +101,49 @@
                 />
 
             <TextView
+                android:textSize="18sp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
                 android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="dialog8"
+                />
+            <TextView
+                android:textSize="18sp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="dialog9"
+                />
+            <TextView
+                android:textSize="18sp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="dialog10"
+                />
+            <TextView
+                android:textSize="18sp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="dialog11"
+                />
+            <TextView
+                android:textSize="18sp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="dialog12"
                 />
 
         </GridLayout>

@@ -169,6 +169,28 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         if (mEventWatcher == null) {
             mEventWatcher = new TouchEventWatcher(this);
         }
+        isSkipInterceptTouch = checkSkipInterceptTouch();
+    }
+    private boolean isSkipInterceptTouch;
+    public boolean isSkipInterceptTouch(){
+        return isSkipInterceptTouch;
+    }
+    public boolean checkSkipInterceptTouch(){
+        int childCount = getChildCount();
+        if(childCount ==0){
+            return true;
+        }
+        for (int i = childCount-1; i >=0; i--) {
+            View child = getChildAt(i);
+            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
+            if(lp.getLayoutFlags() == SuperNestedLayout.LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                int bottom = lp.getLayoutTop()+ child.getMeasuredHeight() + lp.bottomMargin + getPaddingBottom();
+                if(bottom<= getMeasuredHeight()){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     ArrayList<Integer> mChildIndexs ;
@@ -1031,6 +1053,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         float mScrimOpacity;
         @ColorInt
         int mScrimColor;
+        public int mLayoutIndex;
 
 
         public LayoutParams(Context c, AttributeSet attrs) {
@@ -1046,13 +1069,13 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                     Gravity.NO_GRAVITY);
             mControlBehaviorName = a.getString(R.styleable.SuperNestedLayout_LayoutParams_controlBehaviorName);
             mScrollFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_scrollFlags, SCROLL_FLAG_SCROLL);
-            mLayoutFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_layoutFlags, LAYOUT_FLAG_LINEARVERTICAL);
+            mLayoutFlags = a.getInt(R.styleable.SuperNestedLayout_LayoutParams_layoutFlags, LAYOUT_FLAG_FRAMLAYOUT);
+            if(!TextUtils.isEmpty(mControlBehaviorName)){
+                mLayoutFlags = LAYOUT_FLAG_LINEARVERTICAL;
+            }
             if (mLayoutFlags == LAYOUT_FLAG_FRAMLAYOUT) {
                 mScrollFlags = 0;
                 mControlBehaviorName = null;
-            }
-            if(TextUtils.isEmpty(mControlBehaviorName)){
-                mLayoutFlags = LAYOUT_FLAG_FRAMLAYOUT;
             }
             mBehaviorResolved = a.hasValue(
                     R.styleable.SuperNestedLayout_LayoutParams_behavior);
@@ -1060,6 +1083,14 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                 mBehavior = parseBehavior(c, attrs, a.getString(
                         R.styleable.SuperNestedLayout_LayoutParams_behavior));
                 mBehavior.onAttachedToLayoutParams(this);
+                if(mControlBehaviorName ==null){
+                    if(mBehavior instanceof ScrollViewBehavior){
+                        mControlBehaviorName = ScrollViewBehavior.sBehaviorName;
+                    }
+                    if(mBehavior instanceof BottomSheetBehavior){
+                        mControlBehaviorName = BottomSheetBehavior.sBehaviorName;
+                    }
+                }
             }
             if((mScrollFlags & SCROLL_FLAG_SCROLL) != 0){
                 mBaseLine=a.getDimensionPixelSize(R.styleable.SuperNestedLayout_LayoutParams_baseLine,Integer.MAX_VALUE);
@@ -1505,6 +1536,9 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
 
         public Behavior getBehavior() {
             return mBehavior;
+        }
+        public int getLayoutFlags(){
+            return mLayoutFlags;
         }
     }
 

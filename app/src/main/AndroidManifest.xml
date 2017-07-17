@@ -63,6 +63,14 @@
             android:name="com.github.ytjojo.supernestedlayout.demo.BottomSheetDialogActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name="com.github.ytjojo.supernestedlayout.demo.nobehavior.SimpleActivty"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name="com.github.ytjojo.supernestedlayout.demo.nobehavior.SimpleRefreshHeaderActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
 
 import com.github.ytjojo.supernestedlayout.SuperNestedLayout.LayoutParams;
 
@@ -66,12 +67,20 @@ public class LayoutManager {
         for (int i = 0; i < childCount; i++) {
             View child = mSuperNestedLayout.getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if(TextUtils.isEmpty(lp.mControlBehaviorName) && lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                lp.mControlBehaviorName = "defaultLinear";
+
+            }
             if (!TextUtils.isEmpty(lp.mControlBehaviorName)) {
                 if(mBehaviorViewValue.get(lp.mControlBehaviorName)==null){
                     if (lp.isEitUntilCollapsed()) {
                        mBehaviorViewValue.put(lp.mControlBehaviorName,ViewCompat.getMinimumHeight(child));
                     }else{
-                        mBehaviorViewValue.put(lp.mControlBehaviorName,0);
+                        if(lp.mControlBehaviorName.equals("defaultLinear")&&lp.height != ViewGroup.MarginLayoutParams.MATCH_PARENT){
+                            mBehaviorViewValue.put(lp.mControlBehaviorName,child.getMeasuredHeight());
+                        }else{
+                            mBehaviorViewValue.put(lp.mControlBehaviorName,0);
+                        }
                     }
                     if(applyInsets && !ViewCompat.getFitsSystemWindows(child)){
                         lp.isApplyInsets = true;
@@ -134,6 +143,7 @@ public class LayoutManager {
             final View child = mSuperNestedLayout.getChildAt(i);
 
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            lp.mLayoutIndex = i;
             lp.findAnchorView(mSuperNestedLayout, child);
             lp.setAttactchedView(child);
             mDependencySortedChildren.add(child);
@@ -522,6 +532,15 @@ public class LayoutManager {
                     mSuperNestedLayout, rhs, lhs)) {
                 return -1;
             } else {
+                LayoutParams lhslp= ((LayoutParams) lhs.getLayoutParams());
+                LayoutParams rhslp= ((LayoutParams) rhs.getLayoutParams());
+                if(lhslp.getLayoutFlags() == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL &&rhslp.getLayoutFlags() == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                    if(lhslp.mLayoutIndex > rhslp.mLayoutIndex){
+                        return 1;
+                    }else{
+                        return 0;
+                    }
+                }
                 return 0;
             }
         }

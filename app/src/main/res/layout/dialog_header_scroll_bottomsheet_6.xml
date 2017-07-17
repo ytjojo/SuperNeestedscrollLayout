@@ -5,19 +5,60 @@
                                                        android:id="@+id/rootview"
                                                        android:layout_width="match_parent"
                                                        android:layout_height="match_parent">
-    <TextView
+
+    <com.github.ytjojo.supernestedlayout.CollapsingLayout
+        android:id="@+id/collapsingLayout"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="#f2e4e4"
-        android:gravity="center"
-        android:fitsSystemWindows="false"
-        android:minHeight="50dp"
-        android:text="市领导看见我就哦对哦我奇偶敌我皮京东奇偶为奇偶的奇偶为叫都叫我ID噢加我的简欧文件我家动物叫都叫我"
-        android:textSize="15sp"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:elevation="3dp"
+        android:fitsSystemWindows="true"
+        android:minHeight="?attr/actionBarSize"
+        app:collapsedTitleLayoutGravity="center"
         app:controlBehaviorName="BottomSheetBehavior"
-        app:scrollFlags="scroll|exitUntilCollapsed"/>
+        app:expandedTitleLayoutGravity="start|left|bottom"
+        app:scrollFlags="scroll|exitUntilCollapsed"
+        app:statusBarScrim="?attr/colorPrimary">
+
+        <ImageView
+            android:id="@+id/backdrop"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:fitsSystemWindows="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/cheese_3"
+            app:SuperNested_collapseMode="parallax"
+            />
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:fitsSystemWindows="false"
+            app:SuperNested_collapseMode="pin"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="动作栏"
+                android:textSize="20sp"/>
+        </android.support.v7.widget.Toolbar>
+
+
+    </com.github.ytjojo.supernestedlayout.CollapsingLayout>
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:elevation="6dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/quila"
+        app:anchor="@id/collapsingLayout"
+        app:behavior="com.github.ytjojo.supernestedlayout.FloatActionButtonBehavior"
+        app:anchorGravity="right|bottom"/>
     <android.support.v4.widget.NestedScrollView
-        android:fitsSystemWindows="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEffffff"
@@ -25,6 +66,7 @@
         app:behavior_isAuthorPoint="true"
         app:BottomSheet_peekHeight="80dp"
         app:BottomSheet_minOffset="0dp"
+        app:behavior_hideable="false"
         app:controlBehaviorName="BottomSheetBehavior"
         app:windowBackgroundColor="#90000000"
         app:initState="expanded"

@@ -273,7 +273,7 @@ public class ViewOffsetHelper {
     public void startAnim() {
         mValueAnimator.removeAllListeners();
         mValueAnimator.removeAllUpdateListeners();
-        mValueAnimator.setDuration(1500);
+        mValueAnimator.setDuration(2500);
         mValueAnimator.setIntValues(0, 10000);
         mValueAnimator.setInterpolator(mLinearInterpolator);
         mValueAnimator.start();

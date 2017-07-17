@@ -71,6 +71,7 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
         mToTranslationYViews.clear();
         SuperNestedLayout.LayoutParams headerLp = (SuperNestedLayout.LayoutParams) footer.getLayoutParams();
         View mAnchorDirectChild = headerLp.mAnchorDirectChild;
+        String mControlBehaviorName = null;
         ArrayList<View> hasScrollViewBehaviorViews = new ArrayList<>();
         for (int i = 0; i < childCount; i++) {
             View itemView = superNestedLayout.getChildAt(i);
@@ -78,11 +79,13 @@ public class RefreshFooterBehavior <V extends View> extends Behavior<V> implemen
                 continue;
             }
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) itemView.getLayoutParams();
-            Behavior viewBehavior = lp.getBehavior();
-            if(lp.isControlViewByBehavior(ScrollViewBehavior.sBehaviorName)){
+            if(mControlBehaviorName ==null && lp.getLayoutFlags() == SuperNestedLayout.LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                mControlBehaviorName = lp.mControlBehaviorName;
+            }
+            if(mControlBehaviorName !=null && lp.isControlViewByBehavior(mControlBehaviorName)){
                 mToTranslationYViews.add(itemView);
             }
-            if (viewBehavior != null&& viewBehavior instanceof ScrollViewBehavior) {
+            if (Utils.isHeightMatchParentLinearView(itemView,lp)) {
                 if(hasScrollViewBehaviorViews.size() ==0){
                     mToTranslationYViews.clear();
                     mToTranslationYViews.add(itemView);

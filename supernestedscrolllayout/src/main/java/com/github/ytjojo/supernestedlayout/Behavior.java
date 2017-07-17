@@ -19,8 +19,8 @@ import android.view.View;
  * Created by Administrator on 2017/1/8 0008.
  */
 public abstract class Behavior<V extends View> {
-    protected int mMinScrollY;
-    protected int mMaxScrollY;
+    protected int mMinScrollValue;
+    protected int mMaxScrollValue;
     public Behavior() {
     }
     public Behavior(Context context, AttributeSet attrs) {
@@ -36,19 +36,19 @@ public abstract class Behavior<V extends View> {
     }
 
     public int getMinScrollY() {
-        return mMinScrollY;
+        return mMinScrollValue;
     }
 
     public void setMinScrollY(int minScrollY) {
-        mMinScrollY = minScrollY;
+        mMinScrollValue = minScrollY;
     }
 
     public int getMaxScrollY() {
-        return mMaxScrollY;
+        return mMaxScrollValue;
     }
 
     public void setMaxScrollY(int maxScrollY) {
-        mMaxScrollY = maxScrollY;
+        mMaxScrollValue = maxScrollY;
     }
 
     public void onNestedScrollAccepted(SuperNestedLayout superNestedLayout, V child,

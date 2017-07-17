@@ -260,10 +260,14 @@ public class TouchEventWatcher {
 
     Boolean isBlockingInteractionBelow;
 
+
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
         if (!mParent.isEnabled()) {
             // Fail fast if we're not in TOP state where TOP swipe is possible
+            return false;
+        }
+        if(mParent.isSkipInterceptTouch()){
             return false;
         }
         final int action = ev.getAction();

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.ytjojo.supernestedlayout.demo.nobehavior.SimpleActivty;
 import com.github.ytjojo.supernestedlayout.demo.noheader.NoHeaderTwoNest;
 import com.orhanobut.logger.Logger;
 
@@ -52,11 +53,15 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(new MyAdapter(new OnItemClick() {
             @Override
             public void onItemClick(int postion) {
-                if(postion %2 ==0){
+                if(postion %3 ==0){
                     Intent intent = new Intent(MainActivity.this,RecyclerViewActvity.class);
                     startActivity(intent);
-                }else{
+                }else if(postion %3 ==1){
                     Intent intent = new Intent(MainActivity.this,ViewPagerRefreshActivity.class);
+                    startActivity(intent);
+
+                }else if(postion %3 ==2){
+                    Intent intent = new Intent(MainActivity.this,SimpleActivty.class);
                     startActivity(intent);
 
                 }

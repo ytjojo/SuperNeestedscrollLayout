@@ -3,8 +3,13 @@ package com.github.ytjojo.supernestedlayout;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
@@ -22,7 +27,7 @@ import android.widget.AbsListView;
 
 public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public static final String sBehaviorName = "BottomSheetBehavior";
-
+    private static final int INVALID_VALUE = Integer.MAX_VALUE ;
 
     public static final int STATE_EXPANDED_FULLY = 0;
     public static final int STATE_DRAGGING = 1;
@@ -32,6 +37,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     public static final int STATE_HIDDEN = 5;
     public static final int STATE_AUTHORPOINT = 6;
     public static final int STATE_UNKNOWN = -1;
+
 
     public static int STABLE_STATE_EXPANDED = STATE_EXPANDED;
     public static int STABLE_STATE_COLLAPSED = STATE_COLLAPSED;
@@ -70,6 +76,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     int mWindowBackgroundColor = 0x90000000;
     @FloatRange(from = 0f, to = 1f)
     float mWindowBackgroundAlpha;
+    int mInitState;
+    int mSavedOffsetTop ;
 
     public BottomSheetBehavior() {
         super();
@@ -101,7 +109,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_behavior_hideable, false));
         setSkipCollapsed(a.getBoolean(R.styleable.BottomSheetBehavior_behavior_skipCollapsed,
                 false));
-        mState = a.getInt(R.styleable.BottomSheetBehavior_initState,STATE_COLLAPSED);
+        mInitState = mState = a.getInt(R.styleable.BottomSheetBehavior_initState,STATE_COLLAPSED);
         isAuthorPoint = a.getBoolean(R.styleable.BottomSheetBehavior_behavior_isAuthorPoint,false);
         mWindowBackgroundColor = a.getColor(R.styleable.BottomSheetBehavior_windowBackgroundColor,mWindowBackgroundColor);
         a.recycle();
@@ -114,6 +122,27 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
     @Override
     public boolean hasNestedScrollChild() {
         return true;
+    }
+
+
+    @Override
+    public Parcelable onSaveInstanceState(SuperNestedLayout parent, V child) {
+        return new SavedState(super.onSaveInstanceState(parent, child), mState,mViewOffsetHelper.getTopAndBottomOffset());
+    }
+
+    @Override
+    public void onRestoreInstanceState(SuperNestedLayout parent, V child, Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(parent, child, ss.getSuperState());
+        // Intermediate states are restored as collapsed state
+        if (ss.state == STATE_DRAGGING || ss.state == STATE_SETTLING) {
+            mState = STATE_EXPANDED;
+        } else {
+            mState = ss.state;
+            if(mState == STATE_AUTHORPOINT||isExpandFullyState()){
+                mSavedOffsetTop = ss.offset;
+            }
+        }
     }
 
     @Override
@@ -173,9 +202,10 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
         if(lastOffsetValue !=0){
             mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
+            dispatchOnSlide(-lastOffsetValue);
             return;
         }
-        if (mState == STATE_EXPANDED||mState == STATE_AUTHORPOINT) {
+        if (mState == STATE_EXPANDED) {
             mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
             dispatchOnSlide(-mMinOffset);
         } else if (mHideable && mState == STATE_HIDDEN) {
@@ -188,6 +218,24 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             mState = STATE_EXPANDED;
             mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
             dispatchOnSlide(-mMinOffset);
+        }else if(mState == STATE_AUTHORPOINT){
+            if(mSavedOffsetTop != INVALID_VALUE){
+                mViewOffsetHelper.setTopAndBottomOffset(mSavedOffsetTop);
+                dispatchOnSlide(-mSavedOffsetTop);
+                mSavedOffsetTop = INVALID_VALUE;
+            }else{
+                mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
+                dispatchOnSlide(-mMinOffset);
+            }
+        }else if(mState == STATE_EXPANDED_FULLY){
+            if(mSavedOffsetTop != INVALID_VALUE){
+                mViewOffsetHelper.setTopAndBottomOffset(mSavedOffsetTop);
+                dispatchOnSlide(-mSavedOffsetTop);
+                mSavedOffsetTop = INVALID_VALUE;
+            }else{
+                mViewOffsetHelper.setTopAndBottomOffset(mMinOffset);
+                dispatchOnSlide(-mMinOffset);
+            }
         }
         if (mBottomSheet != null && mCallback != null) {
             mCallback.onStateChanged(mBottomSheet, mBottomSheetHeader, mState);
@@ -208,8 +256,8 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
 
     public void calculateScrollRange(SuperNestedLayout superNestedLayout, V v) {
         initValue(superNestedLayout, v);
-        mMinScrollY = mDownScrollRange;
-        mMaxScrollY = mUpScrollRange;
+        mMinScrollValue = mDownScrollRange;
+        mMaxScrollValue = mUpScrollRange;
 
     }
 
@@ -558,7 +606,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             endState = STATE_UNKNOWN;
         }
     }
-    int amentState(int state){
+    int amendState(int state){
         if(state == STATE_AUTHORPOINT){
             if(mViewOffsetHelper.getTopAndBottomOffset() ==mMinOffset){
                 state = STATE_EXPANDED;
@@ -566,17 +614,20 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             if(mViewOffsetHelper.getTopAndBottomOffset() >=mMaxOffset){
                 state = STABLE_STATE_COLLAPSED;
             }
+            if(mViewOffsetHelper.getTopAndBottomOffset()<=mMinOffset && mMinOffset ==0){
+                state = STATE_EXPANDED_FULLY;
+            }
         }
         return state;
     }
 
     void setStateInternal(int state) {
-        state = amentState(state);
+        state = amendState(state);
         if (mState == state) {
             return;
         }
         mState = state;
-        mState = amentState(mState);
+        mState = amendState(mState);
         if (mBottomSheet != null && mCallback != null) {
             mCallback.onStateChanged(mBottomSheet, mBottomSheetHeader, state);
         }
@@ -647,19 +698,19 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
             return true;
         }
         if (!consumed) {
-            if (scrollY > mMinScrollY && scrollY < mMaxScrollY) {
-                mViewOffsetHelper.fling((int) velocityY, -mMinScrollY, -mMaxScrollY);
+            if (scrollY > mMinScrollValue && scrollY < mMaxScrollValue) {
+                mViewOffsetHelper.fling((int) velocityY, -mMinScrollValue, -mMaxScrollValue);
                 return true;
             }
         } else {
             if (velocityY > 0) {
                 if (scrollY > mUpPreScrollRange) {
-                    mViewOffsetHelper.fling((int) velocityY, -mMinScrollY, -mMaxScrollY);
+                    mViewOffsetHelper.fling((int) velocityY, -mMinScrollValue, -mMaxScrollValue);
                     return true;
                 }
             } else {
                 if (scrollY < mUpPreScrollRange) {
-                    mViewOffsetHelper.fling((int) velocityY, -mMinScrollY, -mMaxScrollY);
+                    mViewOffsetHelper.fling((int) velocityY, -mMinScrollValue, -mMaxScrollValue);
                     return true;
                 }
             }
@@ -751,11 +802,11 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
                 dispatchOnSlide(endScrollY);
             }
         } else {
-            if (startScrollY > mMaxScrollY) {
+            if (startScrollY > mMaxScrollValue) {
                 return;
             }
-            if (endScrollY > mMaxScrollY) {
-                endScrollY = mMaxScrollY;
+            if (endScrollY > mMaxScrollValue) {
+                endScrollY = mMaxScrollValue;
             }
             if (endScrollY < 0 && endScrollY >= -mMinOffset) {
                 setStateInternal(STATE_EXPANDED);
@@ -830,7 +881,7 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
                 if(isDoFling){
                     mAnimtionCallback.setEndState(STATE_AUTHORPOINT);
                     setStateInternal(STATE_SETTLING);
-                    mViewOffsetHelper.fling(velocityY, mMinScrollY,mMaxOffset);
+                    mViewOffsetHelper.fling(velocityY, mMinScrollValue,mMaxOffset);
                 }
                 return true;
             }else if(-offsetTop < mUpPreScrollRange){
@@ -1085,6 +1136,16 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         }
         return false;
     }
+    public boolean isExpandFullyState(){
+        if(mMinOffset ==0 && mState ==STATE_EXPANDED){
+            return true;
+        }
+        if(mState == STATE_EXPANDED_FULLY){
+            return true;
+        }
+
+        return false;
+    }
     /**
      * Gets the current state of the bottom sheet.
      *
@@ -1114,6 +1175,48 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
                     "The view is not associated with BottomSheetBehavior");
         }
         return (BottomSheetBehavior<V>) behavior;
+    }
+
+    protected static class SavedState extends AbsSavedState {
+        final int state;
+        final int offset;
+
+        public SavedState(Parcel source) {
+            this(source, null);
+        }
+
+        public SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+            //noinspection ResourceType
+            state = source.readInt();
+            offset = source.readInt();
+        }
+
+        public SavedState(Parcelable superState, int state,int offset) {
+            super(superState);
+            this.state = state;
+            this.offset = offset;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(state);
+            out.writeInt(offset);
+        }
+
+        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
     }
 }
 

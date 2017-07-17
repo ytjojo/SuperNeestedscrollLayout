@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 
 /**
@@ -80,4 +81,13 @@ public class Utils {
         return region.getBoundaryPath();
     }
 
+    public static boolean isHeightMatchParentLinearView(View child, SuperNestedLayout.LayoutParams lp){
+       if(lp ==null){
+           lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
+       }
+       if(lp.getLayoutFlags() == SuperNestedLayout.LayoutParams.LAYOUT_FLAG_LINEARVERTICAL&& lp.height == ViewGroup.MarginLayoutParams.MATCH_PARENT){
+           return true;
+       }
+       return false;
+    }
 }

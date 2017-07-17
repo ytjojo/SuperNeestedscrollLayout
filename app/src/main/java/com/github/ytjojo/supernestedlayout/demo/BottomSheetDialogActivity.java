@@ -118,6 +118,14 @@ public class BottomSheetDialogActivity extends AppCompatActivity {
                 },1000);
             }
         });
+        gridLayout.getChildAt(8).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog =  new BottomSheetDialog(BottomSheetDialogActivity.this);
+                dialog.setContentView(R.layout.dialog_header_scroll_bottomsheet_6);
+                dialog.show();
+            }
+        });
 
 
     }
