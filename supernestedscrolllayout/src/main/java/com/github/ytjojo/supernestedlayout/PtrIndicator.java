@@ -2,8 +2,6 @@ package com.github.ytjojo.supernestedlayout;
 
 import android.graphics.PointF;
 
-import com.orhanobut.logger.Logger;
-
 public class PtrIndicator {
 
     public static final float INVALID_MAXOFFSETRATIO = -1;
@@ -208,7 +206,6 @@ public class PtrIndicator {
     }
 
     public float getCurrentPercent() {
-        Logger.e("mCurrentPos"+ mCurrentPos);
         float currentPercent = this.mStableRefreshOffset == 0?0.0F:(float)this.mCurrentPos * 1.0F / (float)this.mStableRefreshOffset;
         return currentPercent;
     }

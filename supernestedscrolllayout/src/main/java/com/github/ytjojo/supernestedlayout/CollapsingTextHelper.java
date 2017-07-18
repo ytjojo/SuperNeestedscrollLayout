@@ -292,6 +292,8 @@ final class CollapsingTextHelper {
         if (fraction != mExpandedFraction) {
             mExpandedFraction = fraction;
             calculateCurrentOffsets();
+        }else{
+            ViewCompat.postInvalidateOnAnimation(mView);
         }
     }
 

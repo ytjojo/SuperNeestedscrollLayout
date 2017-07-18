@@ -2,6 +2,7 @@
 <com.github.ytjojo.supernestedlayout.SuperNestedLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/SuperNestedLayout"
     android:layout_width="match_parent"
     android:fitsSystemWindows="true"
     android:layout_height="match_parent">
@@ -11,18 +12,27 @@
         android:layout_height="wrap_content"
         android:minHeight="?actionBarSize"
         app:controlBehaviorName="ScrollViewBehavior"
+        app:drawingOrderElevation="3dp"
         android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="200dp"
             android:gravity="center"
-            android:textSize="20sp"
-
-            android:text="cdsadadlick"/>
+            android:textSize="16sp"
+            android:lineSpacingExtra="3dp"
+            android:text="你站在桥上看风景，\n看风景的人在楼上看你，\n明月装饰了你的窗子，\n你装饰了别人的梦。"/>
         <android.support.v7.widget.Toolbar
             android:background="@color/colorPrimary"
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"/>
+            android:layout_height="?actionBarSize">
+            <TextView
+                android:text="动作栏"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            </android.support.v7.widget.Toolbar>
 
     </LinearLayout>
     <TextView
@@ -31,7 +41,7 @@
         android:layout_height="100dp"
         android:gravity="center"
         android:textSize="20sp"
-        android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
+        android:text="轻轻的我走了，不带走一片云彩"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         app:controlBehaviorName="ScrollViewBehavior"
@@ -45,15 +55,24 @@
     <TextView
         app:controlBehaviorName="ScrollViewBehavior"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="20sp"
-        android:text="周冬梅山东网ID冻死了京东无敌是麦兜我"/>
+        android:lineSpacingExtra="3dp"
+        android:text="我打江南走过\n
+那等在季节里的容颜如莲花的开落\n
+东风不来，三月的柳絮不飞\n
+你底心如小小的寂寞的城\n
+恰若青石的街道向晚\n
+跫音不响，三月的春帷不揭\n
+你底心是小小的窗扉紧掩\n
+我达达的马蹄是美丽的错误\n
+我不是归人，是个过客……"/>
     <TextView
         android:visibility="visible"
         app:behavior="com.github.ytjojo.supernestedlayout.BottomQuickReturnBehavior"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="20sp"
         android:background="@android:color/white"

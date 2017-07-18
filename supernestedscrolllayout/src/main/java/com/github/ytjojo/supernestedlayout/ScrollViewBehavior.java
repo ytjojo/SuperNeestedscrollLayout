@@ -1,16 +1,21 @@
 package com.github.ytjojo.supernestedlayout;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 
 import com.github.ytjojo.supernestedlayout.SuperNestedLayout.LayoutParams;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 
@@ -34,10 +39,6 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     public ScrollViewBehavior(Context context, AttributeSet attrs){
         super(context,attrs);
     }
-    @Override
-    public boolean hasNestedScrollChild() {
-        return true;
-    }
 
     @Override
     public void onAllChildLayouted(SuperNestedLayout superNestedLayout, V child) {
@@ -46,7 +47,20 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         }
         calculateScrollRange(superNestedLayout,child);
         final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
-        mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
+        Logger.e(lastOffsetValue +"lastOffsetValue"+mMinDragRange+"  "+mMinScrollValue + "  " +mMaxDragRange + "  " + getMaxScrollY());
+        if(lastOffsetValue != 0){
+            int headerOffsetValue = mViewOffsetHelper.getHeaderOffsetTop();
+            mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
+            mViewOffsetHelper.restoreHeaderTop(headerOffsetValue);
+        }else {
+
+            if(mSavedPosition != INVALID_POSITION){
+                mViewOffsetHelper.setTopAndBottomOffset(mSavedPosition<-mMaxScrollValue?-mMaxScrollValue:mSavedPosition);
+                mViewOffsetHelper.restoreHeaderTop(mSavedHeaderOffseTop);
+                mSavedPosition = INVALID_POSITION;
+                superNestedLayout.dispatchOnDependentViewChanged();
+            }
+        }
 
 
     }
@@ -70,21 +84,6 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         if(mViewOffsetHelper !=null){
             mViewOffsetHelper.isSnapScroll = isSnapScroll;
         }
-    }
-    public View findDirectChildView(SuperNestedLayout superNestedLayout, View target){
-        ViewGroup parent = (ViewGroup) target.getParent();
-        if(parent == superNestedLayout){
-            return target;
-        }else{
-            while(parent != superNestedLayout){
-               View directTargetChild = parent;
-                parent= (ViewGroup) parent.getParent();
-                if(parent == superNestedLayout){
-                    return directTargetChild;
-                }
-            }
-        }
-        return null;
     }
 
     @Override
@@ -542,4 +541,64 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     private long mLastPreScrollTime;
     private int mTotalDy = 0;
     private boolean  mWasNestedFlung;
+    private final int INVALID_POSITION = Integer.MAX_VALUE;
+    private int mSavedPosition = INVALID_POSITION;
+    private int mSavedHeaderOffseTop = INVALID_POSITION;
+
+    @Override
+    public Parcelable onSaveInstanceState(SuperNestedLayout parent, V child) {
+        return new SavedState(super.onSaveInstanceState(parent, child),mViewOffsetHelper.getTopAndBottomOffset(),mViewOffsetHelper.getHeaderOffsetTop());
+    }
+
+    @Override
+    public void onRestoreInstanceState(SuperNestedLayout parent, V child, Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(parent, child, ss.getSuperState());
+        // Intermediate states are restored as collapsed state
+        mSavedPosition = ss.scrollPosition;
+        mSavedHeaderOffseTop = ss.headerOffseTop;
+
+    }
+
+    protected static class SavedState extends AbsSavedState {
+        final int scrollPosition;
+        final int headerOffseTop;
+
+        public SavedState(Parcel source) {
+            this(source, null);
+        }
+
+        public SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+            //noinspection ResourceType
+            scrollPosition = source.readInt();
+            headerOffseTop = source.readInt();
+        }
+
+        public SavedState(Parcelable superState, int scrollPosition,int headerOffseTop) {
+            super(superState);
+            this.scrollPosition = scrollPosition;
+            this.headerOffseTop = headerOffseTop;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(scrollPosition);
+            out.writeInt(headerOffseTop);
+        }
+
+        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
+    }
 }

@@ -67,16 +67,17 @@ public class LayoutManager {
         for (int i = 0; i < childCount; i++) {
             View child = mSuperNestedLayout.getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if(TextUtils.isEmpty(lp.mControlBehaviorName) && lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
-                lp.mControlBehaviorName = "defaultLinear";
 
+            if(child.getVisibility() ==View.GONE){
+                continue;
             }
+
             if (!TextUtils.isEmpty(lp.mControlBehaviorName)) {
                 if(mBehaviorViewValue.get(lp.mControlBehaviorName)==null){
                     if (lp.isEitUntilCollapsed()) {
                        mBehaviorViewValue.put(lp.mControlBehaviorName,ViewCompat.getMinimumHeight(child));
                     }else{
-                        if(lp.mControlBehaviorName.equals("defaultLinear")&&lp.height != ViewGroup.MarginLayoutParams.MATCH_PARENT){
+                        if(lp.mControlBehaviorName.equals( Behavior.NO_BEHAVIOR)&&lp.height != ViewGroup.MarginLayoutParams.MATCH_PARENT){
                             mBehaviorViewValue.put(lp.mControlBehaviorName,child.getMeasuredHeight());
                         }else{
                             mBehaviorViewValue.put(lp.mControlBehaviorName,0);
@@ -147,6 +148,10 @@ public class LayoutManager {
             lp.findAnchorView(mSuperNestedLayout, child);
             lp.setAttactchedView(child);
             mDependencySortedChildren.add(child);
+            if(TextUtils.isEmpty(lp.mControlBehaviorName) && lp.mLayoutFlags == LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                lp.mControlBehaviorName = Behavior.NO_BEHAVIOR;
+
+            }
         }
         // We need to use TOP selection sort here to make sure that every item is compared
         // against each other

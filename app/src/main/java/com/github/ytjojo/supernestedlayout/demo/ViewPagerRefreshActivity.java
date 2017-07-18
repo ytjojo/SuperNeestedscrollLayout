@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.github.ytjojo.supernestedlayout.SuperNestedLayout;
 import com.github.ytjojo.supernestedlayout.OnLoadListener;
 import com.github.ytjojo.supernestedlayout.RefreshFooterBehavior;
 import com.github.ytjojo.supernestedlayout.RefreshHeaderBehavior;
+import com.github.ytjojo.supernestedlayout.SuperNestedLayout;
 
 /**
  * Created by Administrator on 2017/5/23 0023.
@@ -37,7 +37,7 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
                     public void run() {
                         footerBehavior.setRefreshComplete();
                     }
-                },10000);
+                },2000);
             }
         });
         final RefreshHeaderBehavior headerBehavior = (RefreshHeaderBehavior) lp.getBehavior();
@@ -49,7 +49,7 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
                     public void run() {
                         headerBehavior.setRefreshComplete();
                     }
-                },6000);
+                },2000);
             }
         });
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);

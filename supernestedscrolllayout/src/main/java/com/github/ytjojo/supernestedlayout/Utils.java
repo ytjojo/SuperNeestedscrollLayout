@@ -90,4 +90,8 @@ public class Utils {
        }
        return false;
     }
+
+    static boolean objectEquals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
 }

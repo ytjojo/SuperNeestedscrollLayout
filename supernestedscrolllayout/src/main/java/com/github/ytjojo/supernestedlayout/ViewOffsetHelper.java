@@ -182,6 +182,31 @@ public class ViewOffsetHelper {
         return false;
     }
 
+    private int mHeaderOffsetTop;
+    private void saveHeaderOffsetTop(){
+        if(mHeader != null){
+            mHeaderOffsetTop =  mHeader.getTop();
+        }else{
+
+        }
+    }
+    public int getHeaderOffsetTop(){
+        return mHeaderOffsetTop;
+    }
+    public void restoreHeaderTop(int top){
+        if(mHeader != null){
+            SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) mHeader.getLayoutParams();
+            int value = top - mHeader.getTop();
+            if(value !=0){
+                mHeaderOffsetTop = top;
+                if(value!=0){
+                    ViewCompat.offsetTopAndBottom(mHeader,value);
+                    dispatchScrollChanged(mHeader,mHeader.getTop()-lp.mTopInset-value,mHeader.getTop()-lp.mTopInset,value,mMinHeaderTopOffset);
+                }
+            }
+        }
+    }
+
 
     public int getTopAndBottomOffset() {
         return mOffsetTop;
@@ -360,6 +385,7 @@ public class ViewOffsetHelper {
         mOffsetAnimator.start();
     }
     private void dispatchScrollChanged(View child, int startOffsetTop, int endOffsetTop, int parentScrollDy, int rangeEnd){
+        saveHeaderOffsetTop();
         final SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
         if(!lp.hasOffsetChangedListener()){
             return;

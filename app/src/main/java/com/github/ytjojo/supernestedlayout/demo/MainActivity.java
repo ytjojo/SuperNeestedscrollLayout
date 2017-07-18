@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.ytjojo.supernestedlayout.OnLoadListener;
+import com.github.ytjojo.supernestedlayout.RefreshHeaderBehavior;
+import com.github.ytjojo.supernestedlayout.SuperNestedLayout;
 import com.github.ytjojo.supernestedlayout.demo.nobehavior.SimpleActivty;
 import com.github.ytjojo.supernestedlayout.demo.noheader.NoHeaderTwoNest;
 import com.orhanobut.logger.Logger;
@@ -76,6 +80,20 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+        final View headerLoadingView =findViewById(R.id.refreshHeader);
+        SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) headerLoadingView.getLayoutParams();
+        final RefreshHeaderBehavior headerBehavior = (RefreshHeaderBehavior) lp.getBehavior();
+        headerBehavior.setOnLoadListener(new OnLoadListener() {
+            @Override
+            public void onLoad() {
+                headerLoadingView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerBehavior.setRefreshComplete();
+                    }
+                },3000);
+            }
+        });;
 
     }
 

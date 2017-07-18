@@ -119,10 +119,6 @@ public class BottomSheetBehavior<V extends View> extends Behavior<V> {
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
     }
 
-    @Override
-    public boolean hasNestedScrollChild() {
-        return true;
-    }
 
 
     @Override

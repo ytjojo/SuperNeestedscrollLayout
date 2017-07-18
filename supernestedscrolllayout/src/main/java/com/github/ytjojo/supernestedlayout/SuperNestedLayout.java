@@ -182,8 +182,14 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         }
         for (int i = childCount-1; i >=0; i--) {
             View child = getChildAt(i);
+            if(child.getVisibility() ==GONE){
+                continue;
+            }
             SuperNestedLayout.LayoutParams lp = (SuperNestedLayout.LayoutParams) child.getLayoutParams();
             if(lp.getLayoutFlags() == SuperNestedLayout.LayoutParams.LAYOUT_FLAG_LINEARVERTICAL){
+                if(BottomSheetBehavior.sBehaviorName.equals(lp.mControlBehaviorName)){
+                    return false;
+                }
                 int bottom = lp.getLayoutTop()+ child.getMeasuredHeight() + lp.bottomMargin + getPaddingBottom();
                 if(bottom<= getMeasuredHeight()){
                     return true;
@@ -1698,7 +1704,7 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         setStatusBarBackground(new ColorDrawable(color));
     }
     private WindowInsetsCompat setWindowInsets(WindowInsetsCompat insets) {
-        if (mLastInsets != insets) {
+        if (!Utils.objectEquals(mLastInsets,insets)) {
             mLastInsets = insets;
             mDrawStatusBarBackground = insets != null && insets.getSystemWindowInsetTop() > 0;
             setWillNotDraw(!mDrawStatusBarBackground && getBackground() == null);

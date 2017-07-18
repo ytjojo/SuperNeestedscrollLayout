@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.orhanobut.logger.Logger;
-
 /**
  * Base class for {@link android.app.Dialog}s styled as a bottom sheet.
  */
@@ -265,7 +263,6 @@ public class BottomSheetDialog extends AppCompatDialog {
             }
             if (mBehavior.isHiddenState()) {
                 cancel();
-                Logger.e("cancel");
             }
 
         }

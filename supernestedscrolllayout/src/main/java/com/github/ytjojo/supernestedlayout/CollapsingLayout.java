@@ -1239,7 +1239,6 @@ public class CollapsingLayout extends FrameLayout {
         public void onOffsetChanged(View view,float ratio, int dy, int offsetPix, int totalRange, int parentScrollDy) {
             mCurrentOffset = offsetPix;
             int verticalOffset = -offsetPix;
-            Logger.e(verticalOffset+"verticalOffset"+verticalOffset);
             final int insetTop = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
             final int scrollRange =totalRange;
 

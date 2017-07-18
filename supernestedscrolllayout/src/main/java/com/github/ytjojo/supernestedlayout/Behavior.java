@@ -19,15 +19,12 @@ import android.view.View;
  * Created by Administrator on 2017/1/8 0008.
  */
 public abstract class Behavior<V extends View> {
+    public static final String NO_BEHAVIOR="nobehavoir";
     protected int mMinScrollValue;
     protected int mMaxScrollValue;
     public Behavior() {
     }
     public Behavior(Context context, AttributeSet attrs) {
-    }
-    private boolean hasNestedScrollChild;
-    public boolean hasNestedScrollChild(){
-        return false;
     }
     public boolean onStartNestedScroll(SuperNestedLayout superNestedLayout,
                                        V child, View directTargetChild, View target, int nestedScrollAxes) {
