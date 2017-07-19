@@ -11,6 +11,7 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -159,6 +160,10 @@ public abstract class Behavior<V extends View> {
      */
     public Parcelable onSaveInstanceState(SuperNestedLayout parent, V child) {
         return View.BaseSavedState.EMPTY_STATE;
+    }
+
+    public WindowInsetsCompat onApplyWindowInsets(SuperNestedLayout superNestedLayout,V child,WindowInsetsCompat insets){
+        return insets;
     }
 
     protected static class SavedState extends AbsSavedState {

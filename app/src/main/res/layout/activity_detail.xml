@@ -33,7 +33,7 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_scrollFlags="scroll|snap"
+            app:layout_scrollFlags="scroll"
             android:fitsSystemWindows="false"
             app:contentScrim="?attr/colorPrimary"
             app:statusBarScrim="?attr/colorPrimary"

@@ -204,6 +204,7 @@ public class LayoutManager {
         dispatchOnLayoutedAllchid();
     }
 
+
     private void dispatchOnLayoutedAllchid() {
         int childCount = mSuperNestedLayout.getChildCount();
 //        final int childWidthSpace = mWidth - mPaddingLeft - mPaddingRight;
@@ -213,8 +214,6 @@ public class LayoutManager {
             Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
                 viewBehavior.onAllChildLayouted(mSuperNestedLayout, child);
-//                mNestedScrollLayout.setMinScrollY(Math.min(viewBehavior.getMinScrollY(), mNestedScrollLayout.getMinScrollY()));
-//                mNestedScrollLayout.setMaxScrollY(Math.max(viewBehavior.getMaxScrollY(), mNestedScrollLayout.getMaxScrollY()));
             }
         }
     }

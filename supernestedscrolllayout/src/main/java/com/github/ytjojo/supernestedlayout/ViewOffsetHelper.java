@@ -155,13 +155,12 @@ public class ViewOffsetHelper {
                 ViewCompat.offsetTopAndBottom(v,offsetDy);
             }
         }
-        mParent.dispatchOnDependentViewChanged();
         if(mOnOffsetChangedListeners !=null){
             for (OffsetTopChangeCallback l:mOnOffsetChangedListeners){
                 l.onOffsetTopChanged(mOffsetTop,offsetDy);
-
             }
         }
+        mParent.dispatchOnDependentViewChanged();
 
     }
 
@@ -180,6 +179,26 @@ public class ViewOffsetHelper {
             return true;
         }
         return false;
+    }
+    public void restoreTopAndBottomOffset(){
+        int offsetDy = mOffsetTop - (mView.getTop() -mLayoutTop);
+        initLayoutTop();
+        if(mScrollViews !=null){
+            for(View v:mScrollViews){
+                ViewCompat.offsetTopAndBottom(v,offsetDy);
+            }
+        }
+        if(mOnOffsetChangedListeners !=null){
+            for (OffsetTopChangeCallback l:mOnOffsetChangedListeners){
+                l.onOffsetTopChanged(mOffsetTop,offsetDy);
+            }
+        }
+        mParent.dispatchOnDependentViewChanged();
+
+    }
+    public void restoreTopAndBottomOffset(int topAndBottomOffset){
+        this.mOffsetTop = topAndBottomOffset;
+        restoreTopAndBottomOffset();
     }
 
     private int mHeaderOffsetTop;
@@ -201,7 +220,7 @@ public class ViewOffsetHelper {
                 mHeaderOffsetTop = top;
                 if(value!=0){
                     ViewCompat.offsetTopAndBottom(mHeader,value);
-                    dispatchScrollChanged(mHeader,mHeader.getTop()-lp.mTopInset-value,mHeader.getTop()-lp.mTopInset,value,mMinHeaderTopOffset);
+                    dispatchScrollChanged(mHeader,mHeader.getTop()-value,mHeader.getTop(),value,mMinHeaderTopOffset);
                 }
             }
         }

@@ -156,6 +156,12 @@ final class CollapsingTextHelper {
     void onBoundsChanged() {
         mDrawTitle = mCollapsedBounds.width() > 0 && mCollapsedBounds.height() > 0
                 && mExpandedBounds.width() > 0 && mExpandedBounds.height() > 0;
+        if(!mDrawTitle){
+            boolean b1 = mCollapsedBounds.width() > 0;
+            boolean b2 = mCollapsedBounds.height() > 0;
+            boolean b3 = mExpandedBounds.width() > 0;
+            boolean b4 = mExpandedBounds.height() > 0;
+        }
     }
 
     void setExpandedTextGravity(int gravity) {
@@ -292,8 +298,6 @@ final class CollapsingTextHelper {
         if (fraction != mExpandedFraction) {
             mExpandedFraction = fraction;
             calculateCurrentOffsets();
-        }else{
-            ViewCompat.postInvalidateOnAnimation(mView);
         }
     }
 

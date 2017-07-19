@@ -39,8 +39,6 @@ import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import com.orhanobut.logger.Logger;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

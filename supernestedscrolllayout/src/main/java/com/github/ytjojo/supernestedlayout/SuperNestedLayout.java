@@ -159,7 +159,6 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
     }
-
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (getChildCount() < 1) {
@@ -1709,8 +1708,33 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
             mDrawStatusBarBackground = insets != null && insets.getSystemWindowInsetTop() > 0;
             setWillNotDraw(!mDrawStatusBarBackground && getBackground() == null);
             // Now dispatch to the Behaviors
+            insets = dispatchApplyWindowInsetsToBehaviors(insets);
             requestLayout();
         }
+        return insets;
+    }
+    private WindowInsetsCompat dispatchApplyWindowInsetsToBehaviors(WindowInsetsCompat insets) {
+        if (insets.isConsumed()) {
+            return insets;
+        }
+
+        for (int i = 0, z = getChildCount(); i < z; i++) {
+            final View child = getChildAt(i);
+            if (ViewCompat.getFitsSystemWindows(child)) {
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                final Behavior b = lp.getBehavior();
+
+                if (b != null) {
+                    // If the view has a behavior, let it try first
+                    insets = b.onApplyWindowInsets(this, child, insets);
+                    if (insets.isConsumed()) {
+                        // If it consumed the insets, break
+                        break;
+                    }
+                }
+            }
+        }
+
         return insets;
     }
     public void donotDrawStatusBarBackground(){

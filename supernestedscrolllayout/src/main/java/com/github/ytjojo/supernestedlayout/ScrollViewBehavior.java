@@ -15,7 +15,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 
 import com.github.ytjojo.supernestedlayout.SuperNestedLayout.LayoutParams;
-import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 
@@ -47,18 +46,15 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
         }
         calculateScrollRange(superNestedLayout,child);
         final int lastOffsetValue = mViewOffsetHelper.getTopAndBottomOffset();
-        Logger.e(lastOffsetValue +"lastOffsetValue"+mMinDragRange+"  "+mMinScrollValue + "  " +mMaxDragRange + "  " + getMaxScrollY());
         if(lastOffsetValue != 0){
             int headerOffsetValue = mViewOffsetHelper.getHeaderOffsetTop();
-            mViewOffsetHelper.setTopAndBottomOffset(lastOffsetValue);
             mViewOffsetHelper.restoreHeaderTop(headerOffsetValue);
+            mViewOffsetHelper.restoreTopAndBottomOffset();
         }else {
-
             if(mSavedPosition != INVALID_POSITION){
-                mViewOffsetHelper.setTopAndBottomOffset(mSavedPosition<-mMaxScrollValue?-mMaxScrollValue:mSavedPosition);
                 mViewOffsetHelper.restoreHeaderTop(mSavedHeaderOffseTop);
+                mViewOffsetHelper.restoreTopAndBottomOffset(mSavedPosition<-mMaxScrollValue?-mMaxScrollValue:mSavedPosition);
                 mSavedPosition = INVALID_POSITION;
-                superNestedLayout.dispatchOnDependentViewChanged();
             }
         }
 
@@ -165,6 +161,8 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
             LayoutParams lp = (LayoutParams) v.getLayoutParams();
             int keyValue = lp.getLayoutTop() - lp.topMargin;
             mDownPreScrollRange =keyValue  -headerLp.getDownNestedPreScrollRange()- superNestedLayout.getTopInset();
+            int top = superNestedLayout.getTopInset();
+            int ss =  ViewCompat.getMinimumHeight(scrollHeader);
             mUpPreScrollRange = keyValue -headerLp.getUpNestedPreScrollRange()-(!headerLp.isEitUntilCollapsed() &&isApllyInsets(v, superNestedLayout)? superNestedLayout.getTopInset():0);
 //            mDownScrollRange =keyValue - headerLp.getTotalUnResolvedScrollRange()-(applyInsets?nestedScrollLayout.getTopInset():0);
             mDownScrollRange =-superNestedLayout.getPaddingTop()+headerLp.getLayoutTop()-headerLp.topMargin-(applyInsets? superNestedLayout.getTopInset():0);
