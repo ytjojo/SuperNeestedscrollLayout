@@ -104,6 +104,7 @@ public class CardiogramDrawable extends LoadingDrawable {
                     mDrawPath = false;
                     mEndAngle = 450-value*135;
                     mStartAngle = mEndAngle - mSweepAngle;
+                    mDrawPoint = false;
 //                    if(mStartAngle < 180){
 //                        mStartAngle = 180;
 //                    }
@@ -146,5 +147,6 @@ public class CardiogramDrawable extends LoadingDrawable {
     @Override
     public void onReset() {
         mDrawPath = false;
+        mDrawPoint = false;
     }
 }

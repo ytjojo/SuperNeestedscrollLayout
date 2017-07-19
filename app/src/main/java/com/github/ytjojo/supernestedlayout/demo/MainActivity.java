@@ -7,7 +7,6 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.ytjojo.supernestedlayout.OnLoadListener;
+import com.github.ytjojo.supernestedlayout.RefreshFooterBehavior;
 import com.github.ytjojo.supernestedlayout.RefreshHeaderBehavior;
 import com.github.ytjojo.supernestedlayout.SuperNestedLayout;
 import com.github.ytjojo.supernestedlayout.demo.nobehavior.SimpleActivty;
@@ -93,7 +93,21 @@ public class MainActivity extends AppCompatActivity
                     }
                 },3000);
             }
-        });;
+        });
+        final View footer = findViewById(R.id.refreshFooter);
+        lp = (SuperNestedLayout.LayoutParams) footer.getLayoutParams();
+        final RefreshFooterBehavior behavior = (RefreshFooterBehavior) lp.getBehavior();
+        behavior.setOnLoadListener(new OnLoadListener() {
+            @Override
+            public void onLoad() {
+                footer.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        behavior.setRefreshComplete();
+                    }
+                },2000);
+            }
+        });
 
     }
 

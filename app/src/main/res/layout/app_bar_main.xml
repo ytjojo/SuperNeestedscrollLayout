@@ -220,5 +220,14 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_dialog_email"/>
-
+    <com.github.ytjojo.supernestedlayout.view.DefultRefreshView
+        android:id="@+id/refreshFooter"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:fitsSystemWindows="false"
+        app:anchorGravity="right|top"
+        app:waveColor="#60FF4081"
+        app:isShowWave="true"
+        app:behavior="com.github.ytjojo.supernestedlayout.RefreshFooterBehavior"/>
 </com.github.ytjojo.supernestedlayout.SuperNestedLayout>
