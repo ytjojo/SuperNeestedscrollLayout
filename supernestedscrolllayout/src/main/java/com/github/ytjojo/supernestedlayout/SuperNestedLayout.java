@@ -53,6 +53,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.ytjojo.supernestedlayout.ViewGroupUtil.hasChildWithZ;
+
 /**
  * Created by Administrator on 2016/12/22 0022.
  */
@@ -482,12 +484,12 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
 
 
         }
-//        stopNestedScroll();
         mNestedScrollingDirectChild = null;
         mNestedScrollingTarget = null;
         mNestedScrollInProgress = false;
         mSkipNestedPreScrollFling = false;
         mAlreadyDispatchFling = false;
+        stopNestedScroll();
     }
 
     private boolean mSkipNestedPreScrollFling;
@@ -783,21 +785,42 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         int childCount = getChildCount();
         boolean isAccepted =false;
         Behavior accepteBehavior = null;
-        for (int i = childCount -1; i >=0; i--) {
-            View child = getChildAt(i);
-            if(child.getVisibility() ==GONE){
-                continue;
-            }
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            Behavior viewBehavior = lp.getBehavior();
-            if (viewBehavior != null) {
-                viewBehavior.onStartDrag(this,child,mInitialTouchX,mInitialTouchY,isAccepted,accepteBehavior);
-                boolean behaviorAccepted = viewBehavior.isAcceptedDrag;
-                if(behaviorAccepted){
-                    accepteBehavior = viewBehavior;
+        ArrayList<View> orderedList= buildTouchDispatchChildList();
+        if(orderedList !=null){
+            int size = orderedList.size();
+            for (int i = size-1; i >= 0 ; i--) {
+                View child = orderedList.get(i);
+                if(child.getVisibility() !=VISIBLE){
+                    continue;
                 }
-                isAccepted |=behaviorAccepted;
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                Behavior viewBehavior = lp.getBehavior();
+                if (viewBehavior != null) {
+                    viewBehavior.onStartDrag(this,child,mInitialTouchX,mInitialTouchY,isAccepted,accepteBehavior);
+                    boolean behaviorAccepted = viewBehavior.isAcceptedDrag;
+                    if(behaviorAccepted){
+                        accepteBehavior = viewBehavior;
+                    }
+                    isAccepted |=behaviorAccepted;
+                }
+            }
+        }else{
+            for (int i = childCount -1; i >=0; i--) {
+                View child = getChildAt(i);
+                if(child.getVisibility() ==GONE){
+                    continue;
+                }
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                Behavior viewBehavior = lp.getBehavior();
+                if (viewBehavior != null) {
+                    viewBehavior.onStartDrag(this,child,mInitialTouchX,mInitialTouchY,isAccepted,accepteBehavior);
+                    boolean behaviorAccepted = viewBehavior.isAcceptedDrag;
+                    if(behaviorAccepted){
+                        accepteBehavior = viewBehavior;
+                    }
+                    isAccepted |=behaviorAccepted;
 
+                }
             }
         }
     }
@@ -1682,6 +1705,34 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
         }
     }
 
+    ArrayList<View> mPreSortedChildren;
+    public ArrayList<View> buildTouchDispatchChildList(){
+        final int childrenCount = this.getChildCount();
+        final boolean customOrder = isChildrenDrawingOrderEnabled();
+        if (childrenCount <= 1 || (!hasChildWithZ(this) && !customOrder )) return null;
+        if (mPreSortedChildren == null) {
+            mPreSortedChildren = new ArrayList<>(childrenCount);
+        } else {
+            // callers should clear, so clear shouldn't be necessary, but for safety...
+            mPreSortedChildren.clear();
+            mPreSortedChildren.ensureCapacity(childrenCount);
+        }
+
+        for (int i = 0; i < childrenCount; i++) {
+            // add next child (in child order) to end of list
+            final int childIndex = customOrder?this.getChildDrawingOrder(childrenCount, i):i;
+            final View nextChild = getChildAt(childIndex);
+            final float currentZ = nextChild.getZ();
+
+            // insert ahead of any Views with greater Z
+            int insertIndex = i;
+            while (insertIndex > 0 && mPreSortedChildren.get(insertIndex - 1).getZ() > currentZ) {
+                insertIndex--;
+            }
+            mPreSortedChildren.add(insertIndex, nextChild);
+        }
+        return mPreSortedChildren;
+    }
     /**
      * Set a drawable to draw in the insets area for the status bar.
      * Note that this will only be activated if this DrawerLayout fitsSystemWindows.

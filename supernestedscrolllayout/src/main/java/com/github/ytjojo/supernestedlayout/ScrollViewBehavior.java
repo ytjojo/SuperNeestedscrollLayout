@@ -379,13 +379,10 @@ public class ScrollViewBehavior <V extends View> extends Behavior<V> {
     private int mMaxDragRange;
     @Override
     public void onStartDrag(SuperNestedLayout superNestedLayout, V child, int mInitialTouchX, int mInitialTouchY, boolean acceptedByAnother, Behavior accepteBehavior) {
-
         if(acceptedByAnother){
-            if(accepteBehavior !=null&&accepteBehavior instanceof ScrollViewBehavior){
-            }else{
+            if(accepteBehavior !=null&&accepteBehavior instanceof BottomSheetBehavior){
                 return;
             }
-
         }
         mViewOffsetHelper.stopScroll();
         this.setCanAcceptedDrag(true);
