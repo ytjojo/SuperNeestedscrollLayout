@@ -16,6 +16,8 @@
 
 bin
 
+.gradle
+
 coverage
 
 coverage.ec
@@ -46,8 +48,6 @@ target
 
 build
 
-.gradle
-
 .idea/*
 
 .idea
@@ -55,8 +55,6 @@ build
 *bat
 
 *.iml
-
-gradle
 
 out
 
