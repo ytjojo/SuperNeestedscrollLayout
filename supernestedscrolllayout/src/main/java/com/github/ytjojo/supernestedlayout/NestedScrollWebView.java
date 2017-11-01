@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.webkit.WebView;
 
-public class NestedScrollWebView extends WebView implements NestedScrollingChild {
+public class  NestedScrollWebView extends WebView implements NestedScrollingChild {
 
     public static final String TAG = NestedScrollWebView.class.getSimpleName();
 

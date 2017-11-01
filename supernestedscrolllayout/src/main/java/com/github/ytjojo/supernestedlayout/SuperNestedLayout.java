@@ -1033,9 +1033,6 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
          * @see View#setMinimumHeight(int)
          */
         public static final int SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED = 0x8;
-        /**
-         * 用于header 当 onNestedScroll dy<0 没有被其他view 消耗
-         */
 
 
         /**
