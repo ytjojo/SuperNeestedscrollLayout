@@ -27,7 +27,7 @@ public class NestScorllActivity extends AppCompatActivity {
                     public void run() {
                         headerBehavior.setRefreshComplete();
                     }
-                },40000);
+                },3000);
             }
         });
 

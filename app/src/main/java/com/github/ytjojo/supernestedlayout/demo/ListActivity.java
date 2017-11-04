@@ -37,7 +37,7 @@ public class ListActivity extends AppCompatActivity {
                     public void run() {
                         behavior.setRefreshComplete();
                     }
-                },4000);
+                },2000);
             }
         });
         mList = new ArrayList<>();

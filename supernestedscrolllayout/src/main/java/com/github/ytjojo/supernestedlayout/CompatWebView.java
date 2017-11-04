@@ -21,6 +21,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.orhanobut.logger.Logger;
+
 public class CompatWebView extends WebView implements NestedScrollingChild {
 
     private static final int INVALID_POINTER = -1;
@@ -213,7 +215,7 @@ public class CompatWebView extends WebView implements NestedScrollingChild {
         if (y <= 0) {
             this.position = ScrollState.TOP;
 
-        }else if (y + this.webviewHeight >= this.contentHeight) {
+         }else if (y + this.webviewHeight >= this.contentHeight-1) {
             if (this.contentHeight > 0) {
                 this.position = ScrollState.BOTTOM;
             }
