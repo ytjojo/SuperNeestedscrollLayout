@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.github.ytjojo.supernestedlayout.OnLoadListener;
 import com.github.ytjojo.supernestedlayout.RefreshFooterBehavior;
@@ -19,6 +20,7 @@ import com.github.ytjojo.supernestedlayout.SuperNestedLayout;
  */
 
 public class ViewPagerRefreshActivity extends AppCompatActivity {
+    TextView mTvPosition;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +54,7 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
                 },2000);
             }
         });
+        mTvPosition = (TextView) findViewById(R.id.tv_position);
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         viewPager.setAdapter(new PagerAdapter() {
             @Override
@@ -77,6 +80,22 @@ public class ViewPagerRefreshActivity extends AppCompatActivity {
             @Override
             public void destroyItem(ViewGroup container, int position, Object object) {
                 container.removeView((View) object);
+            }
+        });
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mTvPosition.setText("positoon"+position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
     }

@@ -30,13 +30,30 @@
        />
 
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewPager"
+
+    <FrameLayout
+        android:id="@+id/header_framelayout"
         android:layout_width="match_parent"
         android:layout_height="230dp"
         app:drawingOrderElevation="2dp"
         app:controlBehaviorName="ScrollViewBehavior"
-        app:statusBarScrim="?attr/colorPrimary"/>
+        app:statusBarScrim="?attr/colorPrimary"
+       >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            />
+        <TextView
+
+            android:id="@+id/tv_position"
+            android:layout_gravity="center"
+            android:text="this is viewpager,you can scroll horizontal"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:textSize="17sp"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
 
 
     <ImageView
@@ -46,7 +63,8 @@
         android:elevation="6dp"
         android:scaleType="centerCrop"
         android:src="@drawable/quila"
-        app:anchor="@id/viewPager"
+        app:anchor="@id/header_framelayout"
+        app:behavior="com.github.ytjojo.supernestedlayout.FloatActionButtonBehavior"
         app:anchorGravity="right|bottom"/>
     <LinearLayout
         android:visibility="gone"

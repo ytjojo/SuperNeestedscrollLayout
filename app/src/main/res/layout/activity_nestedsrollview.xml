@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#eeeeee"
     android:fitsSystemWindows="true">
 
     <com.github.ytjojo.supernestedlayout.demo.RefreshHeaderLoadingView
@@ -21,7 +20,7 @@
         android:id="@+id/tv_header"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="#ff0000"
+        android:background="#FFFFFFFF"
         android:fitsSystemWindows="false"
         android:gravity="center"
         android:minHeight="?attr/actionBarSize"
@@ -36,13 +35,15 @@
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
         android:src="@drawable/quila"
+        app:drawingOrderElevation="6dp"
         app:anchor="@id/tv_header"
+        app:behavior="com.github.ytjojo.supernestedlayout.FloatActionButtonBehavior"
         app:anchorGravity="right|bottom"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#90ffffff"
+        android:background="#FFffffee"
         android:fitsSystemWindows="true"
         app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
@@ -175,7 +176,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:background="#70fff000"
+        android:background="#FFfff000"
         android:gravity="center"
         android:text="这是中间"
         android:textSize="30dp"
@@ -184,7 +185,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EEffffff"
+        android:background="#FFffEEff"
         app:behavior="com.github.ytjojo.supernestedlayout.ScrollViewBehavior"
         app:controlBehaviorName="ScrollViewBehavior"
         >
@@ -317,7 +318,7 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="#f2e4e4"
+        android:background="#FF00e4e4"
         android:gravity="center"
         android:fitsSystemWindows="false"
         android:minHeight="50dp"
