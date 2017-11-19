@@ -48,10 +48,13 @@ public abstract class Behavior<V extends View> {
     public void setMaxScrollY(int maxScrollY) {
         mMaxScrollValue = maxScrollY;
     }
-
+    public void onDetachedFromWindow(SuperNestedLayout superNestedLayout, V child) {
+    }
     public void onNestedScrollAccepted(SuperNestedLayout superNestedLayout, V child,
                                        View directTargetChild, View target, int nestedScrollAxes) {
     }
+
+
 
     public void onStopNestedScroll(SuperNestedLayout superNestedLayout, V child, View directTargetChild, View target) {
         // Do nothing

@@ -121,6 +121,23 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
                 defStyleAttr, R.style.Widget_Design_SuperNestedLayout);
         mStatusBarBackground = a.getDrawable(R.styleable.SuperNestedScrollLayout_statusBarBackground);
         a.recycle();
+        dispatchOnRemoveChild();
+    }
+    private void dispatchOnRemoveChild(){
+        setOnHierarchyChangeListener(new OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+                SuperNestedLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                if(lp.getBehavior() != null){
+                    lp.getBehavior().onDetachedFromWindow(SuperNestedLayout.this,child);
+                }
+            }
+        });
     }
 
     private boolean isLolipop = Build.VERSION.SDK_INT >= 21;
@@ -141,6 +158,15 @@ public class SuperNestedLayout extends FrameLayout implements NestedScrollingChi
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mNestedParentAcepted = false;
+        int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = getChildAt(i);
+            SuperNestedLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if(lp.getBehavior() != null){
+                lp.getBehavior().onDetachedFromWindow(this,child);
+            }
+        }
+
     }
 
     @Override

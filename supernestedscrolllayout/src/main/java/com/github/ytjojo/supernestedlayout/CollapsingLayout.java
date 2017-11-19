@@ -1246,9 +1246,10 @@ public class CollapsingLayout extends FrameLayout {
                 int curY = (int) ViewCompat.getTranslationY(child);
                 switch (lp.mCollapseMode) {
                     case LayoutParams.COLLAPSE_MODE_PIN:
-                        int ss =  getMaxOffsetForPinChild(child);
                         if(verticalOffset >=0){
                             ViewCompat.setTranslationY(child,CollapsingTextHelper.constrain(verticalOffset, -mOverScrollDistance, getMaxOffsetForPinChild(child)));
+                        }else {
+                            ViewCompat.setTranslationY(child,verticalOffset);
                         }
                         break;
                     case LayoutParams.COLLAPSE_MODE_PARALLAX:
